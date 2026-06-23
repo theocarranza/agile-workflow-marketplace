@@ -16,7 +16,7 @@
 
 ## File Structure
 
-```
+```text
 agile-workflow-marketplace/
 ├── .claude-plugin/marketplace.json          ← Task 2
 ├── README.md                                ← Task 8
@@ -36,6 +36,7 @@ agile-workflow-marketplace/
 ```
 
 Responsibilities:
+
 - **marketplace.json** — lists the one plugin; entry point for `/plugin marketplace add`.
 - **plugin.json** — plugin identity + version.
 - **decomposition-rules.md** — hierarchy, DoR, 1-Story=1-sprint=1-PR sizing, story-point heuristic.
@@ -49,19 +50,23 @@ Responsibilities:
 ## Task 1: Initialize repo + .gitignore
 
 **Files:**
+
 - Create: `.gitignore`
 
 - [ ] **Step 1: Init the git repo**
 
 Run:
+
 ```bash
 cd ~/Documents/Projects/Personal/agile-workflow-marketplace && git init
 ```
+
 Expected: `Initialized empty Git repository in .../agile-workflow-marketplace/.git/`
 
 - [ ] **Step 2: Write `.gitignore`**
 
 Create `.gitignore`:
+
 ```gitignore
 .DS_Store
 *.log
@@ -73,9 +78,11 @@ node_modules/
 - [ ] **Step 3: Verify the repo is clean and docs/ is already present**
 
 Run:
+
 ```bash
 cd ~/Documents/Projects/Personal/agile-workflow-marketplace && git status --short && ls docs/
 ```
+
 Expected: `.gitignore` and `docs/` show as untracked; `docs/` lists `design.md` and `plans/`.
 
 - [ ] **Step 4: Commit**
@@ -91,11 +98,13 @@ git commit -m "chore: initialize agile-workflow-marketplace repo with design + p
 ## Task 2: Marketplace manifest
 
 **Files:**
+
 - Create: `.claude-plugin/marketplace.json`
 
 - [ ] **Step 1: Write the marketplace manifest**
 
 Create `.claude-plugin/marketplace.json`:
+
 ```json
 {
   "name": "agile-workflow-marketplace",
@@ -116,18 +125,22 @@ Create `.claude-plugin/marketplace.json`:
 - [ ] **Step 2: Validate JSON parses**
 
 Run:
+
 ```bash
 cd ~/Documents/Projects/Personal/agile-workflow-marketplace && python3 -m json.tool .claude-plugin/marketplace.json > /dev/null && echo VALID
 ```
+
 Expected: `VALID`
 
 - [ ] **Step 3: Assert the plugin source path will exist**
 
 Run:
+
 ```bash
 cd ~/Documents/Projects/Personal/agile-workflow-marketplace && python3 -c "import json;d=json.load(open('.claude-plugin/marketplace.json'));print(d['plugins'][0]['source'])"
 ```
-Expected: `./agile-workflow`  (the dir is created in Task 3)
+
+Expected: `./agile-workflow` (the dir is created in Task 3)
 
 - [ ] **Step 4: Commit**
 
@@ -142,11 +155,13 @@ git commit -m "feat: add marketplace manifest listing agile-workflow plugin"
 ## Task 3: Plugin manifest
 
 **Files:**
+
 - Create: `agile-workflow/.claude-plugin/plugin.json`
 
 - [ ] **Step 1: Write the plugin manifest**
 
 Create `agile-workflow/.claude-plugin/plugin.json`:
+
 ```json
 {
   "name": "agile-workflow",
@@ -161,14 +176,17 @@ Create `agile-workflow/.claude-plugin/plugin.json`:
 - [ ] **Step 2: Validate JSON parses**
 
 Run:
+
 ```bash
 cd ~/Documents/Projects/Personal/agile-workflow-marketplace && python3 -m json.tool agile-workflow/.claude-plugin/plugin.json > /dev/null && echo VALID
 ```
+
 Expected: `VALID`
 
 - [ ] **Step 3: Assert version parity with marketplace entry**
 
 Run:
+
 ```bash
 cd ~/Documents/Projects/Personal/agile-workflow-marketplace
 python3 -c "
@@ -179,6 +197,7 @@ assert m==p, f'version mismatch: marketplace={m} plugin={p}'
 print('PARITY', p)
 "
 ```
+
 Expected: `PARITY 0.1.0`
 
 - [ ] **Step 4: Commit**
@@ -194,11 +213,13 @@ git commit -m "feat: add agile-workflow plugin manifest"
 ## Task 4: Reference — decomposition-rules.md
 
 **Files:**
+
 - Create: `agile-workflow/skills/decompose-backlog/references/decomposition-rules.md`
 
 - [ ] **Step 1: Write the decomposition rules (self-contained)**
 
 Create `agile-workflow/skills/decompose-backlog/references/decomposition-rules.md`:
+
 ```markdown
 # Decomposition Rules
 
@@ -206,12 +227,13 @@ Self-contained rules for splitting a parent work item into Stories. These travel
 so it needs no host-repo docs to function.
 
 ## Backlog hierarchy
-
 ```
+
 Epic
-  └─ Feature
-       └─ Story  (User Story / Bug / Tech Debt / Spike)  ← the unit you create here
-            └─ Task
+└─ Feature
+└─ Story (User Story / Bug / Tech Debt / Spike) ← the unit you create here
+└─ Task
+
 ```
 
 - A **Story** is executable work that fits one sprint and yields exactly **1 Pull Request**.
@@ -266,6 +288,7 @@ backlog-strategy guides. Values marked "default" / "confirm with host team" are 
 - [ ] **Step 2: Assert the file carries the non-negotiable markers**
 
 Run:
+
 ```bash
 cd ~/Documents/Projects/Personal/agile-workflow-marketplace
 f=agile-workflow/skills/decompose-backlog/references/decomposition-rules.md
@@ -273,6 +296,7 @@ for marker in "1 Story = 1 sprint = 1 PR" "never the Epic" "6-driver MAX" "Defin
   grep -qF "$marker" "$f" && echo "OK: $marker" || { echo "MISSING: $marker"; exit 1; }
 done
 ```
+
 Expected: four `OK:` lines, no `MISSING`.
 
 - [ ] **Step 3: Commit**
@@ -288,12 +312,14 @@ git commit -m "feat: add self-contained decomposition rules reference"
 ## Task 5: Reference — ticket-structure.md
 
 **Files:**
+
 - Create: `agile-workflow/skills/decompose-backlog/references/ticket-structure.md`
 
 - [ ] **Step 1: Write the ticket structure + hook constraints**
 
 Create `agile-workflow/skills/decompose-backlog/references/ticket-structure.md`:
-```markdown
+
+````markdown
 # Ticket Structure & Draft Constraints
 
 How each Story draft is written so it (a) passes the host vault's hooks and (b) carries the
@@ -309,7 +335,7 @@ is a default, not a hard requirement.
 ```yaml
 ---
 date: <YYYY-MM-DD>
-type: ticket            # REQUIRED — the frontmatter hook rejects drafts missing `type`
+type: ticket # REQUIRED — the frontmatter hook rejects drafts missing `type`
 work_item_type: User Story
 parent_feature: <feature-id>
 parent_epic: <epic-id>
@@ -317,6 +343,7 @@ azure_id: <assigned-after-creation>
 tags: [ticket, user-story, ...]
 ---
 ```
+````
 
 **Hard constraint:** do NOT include a `status:` key — the originating vault's hook forbids `status`
 in `Tickets/`. Lifecycle lives in Azure, not in frontmatter.
@@ -351,7 +378,8 @@ team's language (originating team uses pt-BR):
 - No decision-making/meta in the body. An unresolved choice becomes an `@TODO (decide in breakdown)`
   annotation, never prose pretending to be a requirement.
 - Focus on the WHAT and WHERE (area/module), never invent the HOW.
-```
+
+````
 
 - [ ] **Step 2: Assert hook constraints are present**
 
@@ -362,7 +390,8 @@ f=agile-workflow/skills/decompose-backlog/references/ticket-structure.md
 for marker in "forbids \`status\`" "^(\\d+|tech-debt|bug|task|spike)" "type: ticket" "Descrição Original"; do
   grep -qF "$marker" "$f" && echo "OK: $marker" || { echo "MISSING: $marker"; exit 1; }
 done
-```
+````
+
 Expected: four `OK:` lines.
 
 - [ ] **Step 3: Commit**
@@ -378,12 +407,14 @@ git commit -m "feat: add ticket-structure reference with hook constraints"
 ## Task 6: References — azure-mechanics.md + audit-checklist.md
 
 **Files:**
+
 - Create: `agile-workflow/skills/decompose-backlog/references/azure-mechanics.md`
 - Create: `agile-workflow/skills/decompose-backlog/references/audit-checklist.md`
 
 - [ ] **Step 1: Write azure-mechanics.md (the two gotchas)**
 
 Create `agile-workflow/skills/decompose-backlog/references/azure-mechanics.md`:
+
 ```markdown
 # Azure DevOps Mechanics
 
@@ -392,6 +423,7 @@ The exact MCP calls and the traps that bite if you skip them. These are invarian
 ## Create a Story
 
 Use `wit_create_work_item` (project = host's Azure project; repo context as needed):
+
 - `workItemType: "User Story"` (or Bug/Tech Debt/Spike).
 - **Description in Markdown format** — Markdown descriptions render fenced ASCII diagrams. Plain-text
   format mangles them.
@@ -400,19 +432,23 @@ Use `wit_create_work_item` (project = host's Azure project; repo context as need
 ## Link to parent — TWO GOTCHAS
 
 ### Gotcha 1 — always pass an explicit `type`
+
 `wit_work_items_link` **defaults to `type: "related"`.** Omitting `type` silently creates a wrong
 **Related** link instead of a parent link. ALWAYS pass `type: "parent"` explicitly.
 
 ### Gotcha 2 — a Story's parent is its FEATURE, not the Epic
+
 Link the Story to the **Feature id**, never the Epic id. Skipping the Feature level breaks the
 Epic→Feature→Story chain. If you have been handling the Epic id all session, do not reflexively reuse
 it here — the parent is the Feature.
 
 Fix sequence if a wrong link was made:
 ```
-wit_work_item_unlink   id=<story> type=related      # remove the stray Related link
-wit_work_item_unlink   id=<story> type=parent       # remove a wrong parent (e.g. → Epic)
-wit_work_items_link    id=<story> linkToId=<feature> type=parent
+
+wit_work_item_unlink id=<story> type=related # remove the stray Related link
+wit_work_item_unlink id=<story> type=parent # remove a wrong parent (e.g. → Epic)
+wit_work_items_link id=<story> linkToId=<feature> type=parent
+
 ```
 
 ## Rendering rules
@@ -429,6 +465,7 @@ sole hierarchy relation is Parent → the Feature. A failed assertion STOPS the 
 - [ ] **Step 2: Write audit-checklist.md (Phase 7)**
 
 Create `agile-workflow/skills/decompose-backlog/references/audit-checklist.md`:
+
 ```markdown
 # Audit Checklist (Phase 7)
 
@@ -436,12 +473,15 @@ Run AFTER all Stories are created and structurally verified. Retrieve each work 
 Azure** (not the local draft) — the draft is what you meant to send; the Azure item is what landed.
 
 ## a) Fidelity
+
 - [ ] The Azure description matches the approved enriched draft (no truncation, no MCP re-encoding).
 - [ ] ASCII diagrams render intact.
 - [ ] Story points and tags persisted.
 
 ## b) Coverage (the safeguard against silent requirement loss)
+
 Build a parent-requirement → Story map:
+
 - [ ] Every requirement / acceptance criterion in the PARENT text maps to ≥1 child Story.
 - [ ] Flag any **orphan requirement** (in the parent, in no Story) — a dropped requirement.
 - [ ] Flag any **unanchored Story scope** (in a Story, not in the parent) — scope creep.
@@ -449,13 +489,16 @@ Build a parent-requirement → Story map:
 Emit the map as a requirement-by-requirement pass/gap report.
 
 ## c) Definition of Ready
+
 For each Story:
+
 - [ ] Clear-objective title.
 - [ ] Detailed description.
 - [ ] Story points set.
 - [ ] Parented to the Feature.
 
 ## Outcome
+
 - All pass → report the coverage map and stop.
 - Any gap → STOP and report; do not patch silently.
 ```
@@ -463,6 +506,7 @@ For each Story:
 - [ ] **Step 3: Assert both files carry their non-negotiable markers**
 
 Run:
+
 ```bash
 cd ~/Documents/Projects/Personal/agile-workflow-marketplace
 a=agile-workflow/skills/decompose-backlog/references/azure-mechanics.md
@@ -473,6 +517,7 @@ grep -qF "ASCII diagrams only" "$a" && echo "OK render" || { echo MISSING render
 grep -qF "fresh from" "$b" && echo "OK fresh" || { echo MISSING fresh; exit 1; }
 grep -qF "orphan requirement" "$b" && echo "OK coverage" || { echo MISSING coverage; exit 1; }
 ```
+
 Expected: five `OK` lines.
 
 - [ ] **Step 4: Commit**
@@ -489,11 +534,13 @@ git commit -m "feat: add azure-mechanics + audit-checklist references"
 ## Task 7: SKILL.md — the conductor
 
 **Files:**
+
 - Create: `agile-workflow/skills/decompose-backlog/SKILL.md`
 
 - [ ] **Step 1: Write SKILL.md**
 
 Create `agile-workflow/skills/decompose-backlog/SKILL.md`:
+
 ```markdown
 ---
 name: decompose-backlog
@@ -524,6 +571,7 @@ as each phase needs them — they carry the self-contained rules so this file st
 textbook.
 
 References (in `references/`):
+
 - `decomposition-rules.md` — hierarchy, sizing (1 Story = 1 sprint = 1 PR), story-point heuristic, DoR.
 - `ticket-structure.md` — draft format + vault hook constraints (frontmatter, filename regex).
 - `azure-mechanics.md` — create/link MCP calls + the two linking gotchas + rendering rules.
@@ -536,6 +584,7 @@ A parent work item **id** (Epic or Feature). Optional: target iteration, story-p
 ## Phases
 
 ### 1. INGEST
+
 Read the parent via `wit_get_work_item` (expand relations). Capture the original text VERBATIM, its
 acceptance criteria, and the parent chain. Read any linked spike/wiki. Determine parent type.
 **Branch:** if the parent is an **Epic**, STOP and ask whether to create intervening Feature(s) first
@@ -543,34 +592,41 @@ or target an existing child Feature (see decomposition-rules.md → Parent-type 
 attach to an Epic.
 
 ### 2. DECOMPOSE
+
 Apply the sizing rule and story-point heuristic from `decomposition-rules.md`. Produce an ordered list
 of Story stubs (title + one-line scope + dependencies), each tracing to a verbatim slice of the parent.
 **── GATE 1 —** present the split and WAIT for explicit approval before drafting anything.
 
 ### 3. DRAFT
+
 Per approved stub, write a vault draft per `ticket-structure.md` — hook-valid frontmatter (`type`, no
 `status`), filename regex with the Feature-id prefix, the 7 body sections. Content hygiene applies.
 
 ### 4. ENRICH
+
 Tighten each draft to the team format: WHAT not HOW, ASCII diagrams, de-dup (each fact once),
 story-point justification with the per-driver MAX. The enriched body IS the exact Azure description.
 **── GATE 2 —** show the final body and WAIT for thumbs-up before any Azure write.
 
 ### 5. CREATE
+
 Per `azure-mechanics.md`: `wit_create_work_item` with **Markdown** description; then
 `wit_work_items_link` with **explicit `type: "parent"`** to the **FEATURE id**. Honor both gotchas.
 
 ### 6. VERIFY (structural)
+
 Read each created item back; assert `System.Parent == <feature id>` and the Epic→Feature→Story chain.
 Reconcile vault frontmatter with the Azure-assigned id (rename file, set `azure_id`). A failed
 assertion STOPS the run.
 
 ### 7. AUDIT (content + coverage)
+
 Run `audit-checklist.md`: retrieve each item FRESH from Azure; check fidelity, build the
 parent-requirement → Story coverage map (flag orphans and scope creep), confirm DoR. Emit the coverage
 report. Any gap STOPS and reports — no silent patching.
 
 ## Operating rules
+
 - Two hard gates (after DECOMPOSE, after ENRICH). Never write to the vault or Azure without the
   matching approval.
 - Every Azure-mutating step is followed by a read-back assertion.
@@ -580,6 +636,7 @@ report. Any gap STOPS and reports — no silent patching.
 - [ ] **Step 2: Validate frontmatter parses as YAML**
 
 Run:
+
 ```bash
 cd ~/Documents/Projects/Personal/agile-workflow-marketplace
 python3 -c "
@@ -593,11 +650,13 @@ except ImportError:
     assert 'name: decompose-backlog' in fm; print('yaml module absent; name line present')
 "
 ```
+
 Expected: `YAML OK; name= decompose-backlog` (or the fallback line).
 
 - [ ] **Step 3: Assert every reference file named in SKILL.md exists**
 
 Run:
+
 ```bash
 cd ~/Documents/Projects/Personal/agile-workflow-marketplace
 d=agile-workflow/skills/decompose-backlog
@@ -606,11 +665,13 @@ for ref in decomposition-rules ticket-structure azure-mechanics audit-checklist;
     && echo "OK $ref" || { echo "BROKEN REF $ref"; exit 1; }
 done
 ```
+
 Expected: four `OK` lines — every reference mentioned resolves to a file.
 
 - [ ] **Step 4: Assert the 7 phases and 2 gates are present**
 
 Run:
+
 ```bash
 cd ~/Documents/Projects/Personal/agile-workflow-marketplace
 f=agile-workflow/skills/decompose-backlog/SKILL.md
@@ -618,6 +679,7 @@ for p in INGEST DECOMPOSE DRAFT ENRICH CREATE VERIFY AUDIT "GATE 1" "GATE 2"; do
   grep -qF "$p" "$f" && echo "OK $p" || { echo "MISSING $p"; exit 1; }
 done
 ```
+
 Expected: nine `OK` lines.
 
 - [ ] **Step 5: Commit**
@@ -633,21 +695,24 @@ git commit -m "feat: add decompose-backlog SKILL.md conductor (7 phases, 2 gates
 ## Task 8: README + final repo validation
 
 **Files:**
+
 - Create: `README.md`
 
 - [ ] **Step 1: Write the README**
 
 Create `README.md`:
+
 ```markdown
 # agile-workflow-marketplace
 
 A standalone Claude Code plugin marketplace for Agile backlog workflows against Azure DevOps.
 
 ## Install
-
 ```
+
 /plugin marketplace add <path-or-git-url-to-this-repo>
 /plugin install agile-workflow
+
 ```
 
 ## Plugin: `agile-workflow`
@@ -676,6 +741,7 @@ See `docs/design.md` for the full design and `docs/plans/` for the implementatio
 - [ ] **Step 2: Full-repo validation — all JSON valid, all skill files present**
 
 Run:
+
 ```bash
 cd ~/Documents/Projects/Personal/agile-workflow-marketplace
 python3 -m json.tool .claude-plugin/marketplace.json > /dev/null && \
@@ -683,16 +749,19 @@ python3 -m json.tool agile-workflow/.claude-plugin/plugin.json > /dev/null && \
 test -f agile-workflow/skills/decompose-backlog/SKILL.md && \
 ls agile-workflow/skills/decompose-backlog/references/*.md | wc -l
 ```
+
 Expected: prints `4` (four reference files), no JSON errors.
 
 - [ ] **Step 3: Assert the marketplace `source` dir actually contains a plugin manifest**
 
 Run:
+
 ```bash
 cd ~/Documents/Projects/Personal/agile-workflow-marketplace
 src=$(python3 -c "import json;print(json.load(open('.claude-plugin/marketplace.json'))['plugins'][0]['source'])")
 test -f "$src/.claude-plugin/plugin.json" && echo "SOURCE OK: $src"
 ```
+
 Expected: `SOURCE OK: ./agile-workflow`
 
 - [ ] **Step 4: Commit**
@@ -712,9 +781,11 @@ git commit -m "docs: add marketplace README"
 - [ ] **Step 1: Add the marketplace locally**
 
 In Claude Code:
+
 ```
 /plugin marketplace add ~/Documents/Projects/Personal/agile-workflow-marketplace
 ```
+
 Expected: marketplace `agile-workflow-marketplace` registers, listing one plugin `agile-workflow`.
 
 - [ ] **Step 2: Install the plugin**
@@ -722,6 +793,7 @@ Expected: marketplace `agile-workflow-marketplace` registers, listing one plugin
 ```
 /plugin install agile-workflow
 ```
+
 Expected: install succeeds; no manifest errors.
 
 - [ ] **Step 3: Confirm the skill is discoverable**
@@ -736,6 +808,7 @@ cd ~/Documents/Projects/Personal/agile-workflow-marketplace
 git tag v0.1.0
 git log --oneline
 ```
+
 Expected: clean linear history of the commits above; `v0.1.0` tag on the tip.
 
 ---
@@ -743,6 +816,7 @@ Expected: clean linear history of the commits above; `v0.1.0` tag on the tip.
 ## Self-Review
 
 **Spec coverage** (design.md → tasks):
+
 - Purpose / self-contained rules → Tasks 4–6 (references), Task 7 (conductor). ✓
 - 7 phases + 2 gates → Task 7 SKILL.md, asserted in Task 7 Step 4. ✓
 - Guardrails (both linking gotchas, hook constraints, rendering, hygiene) → Task 5 + Task 6, asserted. ✓
@@ -751,7 +825,7 @@ Expected: clean linear history of the commits above; `v0.1.0` tag on the tip.
 - Packaging (marketplace mirror of spike-workflow) → Tasks 1–3, 8; install gate Task 9. ✓
 - Portability note (configurable seams) → encoded in references as "default/seam" wording (Tasks 4,5). ✓
 
-**Placeholder scan:** no TBD/TODO left as plan instructions; the only `@TODO` is *content of a rule*
+**Placeholder scan:** no TBD/TODO left as plan instructions; the only `@TODO` is _content of a rule_
 (how to annotate unresolved ticket choices), which is intended. ✓
 
 **Type/name consistency:** plugin name `agile-workflow`, skill `decompose-backlog`, four reference
@@ -762,4 +836,7 @@ SKILL.md `allowed-tools`, and the validation greps. ✓
 **Note on validation medium:** there is no runtime under test, so steps use JSON-parse + structural
 grep + a live `/plugin install` gate instead of unit tests — appropriate for a markdown/manifest
 deliverable.
+
+```
+
 ```
