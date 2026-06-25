@@ -26,7 +26,7 @@ Conductor for turning a parent work item into child Stories in Azure DevOps. Loa
 as each phase needs them — they carry the self-contained rules so this file stays a score, not a
 textbook.
 
-References (in `references/`):
+References (in `../../references/`):
 - `decomposition-rules.md` — hierarchy, sizing (1 Story = 1 sprint = 1 PR), story-point heuristic, DoR.
 - `ticket-structure.md` — draft format + vault hook constraints (frontmatter, filename regex).
 - `azure-mechanics.md` — create/link MCP calls + the two linking gotchas + rendering rules.
