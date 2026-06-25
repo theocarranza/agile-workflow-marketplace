@@ -14,12 +14,14 @@ invocable at any time.
 ## Scope
 
 **In:**
+
 - Validating vault drafts (by file path) and live Azure work items (by ID)
 - All three artifact types: Epic, Feature, User Story
 - Four check categories: structural, hierarchy, content quality, Definition of Ready
 - Terminal report + persisted vault note
 
 **Out:**
+
 - Batch validation (one artifact per invocation)
 - Auto-fixing findings — report only, no mutations to the artifact
 - Sprint planning or estimation ceremony
@@ -35,7 +37,7 @@ The skill is a thin conductor over four ordered phases. All checks are non-block
 one check does not skip subsequent checks. The full finding set is collected before any output is
 emitted.
 
-```
+```text
 1. INGEST     Determine source type from the invocation argument:
                 vault draft  → read the markdown file; parse frontmatter + body sections.
                 Azure ID     → fetch work item via wit_get_work_item MCP call.
@@ -107,7 +109,7 @@ emitted.
 Rules are maintained once at the plugin level and read by both skills. They are not duplicated
 inside `validate-artifact/references/` — only skill-specific reference files live there.
 
-```
+```text
 agile-workflow/
 ├── references/                         ← shared, single source of truth
 │   ├── decomposition-rules.md          ← hierarchy, DoR, sizing, story-point heuristic
@@ -131,10 +133,12 @@ change.
 ## Inputs / outputs
 
 **Inputs**
+
 - Required: one of — a vault draft file path OR an Azure work item ID
 - Implicit context: Azure project + repo; vault `Agent_Reports/` location
 
 **Outputs**
+
 1. Terminal report — findings grouped by category, overall outcome line
 2. Vault note — `Agent_Reports/YYYY-MM-DD-validate-<id>.md`, frontmatter-valid
 

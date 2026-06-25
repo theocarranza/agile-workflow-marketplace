@@ -1,13 +1,13 @@
 ---
 date: 2026-06-25
 type: agent-session
-status: open
+status: closed
 ---
 
 # Session: split-story skill design
 
 **Previous Session:** [[2026-06-25-143000-validate-artifact-skill]]
-**Next Session:** (none yet)
+**Next Session:** [[2026-06-25-190000-plugin-update-q]]
 
 **Scope:** Brainstorm and spec the `split-story` skill — lateral story sizing, split pattern detection, scoring, coverage check, and handoff menu.
 

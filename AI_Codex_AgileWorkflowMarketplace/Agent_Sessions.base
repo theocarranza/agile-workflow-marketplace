@@ -1,0 +1,21 @@
+filters:
+  and:
+    - type == "agent-session"
+views:
+  - type: table
+    name: Open Sessions
+    filters:
+      and:
+        - status == "open"
+    order:
+      - file.link
+      - date
+      - status
+      - file.mtime
+  - type: table
+    name: All Sessions
+    order:
+      - file.link
+      - date
+      - status
+      - file.mtime

@@ -1,0 +1,33 @@
+filters:
+  and:
+    - type == "ticket"
+views:
+  - type: table
+    name: Active
+    filters:
+      and:
+        - file.folder == "Tickets/Active"
+    order:
+      - file.link
+      - area
+      - stack
+      - file.mtime
+  - type: table
+    name: Ready
+    filters:
+      and:
+        - file.folder == "Tickets/Ready"
+    order:
+      - file.link
+      - area
+      - stack
+      - file.ctime
+  - type: table
+    name: Closed
+    filters:
+      and:
+        - file.folder == "Tickets/Closed"
+    order:
+      - file.link
+      - area
+      - file.mtime

@@ -1,0 +1,208 @@
+{
+  "main": {
+    "id": "8e8f68eda7ac0793",
+    "type": "split",
+    "children": [
+      {
+        "id": "ad7f3460954955f7",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2b5f60e96a57a8e8",
+            "type": "leaf",
+            "state": {
+              "type": "bases",
+              "state": {
+                "file": "Features.base",
+                "viewName": "All Features"
+              },
+              "icon": "lucide-table",
+              "title": "Features"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "1155f863fef60ed3",
+    "type": "split",
+    "children": [
+      {
+        "id": "682afd76abae9f58",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "31983fd0c0997959",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "2d9db18fae3cb07f",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "9f9b5269cb2c849b",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "bebc7e38b4cc0622",
+    "type": "split",
+    "children": [
+      {
+        "id": "ec0df9786ab15053",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c0ff782429a91f6f",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Features.base",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Features"
+            }
+          },
+          {
+            "id": "40bcceb88b6372b5",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Features.base",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Features"
+            }
+          },
+          {
+            "id": "adfd52929e9fde58",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "557a2dd29d6df08b",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "d370c9229f9a6885",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Features.base",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of Features"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "2b5f60e96a57a8e8",
+  "lastOpenFiles": [
+    "Agent_Sessions/2026-06-25-200000-validate-artifact-run.md",
+    "Agent_Sessions/2026-06-25-200000-validate-artifact-run.md.tmp.188733.7eb61ac567b4",
+    "Agent_Sessions/2026-06-25-190000-plugin-update-q.md.tmp.188733.2009f736e358",
+    "Agent_Sessions/2026-06-25-190000-plugin-update-q.md.tmp.188733.5bb1453df282",
+    "Agent_Sessions/2026-06-25-190000-plugin-update-q.md",
+    "Agent_Sessions/2026-06-25-190000-plugin-update-q.md.tmp.187321.2b175579467b",
+    "Agent_Sessions/2026-06-25-160000-split-story-design.md.tmp.187321.b1938c41af10",
+    "Agent_Sessions/2026-06-25-160000-split-story-design.md.tmp.187321.28a8e10ea0a5",
+    "2026-06-25.md",
+    "Features.base",
+    "Features/split-story.md",
+    "Features/split-story.md.tmp.174741.f8fd106c9da0",
+    "Agent_Sessions/2026-06-25-160000-split-story-design.md",
+    "Agent_Sessions/2026-06-25-160000-split-story-design.md.tmp.174741.1cc352cde97b",
+    "Knowledge/Agent Orientation.md",
+    "Agent_Sessions.base",
+    "README.md",
+    "Agent_Sessions/2026-06-25-143000-validate-artifact-skill.md",
+    "Agent_Sessions/README.md",
+    "Features/validate-artifact.md"
+  ]
+}

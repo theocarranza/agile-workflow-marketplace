@@ -71,6 +71,17 @@ CRUD Operation, Data Variation.
 Trigger: "split this story", "is this story too big?", "analyze this story for sizing", or supply
 a vault path / Azure ID / file path / raw text.
 
+### Skill: `auto-fix-artifact`
+
+Validates a single agile artifact and offers an auto-fix workflow if issues are found. It uses the `validate-artifact` quality gates and applies fixes based on the same reference rules.
+
+1. **INGEST AND VALIDATE** — Parses the input from Azure, Vault, or raw text and runs the `validate-artifact` checks.
+2. **DECISION GATE** — If issues are found, shows the report and asks for permission to automatically fix them.
+3. **AUTO-FIX** — Systematically addresses each FAIL and WARN result: adding missing frontmatter, appending required body sections, analyzing complexity to suggest story points, correcting parent links, and cleaning up placeholder content.
+4. **OUTPUT & PERSIST** — Shows the corrected artifact and offers to save it directly to Azure DevOps (via MCP) or back to the local vault.
+
+Trigger: "fix this artifact", "auto-fix the ticket", or supply a vault path / Azure ID / file path / raw text.
+
 ## Shared references
 
 All skills share a common reference library at `agile-workflow/references/`:
