@@ -10,7 +10,8 @@ sub-stories and hands them off. It operates at the Story-to-Story level, complem
 ## Scope
 
 **In:**
-- Vault draft (file path) or live Azure work item (ID) as input
+
+- Vault draft (file path), live Azure work item (ID), arbitrary file system path, or raw text pasted inline as input
 - Point calculation using the 6-driver MAX heuristic (Escopo, Incerteza, Integrações, Dados, QA, Rollout)
 - Discrepancy detection: if declared points differ from calculated, flag and ask user which to trust
 - Spike detection: if Incerteza is the dominant driver, recommend a Spike instead of a scope split
@@ -20,6 +21,7 @@ sub-stories and hands them off. It operates at the Story-to-Story level, complem
 - Handoff menu: keep drafts / create in Azure / discard
 
 **Out:**
+
 - Splitting Epics or Features (Story level only)
 - Batch processing multiple stories per run
 - Sprint planning or velocity tracking
@@ -35,10 +37,12 @@ linking mechanics; flexible on judgment calls within pattern detection and story
 The skill is a conductor over five ordered phases. Two hard gates protect the vault and Azure
 from unapproved writes.
 
-```
+```text
 1. INGEST     Determine source from the argument:
-                vault draft  → read the markdown file; parse frontmatter + body.
-                Azure ID     → fetch via wit_get_work_item (expand relations).
+                vault draft      → read the markdown file; parse frontmatter + body.
+                Azure ID         → fetch via wit_get_work_item (expand relations).
+                file system path → read the file from disk; parse as markdown.
+                raw text         → use the pasted content directly.
               Normalize into a unified artifact record:
                 { title, body, story_points, acceptance_criteria,
                   parent_feature, azure_id, source }
@@ -71,11 +75,11 @@ from unapproved writes.
               Branch C — Split:
                 split_count = ceil(active_points / ceiling).
                 Auto-select split pattern from split-patterns.md:
-                  - Workflow step  — sequential steps detected in body or AC
-                  - Business rule  — multiple distinct rules/conditions in AC
+                  - Workflow step     — sequential steps detected in body or AC
+                  - Business rule     — multiple distinct rules/conditions in AC
                   - Happy/unhappy path — success + error/edge flows present
-                  - CRUD operation  — create/read/update/delete operations present
-                  - Data variation  — different entity types or input variations
+                  - CRUD operation    — create/read/update/delete operations present
+                  - Data variation    — different entity types or input variations
 
                 Show pattern reasoning: one sentence per candidate pattern
                 considered; one winner with justification.
@@ -91,9 +95,9 @@ from unapproved writes.
               following ticket-structure.md:
                 - Hook-valid frontmatter: type present, status absent,
                   filename regex with parent Feature id prefix.
-                - All 7 body sections: 🎯 O quê / 💡 Por quê /
-                  📋 Comportamento esperado / ✅ Critérios de Aceite /
-                  🔧 Notas Técnicas / 📊 Complexidade / 📄 Descrição Original.
+                - All 7 body sections: O quê / Por quê / Comportamento esperado /
+                  Critérios de Aceite / Notas Técnicas / Complexidade /
+                  Descrição Original.
                 - Descrição Original traces to the exact slice of the original
                   story's AC that this sub-story covers.
 
@@ -119,6 +123,7 @@ from unapproved writes.
 ## Shared references (plugin level)
 
 Read from `../../references/` — not duplicated in this skill:
+
 - `decomposition-rules.md` — 6-driver MAX heuristic, story-point ceiling, DoR, hierarchy rules
 - `ticket-structure.md` — body sections, frontmatter constraints, content hygiene
 - `azure-mechanics.md` — MCP calls, linking gotchas, rendering rules
@@ -126,17 +131,20 @@ Read from `../../references/` — not duplicated in this skill:
 ## Skill-specific references
 
 New files under `./references/`:
+
 - `split-patterns.md` — catalog of split patterns with detection signals and example applications
 - `scoring-guide.md` — 6-driver scoring table, ceiling logic, spike detection rule, discrepancy handling
 
 ## Inputs / outputs
 
-**Inputs**
-- Required: one of — vault draft file path OR Azure work item ID
+### Inputs
+
+- Required: one of — vault draft path, Azure work item ID, file system path, or raw text pasted inline
 - Optional: story-point ceiling override (default 5)
 - Implicit context: Azure project + repo; vault `Tickets/Ready/` location
 
-**Outputs**
+### Outputs
+
 1. Score report — driver breakdown, calculated vs. declared (if applicable), active points used
 2. Split plan — pattern, reasoning, count, titles + scope (shown at Gate 1)
 3. Vault drafts in `Tickets/Ready/` — hook-valid, all 7 sections, coverage-verified
@@ -144,17 +152,17 @@ New files under `./references/`:
 
 ## Relationship to sibling skills
 
-| Dimension | `decompose-backlog` | `validate-artifact` | `split-story` |
-|---|---|---|---|
-| Direction | Feature → Stories | Any artifact, read-only | Story → Stories |
-| Scoring | DoR check only | DoR check | Full 6-driver calculation |
-| Split patterns | N/A | N/A | Auto-detected |
-| Azure writes | Yes (core flow) | Never | Optional (HANDOFF) |
-| Gates | 2 (decompose, enrich) | None | 2 (split plan, handoff) |
+| Dimension      | `decompose-backlog`      | `validate-artifact`  | `split-story`            |
+| -------------- | ------------------------ | -------------------- | ------------------------ |
+| Direction      | Feature → Stories        | Any artifact, r/o    | Story → Stories          |
+| Scoring        | DoR check only           | DoR check            | Full 6-driver calculation |
+| Split patterns | N/A                      | N/A                  | Auto-detected            |
+| Azure writes   | Yes (core flow)          | Never                | Optional (HANDOFF)       |
+| Gates          | 2 (decompose, enrich)    | None                 | 2 (split plan, handoff)  |
 
 ## File layout
 
-```
+```text
 agile-workflow/
 ├── references/                          ← shared (existing)
 │   ├── decomposition-rules.md
