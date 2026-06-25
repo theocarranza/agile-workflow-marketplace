@@ -5,9 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - 2026-06-03
+## [0.1.0] - 2026-06-25
 
 ### Added
+
 - Standalone Claude Code plugin marketplace configuration ([marketplace.json](file:///.claude-plugin/marketplace.json)).
 - `agile-workflow` plugin directory with manifest listing ([plugin.json](file:///agile-workflow/.claude-plugin/plugin.json)).
 - `decompose-backlog` skill with a structured conductor ([SKILL.md](file:///agile-workflow/skills/decompose-backlog/SKILL.md)) outlining the 7 agile decomposition phases and 2 approval gates (INGEST, DECOMPOSE, DRAFT, ENRICH, CREATE, VERIFY, AUDIT).
