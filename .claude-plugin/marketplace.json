@@ -7,8 +7,8 @@
     {
       "name": "agile-workflow",
       "source": "./agile-workflow",
-      "description": "Agile backlog workflow skills for Azure DevOps. First skill, decompose-backlog: takes a parent work item (Epic/Feature), splits it into right-sized Stories (1 Story = 1 sprint = 1 PR), drafts and enriches them, creates them in Azure DevOps correctly parented to the Feature, then audits requirement coverage. Self-contained decomposition rules + Azure linking guardrails.",
-      "version": "0.1.0"
+      "description": "Agile backlog workflow skills for Azure DevOps. Skills: decompose-backlog (Feature → Stories), validate-artifact (quality gate), split-story (Story → Stories). Shared decomposition rules, Azure linking guardrails, and vault draft mechanics.",
+      "version": "0.2.0"
     }
   ]
 }

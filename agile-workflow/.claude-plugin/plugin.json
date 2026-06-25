@@ -1,7 +1,7 @@
 {
   "name": "agile-workflow",
-  "version": "0.1.0",
-  "description": "Agile backlog workflow skills for Azure DevOps. decompose-backlog: parent work item (Epic/Feature) → right-sized, enriched, correctly-parented Stories, with requirement-coverage audit. Self-contained rules + Azure linking guardrails.",
+  "version": "0.2.0",
+  "description": "Agile backlog workflow skills for Azure DevOps. Skills: decompose-backlog (Feature → Stories), validate-artifact (quality gate on any artifact), split-story (Story → Stories with 6-driver scoring and pattern detection). Shared rules + Azure linking guardrails.",
   "author": {
     "name": "Théo Carranza"
   }
