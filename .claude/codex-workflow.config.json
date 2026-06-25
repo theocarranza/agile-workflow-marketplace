@@ -13,7 +13,9 @@
       ".agent/**",
       "docs/**",
       ".superpowers/sdd/**",
-      "**/SKILL.md"
+      "**/SKILL.md",
+      "agile-workflow/references/**",
+      "agile-workflow/skills/**/references/**"
     ]
   }
 }

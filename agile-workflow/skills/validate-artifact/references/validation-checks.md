@@ -1,7 +1,7 @@
 # Validation Check Catalog
 
 Full set of checks run by the `validate-artifact` skill, organized by category and artifact type.
-Each check emits: `{ name, result: PASS|FAIL|WARN, detail }`.
+Each check emits: `{ name, result: PASS|FAIL|WARN|SKIP, detail }`.
 
 ## a) STRUCTURAL
 
@@ -56,7 +56,7 @@ Failures are logged and validation continues to the next check.
 | Check | Condition | Result |
 |---|---|---|
 | `content-no-machine-paths` | Body does not contain absolute filesystem paths — pattern: `/home/`, `/Users/`, `C:\`, `D:\` | WARN if found |
-| `content-no-meta-prose` | Body does not contain `TBD`, `to be defined`, or `a definir` outside `@TODO` annotation context | WARN if found |
+| `content-no-meta-prose` | Body does not contain placeholder prose (`TBD`, `to be defined`, `a definir`) outside `@TODO` annotation context | WARN if found |
 
 ## d) DoR (Definition of Ready)
 
@@ -67,4 +67,4 @@ Applied to all artifact types unless noted.
 | `dor-title-clear` | Title non-empty and word count > 5 | FAIL if not met |
 | `dor-description-present` | Body / description field non-empty | FAIL if not met |
 | `dor-story-points-set` *(User Story only)* | Story points > 0 | FAIL if not met |
-| `dor-linked-to-feature` *(User Story only)* | Reuses result of `hierarchy-story-parent-is-feature` — no extra MCP call | FAIL if that check failed |
+| `dor-linked-to-feature` *(User Story only)* | Reuses result of `hierarchy-story-parent-is-feature` — no extra MCP call | FAIL if that check failed or was skipped |
