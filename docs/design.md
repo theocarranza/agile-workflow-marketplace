@@ -1,11 +1,5 @@
 # Design — `decompose-backlog` skill (`agile-workflow` plugin)
 
-> Status: approved design, pre-implementation.
-> Date: 2026-06-03.
-> Origin: distilled from the live session that decomposed Azure DevOps Feature 6868
-> ("Infraestrutura testes e2e Maestro", Epic 6858) into User Stories and created the
-> first one (#6870) in Azure DevOps.
-
 ## Purpose
 
 A **self-contained, standalone** Claude Code skill that drives the full arc of turning a
