@@ -1,0 +1,19 @@
+{
+  "codex": {
+    "folder": "AI_Codex_AgileWorkflowMarketplace",
+    "bootstrap": [
+      "README.md",
+      "Knowledge/Agent Orientation.md"
+    ]
+  },
+  "markdownAllowlist": {
+    "patterns": [
+      "CLAUDE.md",
+      "GEMINI.md",
+      ".agent/**",
+      "docs/**",
+      ".superpowers/sdd/**",
+      "**/SKILL.md"
+    ]
+  }
+}
