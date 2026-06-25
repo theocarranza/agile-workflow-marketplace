@@ -234,8 +234,11 @@ For each sub-story draft (in order):
    `parent_feature_id`.
 4. Read back: `wit_get_work_item(id=<new_id>, expand=relations)`.
    Assert `System.Parent == parent_feature_id`.
-   If assertion fails: STOP and report
-   `LINK ASSERTION FAILED for <title>: expected parent <parent_feature_id>, got <actual>`.
+   Assert that the relations array contains no `System.LinkTypes.Related` links
+   (no stray Related links from prior failed runs).
+   If either assertion fails: STOP and report
+   `LINK ASSERTION FAILED for <title>: expected parent <parent_feature_id>, got <actual>`
+   or `STRAY RELATED LINKS for <title>: <links found>`.
 5. Update vault draft frontmatter: set `azure_id: <new_id>`. Rename file to
    `<new_id>-<slug>.md`.
 
