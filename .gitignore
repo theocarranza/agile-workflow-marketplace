@@ -4,3 +4,7 @@
 .vscode/
 node_modules/
 .superpowers/
+__pycache__/
+*.pyc
+.agentic/workflow_prompts/*.prompt.md
+.agentic/workflow_prompts/*.error.log

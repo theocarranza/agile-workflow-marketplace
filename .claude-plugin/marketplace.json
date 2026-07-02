@@ -8,7 +8,7 @@
       "name": "agile-workflow",
       "source": "./agile-workflow",
       "description": "Agile backlog workflow skills for Azure DevOps. Skills: decompose-backlog (Feature → Stories), validate-artifact (quality gate), auto-fix-artifact (validate + auto-correct), split-story (Story → Stories). Shared rules + Azure linking guardrails.",
-      "version": "0.3.0"
+      "version": "0.4.0"
     }
   ]
 }

@@ -74,8 +74,19 @@ If given multiple IDs or paths: process only the first and warn —
 
 ## PHASE 2 — VALIDATE
 
+**Prefer the deterministic orchestrator** (rule-based critic — no LLM self-judgment):
+
+```bash
+bin/agile-workflow validate --file <path> [--persist]
+# or quality-gate with mailbox error log:
+bin/agile-workflow evaluate --skill validate-artifact --file <path>
+```
+
+The Python critic implements every check in `./references/validation-checks.md`. On failure,
+`evaluate` writes `.agentic/workflow_prompts/validate-artifact.error.log` for `correcao` resume.
+
 Read `./references/validation-checks.md` for the complete check definitions, conditions, and
-FAIL/WARN thresholds before running checks.
+FAIL/WARN thresholds before running checks manually.
 
 Run all four categories in order. Each check emits `{ name, result, detail }`.
 No check halts sibling or subsequent checks on failure. Collect all findings.

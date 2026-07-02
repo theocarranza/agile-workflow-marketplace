@@ -35,7 +35,16 @@ References (from `validate-artifact` skill, in `../validate-artifact/references/
    - If Azure ID: fetch via `wit_get_work_item(id=<id>, expand=relations)`.
    - If file path: read the markdown file.
    - If pasted string: parse as raw text.
-2. **Validate:** Execute the full `validate-artifact` logic (Structural, Hierarchy, Content, DoR) silently to collect all FAIL and WARN results.
+2. **Validate:** Run the orchestrator critic (do not self-judge):
+
+```bash
+bin/agile-workflow evaluate --skill auto-fix-artifact --file <path>
+# or MCP tool: agile-workflow-orchestrator → auto-fix-artifact with draft_content
+```
+
+For reflection retries, resubmit revised `draft_content` via MCP or re-run `evaluate` after saving.
+Circuit breaker trips after 3 attempts or identical critiques → `blocked_requires_review`.
+Resume only after human types `IMPLEMENTATION APPROVED` (or `ORCHESTRATOR_INTERACTIVE=1` CLI).
 3. **Report:** Display the validation report to the user on the screen.
 
 ---
