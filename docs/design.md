@@ -138,21 +138,26 @@ separately. Layout mirrors the sibling `spike-workflow-marketplace`:
 agile-workflow-marketplace/
 ├── .claude-plugin/marketplace.json      ← lists the plugin
 ├── README.md
-├── .gitignore
-├── docs/design.md                       ← this document
+├── CHANGELOG.md
+├── bin/agile-workflow                   ← orchestrator CLI (v0.4.0+)
+├── docs/design.md                       ← decompose-backlog design
+├── docs/orchestrator.md                 ← orchestrator runtime (v0.4.0+)
 └── agile-workflow/
     ├── .claude-plugin/plugin.json
-    └── skills/decompose-backlog/
-        ├── SKILL.md                      ← the conductor (7 phases, gates, guardrails)
-        └── references/                   ← self-contained rules, split out to keep SKILL.md lean
-            ├── decomposition-rules.md    ← hierarchy, DoR, sizing, story-point heuristic
-            ├── ticket-structure.md       ← vault draft format + hook constraints
-            ├── azure-mechanics.md        ← create/link MCP calls, linking gotchas, rendering
-            └── audit-checklist.md        ← fidelity / coverage / DoR checks
+    ├── orchestrator_core/               ← Python event-sourced runtime
+    ├── references/                      ← shared rules (all skills)
+    └── skills/
+        ├── decompose-backlog/
+        ├── validate-artifact/
+        ├── split-story/
+        └── auto-fix-artifact/
 ```
 
 Installable via `/plugin marketplace add`. The `agile-workflow` plugin name leaves room for
 sibling skills later (refinement, sprint planning, standalone backlog audit).
+
+As of **v0.4.0**, the plugin also ships a deterministic Python orchestrator for
+`validate-artifact` and `auto-fix-artifact`. See [orchestrator.md](./orchestrator.md).
 
 ## Non-goals / YAGNI
 

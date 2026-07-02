@@ -2,12 +2,27 @@
 
 A standalone Claude Code plugin marketplace for Agile backlog workflows against Azure DevOps.
 
+**Current version:** `agile-workflow` **v0.4.0** — four skills plus a deterministic Python orchestrator for quality gates.
+
 ## Install
 
 ```text
 /plugin marketplace add <path-or-git-url-to-this-repo>
 /plugin install agile-workflow
 ```
+
+## Orchestrator (v0.4.0+)
+
+Quality-gate skills use a **rule-based Python critic** — not LLM self-judgment. The orchestrator
+implements the Actor-Critic pattern with circuit breaker and filesystem mailbox IPC.
+
+```bash
+./bin/agile-workflow init
+./bin/agile-workflow validate --file path/to/draft.md --persist
+./bin/agile-workflow evaluate --skill validate-artifact --file path/to/draft.md
+```
+
+Full reference: [docs/orchestrator.md](docs/orchestrator.md).
 
 ## Plugin: `agile-workflow`
 
@@ -36,6 +51,12 @@ See `docs/design.md` for the full design and `docs/plans/` for the implementatio
 Quality gate for a single agile artifact (Epic, Feature, or User Story). Accepts a vault draft
 path or live Azure DevOps work item ID. Runs all checks non-blocking and emits a terminal report
 plus a persisted vault note. One artifact per invocation.
+
+**Prefer the orchestrator critic:**
+
+```bash
+./bin/agile-workflow validate --file <path> [--persist]
+```
 
 Four check categories:
 
@@ -73,12 +94,15 @@ a vault path / Azure ID / file path / raw text.
 
 ### Skill: `auto-fix-artifact`
 
-Validates a single agile artifact and offers an auto-fix workflow if issues are found. It uses the `validate-artifact` quality gates and applies fixes based on the same reference rules.
+Validates a single agile artifact and offers an auto-fix workflow if issues are found. Uses
+`validate-artifact` quality gates via the orchestrator critic, then applies fixes with user consent.
 
-1. **INGEST AND VALIDATE** — Parses the input from Azure, Vault, or raw text and runs the `validate-artifact` checks.
-2. **DECISION GATE** — If issues are found, shows the report and asks for permission to automatically fix them.
-3. **AUTO-FIX** — Systematically addresses each FAIL and WARN result: adding missing frontmatter, appending required body sections, analyzing complexity to suggest story points, correcting parent links, and cleaning up placeholder content.
-4. **OUTPUT & PERSIST** — Shows the corrected artifact and offers to save it directly to Azure DevOps (via MCP) or back to the local vault.
+1. **INGEST AND VALIDATE** — orchestrator runs rule-based checks (`evaluate` CLI or MCP).
+2. **DECISION GATE** — if issues found, show report and ask permission to fix.
+3. **AUTO-FIX** — address each FAIL/WARN (frontmatter, sections, complexity, story points, hygiene).
+4. **OUTPUT & PERSIST** — show corrected artifact; save to Azure or vault on approval.
+
+Circuit breaker: 3 retries or identical critiques → human `IMPLEMENTATION APPROVED` to resume.
 
 Trigger: "fix this artifact", "auto-fix the ticket", or supply a vault path / Azure ID / file path / raw text.
 
@@ -92,3 +116,17 @@ All skills share a common reference library at `agile-workflow/references/`:
 | `ticket-structure.md` | Body sections, frontmatter constraints, content hygiene |
 | `azure-mechanics.md` | MCP calls, linking gotchas, rendering rules |
 | `audit-checklist.md` | Coverage checking and audit rules |
+
+## Documentation
+
+| Document | Contents |
+| --- | --- |
+| [docs/design.md](docs/design.md) | `decompose-backlog` skill design |
+| [docs/orchestrator.md](docs/orchestrator.md) | Deterministic orchestrator runtime (v0.4.0+) |
+| [CHANGELOG.md](CHANGELOG.md) | Release history |
+
+## Development
+
+```bash
+PYTHONPATH=agile-workflow python3 -m unittest discover -s test -v
+```
