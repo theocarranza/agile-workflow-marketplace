@@ -42,7 +42,7 @@ Added to all skills:
 compatibility: <MCP and vault requirements>
 metadata:
   plugin: agile-workflow
-  version: "0.4.0"
+  version: "0.5.0"
 ```
 
 ## Intentional extensions (keep)
@@ -60,10 +60,10 @@ metadata:
 
 | Item | Priority | Status |
 | --- | --- | --- |
-| `license` frontmatter | low | **Blocked** — no repo `LICENSE` file yet; add SPDX before Open Skills publish |
+| `license` frontmatter | low | **Done** — MIT `LICENSE` + `license: MIT` on all five skills |
 | Per-skill `scripts/` | low | **Done** — `bin/agile-workflow` documented as plugin script root in README |
 | `skills-ref validate` CI | low | **Done** — `scripts/validate-skills.sh` |
-| Open Skills listing | medium | **Drafted** — [[Open Skills Catalog Cards]]; manual publish pending |
+| Open Skills listing | medium | **Ready** — [[Open Skills Catalog Cards]]; tag release + first `npx skills add` install |
 | `metadata.orchestrator-skill` | low | **Done** — validate-artifact, auto-fix-artifact; generate-work-item has `orchestrator-manifest` |
 
 ## Directory layout (current vs spec)
@@ -77,6 +77,10 @@ agile-workflow/
 ├── references/             # plugin-shared (documented exception)
 ├── orchestrator_core/      # plugin runtime
 └── .claude-plugin/         # marketplace packaging
+
+# Marketplace repo root (discovery surface for skills.sh / openskills.cc)
+skills/<name>/              # symlinks → agile-workflow/skills/<name>/
+skills.sh.json              # skills.sh repo page grouping
 ```
 
 ## Progressive disclosure compliance

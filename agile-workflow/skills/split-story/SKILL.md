@@ -6,10 +6,11 @@ description: >
   hands them off. Use when the user asks "split this story", "is this story too big?",
   "analyze this story for sizing", or provides a vault path / Azure ID / file path / raw text
   and wants a split recommendation. One story per invocation.
+license: MIT
 compatibility: Requires Azure DevOps MCP and an AI Codex vault for draft handoff.
 metadata:
   plugin: agile-workflow
-  version: "0.4.0"
+  version: "0.5.0"
   disable-model-invocation: "true"
 allowed-tools: >
   Read Write Edit Glob Grep Bash

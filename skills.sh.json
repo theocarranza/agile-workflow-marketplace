@@ -1,0 +1,23 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Backlog",
+      "description": "Decompose parents, split oversized stories, and generate new work items.",
+      "skills": [
+        "decompose-backlog",
+        "split-story",
+        "generate-work-item"
+      ]
+    },
+    {
+      "title": "Quality gates",
+      "description": "Validate and auto-fix agile artifacts with the orchestrator critic.",
+      "skills": [
+        "validate-artifact",
+        "auto-fix-artifact"
+      ]
+    }
+  ]
+}

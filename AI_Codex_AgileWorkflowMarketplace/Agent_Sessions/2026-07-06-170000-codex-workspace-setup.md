@@ -68,3 +68,16 @@ status: open
 - Added `test/test_validate_skills.py` integration test.
 
 **Validation:** `./scripts/validate-skills.sh` — 5/5 pass; `PYTHONPATH=agile-workflow python3 -m unittest discover -s test -v` — 20/20 pass.
+
+## Implementation Checkpoint - 2026-07-06T23:00:00Z
+
+**Scope:** Registry discovery layout — LICENSE, root `skills/` symlinks, skills.sh.json, install commands.
+
+**Changes:**
+- Added MIT `LICENSE`; `license: MIT` on all five `SKILL.md` files.
+- Root `skills/<name>/` symlinks → `agile-workflow/skills/<name>/`.
+- Added `skills.sh.json` (Backlog + Quality gates groupings).
+- Updated README install tiers, catalog cards, adoption notes.
+- Added `test/test_skills_discovery.py`; `validate-skills.sh` validates root `skills/`.
+
+**Validation:** 22/22 tests pass; `skills-ref validate` on all root skills.

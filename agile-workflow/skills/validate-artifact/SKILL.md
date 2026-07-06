@@ -7,10 +7,11 @@ description: >
   quality report. Accepts a vault draft (file path) or a live Azure DevOps work item (ID). Runs
   all checks non-blocking and emits a terminal report + persisted vault note. One artifact per
   invocation.
+license: MIT
 compatibility: Requires Azure DevOps MCP and optional Python orchestrator CLI. Designed for Claude Code and Cursor.
 metadata:
   plugin: agile-workflow
-  version: "0.4.0"
+  version: "0.5.0"
   orchestrator-skill: "validate-artifact"
   disable-model-invocation: "true"
 allowed-tools: >

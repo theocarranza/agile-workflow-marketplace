@@ -7,10 +7,11 @@ description: >
   the user runs /generate-work-item, asks to "create a ticket", "create a user story", "create a
   feature", "create an epic", "create a task", or "generate a work item", or provides a work item
   type plus a problem description to turn into a backlog item.
+license: MIT
 compatibility: Requires Azure DevOps MCP, Context7 MCP, and an AI Codex vault with Specs/ and Tickets/ folders.
 metadata:
   plugin: agile-workflow
-  version: "0.4.0"
+  version: "0.5.0"
   orchestrator-manifest: "true"
   argument-hint: "--type <epic|feature|user-story|task> --idea \"...\" [--parent <id>] [--refs <url>...] [--spec <path|text>]"
 allowed-tools: >

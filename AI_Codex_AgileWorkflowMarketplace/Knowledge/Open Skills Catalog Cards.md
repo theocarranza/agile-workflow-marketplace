@@ -17,9 +17,13 @@ Copy-paste listing drafts for [openskills.cc](https://openskills.cc/) / OpenClaw
 | **Name** | agile-workflow |
 | **Category** | Development Tools / Productivity |
 | **Description** | Azure DevOps backlog workflow skills: decompose Features into Stories, validate and auto-fix artifacts, split oversized stories, generate Epics/Features/Stories/Tasks with Context7-backed specs. Deterministic Python orchestrator for quality gates. |
-| **Install** | `git clone https://github.com/theocarranza/agile-workflow-marketplace.git && cd agile-workflow-marketplace && ./install.sh` |
+| **Install (full plugin)** | `./install.sh -y --azure-org <org> --project-dir <path>` |
+| **Install (skills only)** | `npx skills add theocarranza/agile-workflow-marketplace` |
+| **Install (AGENTS.md agents)** | `npx openskills install theocarranza/agile-workflow-marketplace --universal && npx openskills sync -y` |
+| **Install (Claude Code)** | `/plugin install agile-workflow@agile-workflow-marketplace` |
 | **Requires** | Azure DevOps MCP, AI Codex vault, optional Context7 MCP |
 | **Standard** | [agentskills.io](https://agentskills.io/home) |
+| **License** | MIT |
 | **Skills** | 5 |
 
 ## Per-skill cards
@@ -56,9 +60,13 @@ Research tech stack (Context7), write `Specs/` note, draft enriched ticket, crea
 
 ## Publication checklist
 
-- [ ] Confirm repository `LICENSE` file (none at 2026-07-06 — add before listing)
+- [x] Confirm repository `LICENSE` file — MIT (2026-07-06)
+- [x] Root `skills/` discovery layout — symlinks to `agile-workflow/skills/`
+- [x] `skills.sh.json` grouping for [skills.sh](https://skills.sh/) repo page
 - [x] Run `./scripts/validate-skills.sh` — all pass (2026-07-06)
-- [ ] Submit bundle or per-skill folders to target registry
+- [ ] Tag release `v0.5.0` and push to GitHub
+- [ ] First `npx skills add theocarranza/agile-workflow-marketplace` install (triggers skills.sh indexing)
+- [ ] Wait for [openskills.cc](https://openskills.cc/skills) crawler to index public repo
 - [ ] Link back to [[Agent Skills Adoption Notes]]
 
 ## Related

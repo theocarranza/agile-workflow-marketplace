@@ -2,10 +2,11 @@
 name: auto-fix-artifact
 description: >
   Validates an agile artifact (Epic, Feature, or User Story) and automatically fixes any issues found. Accepts an Azure workitem ID, ledger document, filesystem reference, or pasted string. If validation passes, outputs the report. If validation fails, it shows the report, asks for permission to fix, systematically corrects each problem based on the quality gate rules, and offers to save the corrected version back to Azure or the ledger.
+license: MIT
 compatibility: Requires Azure DevOps MCP, validate-artifact orchestrator, and an AI Codex vault.
 metadata:
   plugin: agile-workflow
-  version: "0.4.0"
+  version: "0.5.0"
   orchestrator-skill: "auto-fix-artifact"
   disable-model-invocation: "true"
 allowed-tools: >
