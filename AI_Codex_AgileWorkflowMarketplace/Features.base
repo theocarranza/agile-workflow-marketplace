@@ -1,6 +1,24 @@
 filters:
   and:
-    - type == "feature"
+    - file.inFolder("Features")
+    - 'file.ext == "md"'
+
+formulas:
+  age_days: '(now() - file.ctime).days'
+  has_meta: 'if(type, "✅", "⚠️ no frontmatter")'
+
+properties:
+  skill:
+    displayName: Skill
+  plugin:
+    displayName: Plugin
+  shipped:
+    displayName: Shipped
+  formula.age_days:
+    displayName: "Age (d)"
+  formula.has_meta:
+    displayName: Meta
+
 views:
   - type: table
     name: All Features
@@ -9,4 +27,24 @@ views:
       - skill
       - plugin
       - shipped
+      - formula.age_days
+
+  - type: table
+    name: By skill
+    groupBy:
+      property: skill
+      direction: ASC
+    order:
+      - file.name
+      - plugin
+      - shipped
+      - formula.age_days
+
+  - type: table
+    name: Needs metadata
+    filters:
+      not:
+        - type
+    order:
+      - file.name
       - file.mtime
