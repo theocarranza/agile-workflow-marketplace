@@ -29,11 +29,19 @@ MCP (agile-workflow-orchestrator) ──┤
 
 ## Bootstrap
 
+**Recommended:** run the marketplace installer from the repo root (wires CLI, MCP, mailbox, and all detected agent hosts):
+
+```bash
+./install.sh
+```
+
+Registers **Claude Code**, **Cursor**, **Codex**, and **Antigravity** when their config directories are present. Use `--target cursor,codex` to limit hosts.
+
+Or scaffold only the mailbox in an already-wired project:
+
 ```bash
 ./bin/agile-workflow init
 ```
-
-Creates `.agentic/workflow_prompts/` and `AI_Codex_AgileWorkflowMarketplace/_mistakes/`.
 
 ## CLI commands
 

@@ -6,6 +6,38 @@ A standalone Claude Code plugin marketplace for Agile backlog workflows against 
 
 ## Install
 
+One command wires the plugin, orchestrator CLI, MCP servers, and project mailbox.
+You only provide your Azure DevOps org, project path, and vault folder name.
+
+```bash
+git clone https://github.com/theocarranza/agile-workflow-marketplace.git
+cd agile-workflow-marketplace
+./install.sh
+```
+
+Non-interactive:
+
+```bash
+./install.sh -y --azure-org <org-slug> --project-dir /path/to/your/project
+```
+
+The installer auto-detects your agent hosts (Claude Code, Cursor, Codex, Antigravity) and wires:
+
+- Plugin registration per host (skills + orchestrator + references)
+- `azure-devops` + `agile-workflow-orchestrator` MCP in project `.mcp.json` and `.cursor/mcp.json`
+- Global `agile-workflow` CLI at `~/.local/bin/`
+- Project mailbox (`.agentic/workflow_prompts/`) and vault `_mistakes/` repo
+
+Restart your agent host(s) after install to load skills and MCP servers.
+
+Limit to specific hosts:
+
+```bash
+./install.sh --target cursor,codex -y --azure-org <org> --project-dir .
+```
+
+Manual / Claude-only alternative:
+
 ```text
 /plugin marketplace add <path-or-git-url-to-this-repo>
 /plugin install agile-workflow
