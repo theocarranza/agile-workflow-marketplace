@@ -56,3 +56,15 @@ status: open
 - Updated `SKILL.md` PHASE 2–4 to load enrichers + spec templates per work item type.
 
 **Validation:** Enricher §output formats mapped to Epic/Feature/User Story/Task; spec pipeline precedes ticket draft.
+
+## Implementation Checkpoint - 2026-07-06T22:45:00Z
+
+**Scope:** Agent Skills adoption follow-ups — orchestrator metadata, batch validation, catalog cards, README.
+
+**Changes:**
+- Added `metadata.orchestrator-skill` to validate-artifact and auto-fix-artifact; `orchestrator-manifest` on generate-work-item.
+- Added `scripts/validate-skills.sh`; documented in README with `generate-work-item` section.
+- Drafted [[Open Skills Catalog Cards]]; updated [[Agent Skills Adoption Notes]] gap table.
+- Added `test/test_validate_skills.py` integration test.
+
+**Validation:** `./scripts/validate-skills.sh` — 5/5 pass; `PYTHONPATH=agile-workflow python3 -m unittest discover -s test -v` — 20/20 pass.

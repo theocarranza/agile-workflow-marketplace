@@ -57,7 +57,7 @@ Research tech stack (Context7), write `Specs/` note, draft enriched ticket, crea
 ## Publication checklist
 
 - [ ] Confirm repository `LICENSE` file (none at 2026-07-06 — add before listing)
-- [ ] Run `./scripts/validate-skills.sh` — all pass
+- [x] Run `./scripts/validate-skills.sh` — all pass (2026-07-06)
 - [ ] Submit bundle or per-skill folders to target registry
 - [ ] Link back to [[Agent Skills Adoption Notes]]
 
