@@ -2,9 +2,11 @@
 
 A standalone Claude Code plugin marketplace for Agile backlog workflows against Azure DevOps.
 
-**Current version:** `agile-workflow` **v0.4.0** — five skills plus a deterministic Python orchestrator for quality gates.
+**Current version:** `agile-workflow` **v0.5.0** — five skills plus a deterministic Python orchestrator for quality gates.
 
 ## Install
+
+### Full plugin (MCP + orchestrator + vault)
 
 One command wires the plugin, orchestrator CLI, MCP servers, and project mailbox.
 You only provide your Azure DevOps org, project path, and vault folder name.
@@ -19,6 +21,13 @@ Non-interactive:
 
 ```bash
 ./install.sh -y --azure-org <org-slug> --project-dir /path/to/your/project
+```
+
+Remote bootstrap (no manual clone):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/theocarranza/agile-workflow-marketplace/master/install.sh \
+  | bash -s -- -y --azure-org <org-slug> --project-dir /path/to/your/project
 ```
 
 The installer auto-detects your agent hosts (Claude Code, Cursor, Codex, Antigravity) and wires:
@@ -42,6 +51,23 @@ Manual / Claude-only alternative:
 /plugin marketplace add <path-or-git-url-to-this-repo>
 /plugin install agile-workflow
 ```
+
+### Skills only (registry install)
+
+Root `skills/` symlinks expose the five skills for [skills.sh](https://skills.sh/) and [openskills.cc](https://openskills.cc/skills) discovery:
+
+```bash
+npx skills add theocarranza/agile-workflow-marketplace
+```
+
+For agents that load `AGENTS.md` via [OpenSkills](https://www.npmjs.com/package/openskills):
+
+```bash
+npx openskills install theocarranza/agile-workflow-marketplace --universal
+npx openskills sync -y
+```
+
+Skills-only install copies `SKILL.md` folders — it does **not** wire MCP, orchestrator, or vault. Use `./install.sh` for the full stack.
 
 ## Orchestrator (v0.4.0+)
 
@@ -148,7 +174,7 @@ Trigger: `/generate-work-item`, "create a ticket/story/feature/epic/task", or su
 
 ## Agent Skills compliance
 
-Each skill follows the [Agent Skills open standard](https://agentskills.io/specification): `skills/<name>/SKILL.md` with `name`, `description`, optional `references/`, and progressive disclosure.
+Each skill follows the [Agent Skills open standard](https://agentskills.io/specification): root `skills/<name>/SKILL.md` (symlinked to `agile-workflow/skills/`) with `name`, `description`, `license`, optional `references/`, and progressive disclosure. Repo page grouping: `skills.sh.json`. Licensed under [MIT](LICENSE).
 
 Validate all skills:
 

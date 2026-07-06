@@ -7,11 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-06
+
 ### Added
 
-- `./install.sh` interactive installer: wires Claude Code, Cursor, Codex, and Antigravity plugins;
-  Azure DevOps MCP, orchestrator MCP, global CLI, project mailbox, and vault mistakes repo.
-  Auto-detects installed agent hosts; prompts only for Azure org, project path, and vault folder.
+- **`generate-work-item` skill**: Context7 research → vault `Specs/` note → enriched ticket draft →
+  Azure DevOps on approval (Epic / Feature / User Story / Task). Bundled enricher prompts and
+  type-specific spec blueprints.
+- **`./install.sh` installer**: wires Claude Code, Cursor, Codex, and Antigravity plugins; Azure
+  DevOps MCP, orchestrator MCP, global CLI, project mailbox, and vault mistakes repo.
+  Auto-detects agent hosts; non-interactive mode via `-y --azure-org --project-dir`.
+- **Agent Skills registry layout**: MIT `LICENSE`, root `skills/` symlinks to
+  `agile-workflow/skills/`, and `skills.sh.json` for [skills.sh](https://skills.sh/) discovery.
+- **`scripts/validate-skills.sh`**: batch `skills-ref validate` across all five skills.
+- **Codex plugin manifests** (`.codex-plugin/`, `agile-workflow/.codex-plugin/`).
+- Unit tests: `test/test_install.py`, `test/test_validate_skills.py`, `test/test_skills_discovery.py`.
+
+### Changed
+
+- All five `SKILL.md` files aligned with [agentskills.io](https://agentskills.io/specification):
+  `compatibility`, `license: MIT`, host-specific keys under `metadata`.
+- Orchestrator-backed skills declare `metadata.orchestrator-skill` (validate-artifact,
+  auto-fix-artifact) or `metadata.orchestrator-manifest` (generate-work-item).
+- README documents full-plugin, skills-only (`npx skills add`), and OpenSkills install paths.
+- Plugin version bumped to **0.5.0**.
 
 ## [0.4.0] - 2026-07-02
 
