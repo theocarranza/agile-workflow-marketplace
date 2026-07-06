@@ -2,7 +2,7 @@
 
 A standalone Claude Code plugin marketplace for Agile backlog workflows against Azure DevOps.
 
-**Current version:** `agile-workflow` **v0.4.0** — four skills plus a deterministic Python orchestrator for quality gates.
+**Current version:** `agile-workflow` **v0.4.0** — five skills plus a deterministic Python orchestrator for quality gates.
 
 ## Install
 
@@ -53,6 +53,8 @@ implements the Actor-Critic pattern with circuit breaker and filesystem mailbox 
 ./bin/agile-workflow validate --file path/to/draft.md --persist
 ./bin/agile-workflow evaluate --skill validate-artifact --file path/to/draft.md
 ```
+
+`bin/agile-workflow` is the plugin-level **scripts** entrypoint (Agent Skills `scripts/` equivalent at marketplace root). Orchestrator-backed skills declare `metadata.orchestrator-skill` in their `SKILL.md`.
 
 Full reference: [docs/orchestrator.md](docs/orchestrator.md).
 
@@ -138,6 +140,22 @@ Circuit breaker: 3 retries or identical critiques → human `IMPLEMENTATION APPR
 
 Trigger: "fix this artifact", "auto-fix the ticket", or supply a vault path / Azure ID / file path / raw text.
 
+### Skill: `generate-work-item`
+
+Generate an Epic, Feature, User Story, or Task from an idea: Context7 research → vault `Specs/` note → enriched ticket draft → Azure DevOps on approval. Uses host enricher prompts for ticket bodies.
+
+Trigger: `/generate-work-item`, "create a ticket/story/feature/epic/task", or supply type + description.
+
+## Agent Skills compliance
+
+Each skill follows the [Agent Skills open standard](https://agentskills.io/specification): `skills/<name>/SKILL.md` with `name`, `description`, optional `references/`, and progressive disclosure.
+
+Validate all skills:
+
+```bash
+./scripts/validate-skills.sh
+```
+
 ## Shared references
 
 All skills share a common reference library at `agile-workflow/references/`:
@@ -161,4 +179,5 @@ All skills share a common reference library at `agile-workflow/references/`:
 
 ```bash
 PYTHONPATH=agile-workflow python3 -m unittest discover -s test -v
+./scripts/validate-skills.sh
 ```
