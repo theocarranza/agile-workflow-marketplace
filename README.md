@@ -1,8 +1,22 @@
 # agile-workflow-marketplace
 
-A standalone Claude Code plugin marketplace for Agile backlog workflows against Azure DevOps.
+[![Release](https://img.shields.io/github/v/release/theocarranza/agile-workflow-marketplace?label=version&color=0e7c86)](https://github.com/theocarranza/agile-workflow-marketplace/releases)
+[![License: MIT](https://img.shields.io/github/license/theocarranza/agile-workflow-marketplace)](LICENSE)
+[![Skills](https://img.shields.io/badge/skills-5-2563eb)](skills/)
+[![Agent Skills](https://img.shields.io/badge/spec-agentskills.io-5C2D91)](https://agentskills.io/specification)
+[![skills.sh](https://img.shields.io/badge/listed-skills.sh-000000)](https://skills.sh/)
 
-**Current version:** `agile-workflow` **v0.5.0** — five skills plus a deterministic Python orchestrator for quality gates.
+[![Python](https://img.shields.io/badge/python-3.10+-3776AB?logo=python&logoColor=white)](agile-workflow/orchestrator_core/)
+[![Bash](https://img.shields.io/badge/bash-install.sh-4EAA25?logo=gnubash&logoColor=white)](install.sh)
+[![Markdown](https://img.shields.io/badge/format-SKILL.md-000000?logo=markdown)](https://agentskills.io/specification)
+[![Azure DevOps](https://img.shields.io/badge/Azure%20DevOps-MCP-0078D4?logo=azuredevops&logoColor=white)](.mcp.json)
+[![Obsidian](https://img.shields.io/badge/Obsidian-AI%20Codex%20vault-7C3AED&logo=obsidian)](AI_Codex_AgileWorkflowMarketplace/)
+[![MCP](https://img.shields.io/badge/MCP-orchestrator%20%2B%20azure--devops-ff6b35)](docs/orchestrator.md)
+
+
+A standalone multi-host plugin marketplace for Agile backlog workflows against **Azure DevOps**.
+
+Five [Agent Skills](https://agentskills.io/specification)-compliant conductors plus a deterministic **Python orchestrator** for quality gates. Ships Claude Code, Cursor, Codex, and Antigravity plugin manifests, MCP wiring, and an Obsidian vault ledger.
 
 ## Install
 
