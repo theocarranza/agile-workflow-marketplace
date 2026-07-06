@@ -1,7 +1,7 @@
 {
   "name": "agile-workflow",
   "version": "0.4.0",
-  "description": "Agile backlog workflow skills for Azure DevOps. Skills: decompose-backlog, validate-artifact, auto-fix-artifact, split-story. Deterministic Python orchestrator for quality gates (v0.4.0). Shared rules + Azure linking guardrails.",
+  "description": "Agile backlog workflow skills for Azure DevOps. Skills: decompose-backlog, validate-artifact, auto-fix-artifact, split-story, generate-work-item. Deterministic Python orchestrator for quality gates (v0.4.0). Shared rules + Azure linking guardrails.",
   "author": {
     "name": "Théo Carranza"
   }

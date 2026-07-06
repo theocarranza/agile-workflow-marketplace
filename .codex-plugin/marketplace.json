@@ -3,6 +3,7 @@
   "owner": {
     "name": "Théo Carranza"
   },
+  "description": "Agile backlog workflow skills for Azure DevOps with deterministic orchestrator.",
   "plugins": [
     {
       "name": "agile-workflow",
