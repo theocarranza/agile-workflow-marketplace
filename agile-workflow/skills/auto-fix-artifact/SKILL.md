@@ -6,6 +6,7 @@ compatibility: Requires Azure DevOps MCP, validate-artifact orchestrator, and an
 metadata:
   plugin: agile-workflow
   version: "0.4.0"
+  orchestrator-skill: "auto-fix-artifact"
   disable-model-invocation: "true"
 allowed-tools: >
   Read Write Edit Glob Grep Bash ask_question

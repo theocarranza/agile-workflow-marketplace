@@ -11,6 +11,7 @@ compatibility: Requires Azure DevOps MCP, Context7 MCP, and an AI Codex vault wi
 metadata:
   plugin: agile-workflow
   version: "0.4.0"
+  orchestrator-manifest: "true"
   argument-hint: "--type <epic|feature|user-story|task> --idea \"...\" [--parent <id>] [--refs <url>...] [--spec <path|text>]"
 allowed-tools: >
   Read Write Edit Glob Grep Bash
