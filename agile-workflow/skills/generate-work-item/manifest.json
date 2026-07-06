@@ -1,0 +1,35 @@
+{
+  "name": "generate-work-item",
+  "description": "Research tech stack via Context7, write a Specs note, draft a ledger ticket, and on approval create the Azure DevOps work item.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "work_item_type": {
+        "type": "string",
+        "enum": ["epic", "feature", "user-story", "task"],
+        "description": "Azure DevOps work item type to generate"
+      },
+      "idea": {
+        "type": "string",
+        "description": "General idea or problem description"
+      },
+      "parent": {
+        "type": "string",
+        "description": "Parent work item id when applicable (Epic for Feature, Feature for Story, Story for Task)"
+      },
+      "refs": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "External documentation URLs or paths"
+      },
+      "spec": {
+        "type": "string",
+        "description": "Optional existing spec document path or inline spec text"
+      }
+    },
+    "required": ["work_item_type", "idea"]
+  },
+  "output_signature": {
+    "required": ["spec_path", "draft_path", "title", "azure_id"]
+  }
+}
