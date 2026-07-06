@@ -8,7 +8,11 @@ description: >
   into right-sized Stories (1 Story = 1 sprint = 1 PR), draft them in the vault, enrich to the team
   format, create them in Azure DevOps parented to the FEATURE, verify the hierarchy, and audit that
   every parent requirement has a home. Self-contained rules; two approval gates before any write.
-disable-model-invocation: true
+compatibility: Requires Azure DevOps MCP and an AI Codex vault. Designed for Claude Code and Cursor.
+metadata:
+  plugin: agile-workflow
+  version: "0.4.0"
+  disable-model-invocation: "true"
 allowed-tools: >
   Read Write Edit Glob Grep
   mcp__azure-devops__wit_get_work_item
