@@ -58,13 +58,13 @@ metadata:
 
 ## Remaining gaps (optional)
 
-| Item | Priority | Action |
+| Item | Priority | Status |
 | --- | --- | --- |
-| `license` frontmatter | low | Add `license: MIT` (or repo license) to each SKILL.md |
-| Per-skill `scripts/` | low | Document `bin/agile-workflow` as plugin script root in README |
-| `skills-ref to-prompt` | low | Evaluate bundling skill metadata for non-Cursor hosts |
-| Open Skills listing | medium | Publish catalog cards on [openskills.cc](https://openskills.cc/) |
-| `metadata.orchestrator-skill` | low | Link skills with `manifest.json` to orchestrator handlers |
+| `license` frontmatter | low | **Blocked** — no repo `LICENSE` file yet; add SPDX before Open Skills publish |
+| Per-skill `scripts/` | low | **Done** — `bin/agile-workflow` documented as plugin script root in README |
+| `skills-ref validate` CI | low | **Done** — `scripts/validate-skills.sh` |
+| Open Skills listing | medium | **Drafted** — [[Open Skills Catalog Cards]]; manual publish pending |
+| `metadata.orchestrator-skill` | low | **Done** — validate-artifact, auto-fix-artifact; generate-work-item has `orchestrator-manifest` |
 
 ## Directory layout (current vs spec)
 

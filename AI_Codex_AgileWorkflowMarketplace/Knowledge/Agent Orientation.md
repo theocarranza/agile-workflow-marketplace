@@ -40,3 +40,4 @@ ledgers, feature specs, and operational session logs that survive context resets
 - [[Agent Skills Overview]] — open Agent Skills standard (agentskills.io)
 - [[Open Skills Marketplace]] — public skill directory (openskills.cc)
 - [[Agent Skills Adoption Notes]] — gap checklist and spec alignment for this plugin
+- [[Open Skills Catalog Cards]] — marketplace listing drafts
