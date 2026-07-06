@@ -37,3 +37,6 @@ ledgers, feature specs, and operational session logs that survive context resets
 - [[README]] — vault map and naming conventions
 - [[Agent_Sessions/README]] — session linking protocol
 - [[Frontmatter Convention]] — property schema for tickets, features, and sessions
+- [[Agent Skills Overview]] — open Agent Skills standard (agentskills.io)
+- [[Open Skills Marketplace]] — public skill directory (openskills.cc)
+- [[Agent Skills Adoption Notes]] — gap checklist and spec alignment for this plugin
