@@ -24,7 +24,7 @@ Copy-paste listing drafts for [openskills.cc](https://openskills.cc/) / OpenClaw
 | **Requires** | Azure DevOps MCP, AI Codex vault, optional Context7 MCP |
 | **Standard** | [agentskills.io](https://agentskills.io/home) |
 | **License** | MIT |
-| **Skills** | 5 |
+| **Skills** | 7 |
 
 ## Per-skill cards
 
@@ -57,6 +57,21 @@ Lateral story-sizing: 6-driver MAX score, split pattern detection, sub-story dra
 Research tech stack (Context7), write `Specs/` note, draft enriched ticket, create Azure work item after approval. Epic / Feature / User Story / Task.
 
 **Triggers:** "create a user story", `/generate-work-item`, type + idea.
+
+
+### enrich-work-item
+
+Enrich Epic / Feature / User Story drafts to the team format: enricher prompts, canonical shapes,
+ASCII diagrams, story points, Azure ingest (attachments and description references).
+
+**Triggers:** `/enrich-work-item`, "enrich this story/feature/epic".
+
+### generate-plain-language-documentation
+
+Plain-language prose for documentation, reports, guides, and work-item narrative. Glossary-backed
+`pt-br` verification. Sub-skill mode for sibling backlog conductors.
+
+**Triggers:** `/generate-plain-language-documentation`, "document in plain language", rewrite requests.
 
 ## Publication checklist
 

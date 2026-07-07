@@ -8,7 +8,15 @@
       "skills": [
         "decompose-backlog",
         "split-story",
-        "generate-work-item"
+        "generate-work-item",
+        "enrich-work-item"
+      ]
+    },
+    {
+      "title": "Documentation",
+      "description": "Plain-language prose for human-facing documents and work-item narrative.",
+      "skills": [
+        "generate-plain-language-documentation"
       ]
     },
     {

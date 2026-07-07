@@ -32,6 +32,10 @@ References (skill-specific, in `./references/`):
 - `split-patterns.md` — split pattern catalog with detection signals and auto-selection rules.
 - `scoring-guide.md` — 6-driver scoring table, ceiling logic, spike detection rule, discrepancy
   handling.
+- `canonical/canonical-user-story.md` — **read-only shape contract** for split sub-story drafts
+  (seven emoji sections). Do not edit; validate output against this template.
+- `canonical/canonical-spike.md` — **read-only shape contract** for spike stubs (bold section labels).
+  Do not edit; validate spike output against this template.
 
 ---
 
@@ -184,7 +188,8 @@ story_points: <estimated-points>
 ---
 ```
 
-4. Body: all 7 sections per `ticket-structure.md` (in order):
+4. Body: all 7 sections per `ticket-structure.md` and `./references/canonical/canonical-user-story.md`
+   (in order):
    - 🎯 O quê
    - 💡 Por quê
    - 📋 Comportamento esperado

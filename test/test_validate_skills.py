@@ -22,6 +22,8 @@ class TestValidateSkills(unittest.TestCase):
             msg=result.stdout + result.stderr,
         )
         self.assertIn("validating generate-work-item", result.stdout)
+        self.assertIn("validating enrich-work-item", result.stdout)
+        self.assertIn("validating generate-plain-language-documentation", result.stdout)
 
 
 if __name__ == "__main__":

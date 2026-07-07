@@ -1,35 +1,34 @@
 {
   "name": "generate-work-item",
-  "description": "Research tech stack via Context7, write a Specs note, draft a ledger ticket, and on approval create the Azure DevOps work item.",
+  "description": "Context7 research, raw spec + Tickets/Ready draft (title, Requisitos, Critérios de Aceite), Azure create on approval.",
   "input_schema": {
     "type": "object",
     "properties": {
       "work_item_type": {
         "type": "string",
-        "enum": ["epic", "feature", "user-story", "task"],
+        "enum": ["epic", "feature", "user-story"],
         "description": "Azure DevOps work item type to generate"
       },
-      "idea": {
+      "title": {
         "type": "string",
-        "description": "General idea or problem description"
+        "description": "Short work item title"
+      },
+      "description": {
+        "type": "string",
+        "description": "Problem statement or scope in the author's words"
       },
       "parent": {
         "type": "string",
-        "description": "Parent work item id when applicable (Epic for Feature, Feature for Story, Story for Task)"
+        "description": "Parent work item id or URL (Epic for Feature, Feature for Story)"
       },
-      "refs": {
-        "type": "array",
-        "items": { "type": "string" },
-        "description": "External documentation URLs or paths"
-      },
-      "spec": {
+      "attachment": {
         "type": "string",
-        "description": "Optional existing spec document path or inline spec text"
+        "description": "Supporting documentation URL or vault path"
       }
     },
-    "required": ["work_item_type", "idea"]
+    "required": ["work_item_type", "title", "description"]
   },
   "output_signature": {
-    "required": ["spec_path", "draft_path", "title", "azure_id"]
+    "required": ["spec_path", "draft_path", "title"]
   }
 }

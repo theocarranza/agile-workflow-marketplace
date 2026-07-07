@@ -34,6 +34,8 @@ References (shared, in `../../references/`):
 References (skill-specific, in `./references/`):
 - `validation-checks.md` — full check catalog per artifact type + category.
 - `report-format.md` — terminal output template + vault note template.
+- `canonical/canonical-validation-report.md` — **read-only shape contract** for terminal and vault
+  report bodies. Do not edit; reproduce this structure when emitting reports.
 
 ---
 

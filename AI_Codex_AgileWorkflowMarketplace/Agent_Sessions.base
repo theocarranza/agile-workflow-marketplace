@@ -1,23 +1,20 @@
 filters:
   and:
     - file.inFolder("Agent_Sessions")
-    - 'file.ext == "md"'
-    - 'file.name != "README"'
-
+    - file.ext == "md"
+    - file.name != "README"
 formulas:
-  age_days: '(now() - file.ctime).days'
-  has_meta: 'if(type, "✅", "⚠️ no frontmatter")'
-
+  age_days: (now() - file.ctime).days
+  has_meta: if(type, "✅", "⚠️ no frontmatter")
 properties:
   date:
     displayName: Date
   status:
     displayName: Status
   formula.age_days:
-    displayName: "Age (d)"
+    displayName: Age (d)
   formula.has_meta:
     displayName: Meta
-
 views:
   - type: table
     name: Sessions
@@ -26,7 +23,6 @@ views:
       - date
       - status
       - formula.age_days
-
   - type: table
     name: Open Sessions
     filters:
@@ -37,7 +33,6 @@ views:
       - date
       - status
       - file.mtime
-
   - type: table
     name: All Sessions
     order:
@@ -45,7 +40,6 @@ views:
       - date
       - status
       - file.mtime
-
   - type: table
     name: Needs metadata
     filters:

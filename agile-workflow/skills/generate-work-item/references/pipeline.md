@@ -1,31 +1,27 @@
 # generate-work-item — Pipeline
 
-Entry point for the skill reference library. Distinguish three layers:
-
-| Layer | Location | What it is |
-| --- | --- | --- |
-| **Vault artifacts** | `<vault>/Specs/`, `<vault>/Tickets/` | Generated specs and ticket drafts (real output) |
-| **Blueprints** | `./blueprints/` | Blank forms the skill fills to produce vault artifacts |
-| **Enrichers** | `./enrichers/` | Full prompts — authoritative rules for ticket body prose |
+Entry point for the skill reference library.
 
 ```
-INGEST → RESEARCH (Context7) → WRITE SPEC (blueprint) → GENERATE DRAFT (enricher) → GATE → AZURE
-         │                        │                        │
-         │                        ▼                        ▼
-         │                 <vault>/Specs/           <vault>/Tickets/Ready/
-         └─ read enricher context + Context7
+COLLECT → INGEST → RESEARCH (Context7) → WRITE SPEC (blueprint) → GENERATE DRAFT → GATE → PERSIST
+         │                              │                        │
+         │                              ▼                        ▼
+         │                       <vault>/Specs/           <vault>/Tickets/Ready/
+         └─ parent + attachment context
 ```
 
 ## Type map
 
-| `work_item_type` | Spec blueprint | Ticket authority | Ticket quick-ref |
-| --- | --- | --- | --- |
-| `epic` | `blueprints/spec-epic.md` | `enrichers/epic-enricher.prompt.md` | `blueprints/ticket-quickref.md` § Epic |
-| `feature` | `blueprints/spec-feature.md` | `enrichers/feature-enricher.prompt.md` | `blueprints/ticket-quickref.md` § Feature |
-| `user-story`, `bug` | `blueprints/spec-work-item.md` | `enrichers/work-item-enricher.prompt.md` | `blueprints/ticket-quickref.md` § User Story |
-| `task` | `blueprints/spec-work-item.md` | `enrichers/work-item-enricher.prompt.md` | `blueprints/ticket-quickref.md` § Task |
+| `work_item_type` | Spec blueprint | Ticket body |
+| --- | --- | --- |
+| `epic` | `blueprints/spec-epic.md` | `canonical/canonical-epic.md` |
+| `feature` | `blueprints/spec-feature.md` | `canonical/canonical-feature.md` |
+| `user-story` | `blueprints/spec-work-item.md` | `canonical/canonical-user-story.md` |
 
-Host vault enricher copies (prefer when present): `<vault>/assets/*-enricher.prompt.md`
+Enrichment (emoji sections, drivers, host team format) is **`enrich-work-item`**, not this skill.
+
+Prose polish for requirement bullets: **`generate-plain-language-documentation`** sub-pass in PHASE 4
+(see `../generate-plain-language-documentation/references/integration-notes.md`).
 
 ## Vault output paths
 
@@ -38,7 +34,7 @@ Shared spec frontmatter:
 ```yaml
 ---
 type: spec
-work_item_type: <Epic|Feature|User Story|Bug|Task>
+work_item_type: <Epic|Feature|User Story>
 ticket: <parent-id or null>
 area: <kebab-area>
 stack: [<from-context7>]
@@ -50,18 +46,13 @@ source: [context7, <urls>]
 
 ## Context7 research protocol
 
-1. Extract tech-stack tokens from `idea`, `refs`, `spec` input, parent body, enricher context.
+1. Extract tech-stack tokens from `title`, `description`, `attachment`, parent body.
 2. Up to **3 libraries**: `resolve-library-id` → `query-docs`.
 3. Fold findings into blueprint **Tech stack** + **Research summary** — cite `libraryId`.
-4. If Context7 unavailable: `source: [manual]`; proceed from refs only.
-
-## Host enricher context
-
-Enrichers may reference host monorepo docs (`docs/domain.md`, etc.). Read when available; skip
-gracefully when absent (marketplace-only vault).
+4. If Context7 unavailable: `source: [manual]`; proceed from supplied context only.
 
 ## Shared plugin references
 
-- `../../references/decomposition-rules.md` — hierarchy, story-point heuristic
+- `../../references/decomposition-rules.md` — hierarchy, sizing heuristic
 - `../../references/ticket-structure.md` — vault hook constraints
 - `../../references/azure-mechanics.md` — Azure MCP calls + gotchas
