@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-07-07
+
+### Added
+
+- **`generate-plain-language-documentation` skill**: Plain-language conductor for documentation,
+  reports, guides, and `work-item-prose` (requirement bullets and acceptance criteria). Six-phase
+  pipeline with glossary verification for `pt-br` via
+  `AI_Codex_AgileWorkflowMarketplace/assets/tech-glossary-en-pt-br.json`.
+- **Sibling prose hooks**: `generate-work-item`, `enrich-work-item`, and `decompose-backlog` delegate
+  narrative polishing to the plain-language skill per `integration-notes.md`.
+- Unit tests: `test/test_generate_plain_language_documentation.py`,
+  `test/test_plain_language_skill_integration.py`, and `test/plain_language_helpers.py` (76 tests in
+  `test/` with `PYTHONPATH=agile-workflow`).
+- Vault feature note: `Features/generate-plain-language-documentation.md`.
+
+### Changed
+
+- Agent Skills registry: seventh skill in `skills.sh.json`, root
+  `skills/generate-plain-language-documentation` symlink, and marketplace/plugin manifests.
+- Plugin version bumped to **0.7.0**.
+
 ## [0.6.0] - 2026-07-07
 
 ### Added

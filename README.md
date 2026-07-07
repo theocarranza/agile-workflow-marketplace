@@ -2,7 +2,7 @@
 
 [![Release](https://img.shields.io/github/v/release/theocarranza/agile-workflow-marketplace?label=version&color=0e7c86)](https://github.com/theocarranza/agile-workflow-marketplace/releases)
 [![License: MIT](https://img.shields.io/github/license/theocarranza/agile-workflow-marketplace)](LICENSE)
-[![Skills](https://img.shields.io/badge/skills-6-2563eb)](skills/)
+[![Skills](https://img.shields.io/badge/skills-7-2563eb)](skills/)
 [![Agent Skills](https://img.shields.io/badge/spec-agentskills.io-5C2D91)](https://agentskills.io/specification)
 [![skills.sh](https://img.shields.io/badge/listed-skills.sh-000000)](https://skills.sh/)
 
@@ -16,7 +16,7 @@
 
 A standalone multi-host plugin marketplace for Agile backlog workflows against **Azure DevOps**.
 
-Six [Agent Skills](https://agentskills.io/specification)-compliant conductors plus a deterministic **Python orchestrator** for quality gates. Ships Claude Code, Cursor, Codex, and Antigravity plugin manifests, MCP wiring, and an Obsidian vault ledger.
+Seven [Agent Skills](https://agentskills.io/specification)-compliant conductors plus a deterministic **Python orchestrator** for quality gates. Ships Claude Code, Cursor, Codex, and Antigravity plugin manifests, MCP wiring, and an Obsidian vault ledger.
 
 ## Install
 
@@ -68,7 +68,7 @@ Manual / Claude-only alternative:
 
 ### Skills only (registry install)
 
-Root `skills/` symlinks expose the six skills for [skills.sh](https://skills.sh/) and [openskills.cc](https://openskills.cc/skills) discovery:
+Root `skills/` symlinks expose the seven skills for [skills.sh](https://skills.sh/) and [openskills.cc](https://openskills.cc/skills) discovery:
 
 ```bash
 npx skills add theocarranza/agile-workflow-marketplace
@@ -198,6 +198,18 @@ prompts, canonical shape targets, ASCII diagrams, story-point hygiene, and Azure
 Trigger: `/enrich-work-item`, "enrich this story/feature/epic", or supply vault path / Azure ID /
 raw draft.
 
+### Skill: `generate-plain-language-documentation`
+
+Turn technical source material into plain-language prose for humans — documentation, reports,
+guides, and work-item narrative (`work-item-prose`). Uses the vault glossary
+(`assets/tech-glossary-en-pt-br.json`) for **pt-BR** translation and technical-term verification.
+Sibling skills delegate prose passes here without a separate user gate (see
+`references/integration-notes.md` in the skill package).
+
+Trigger: `/generate-plain-language-documentation`, "document this in plain language", "rewrite for
+the product team", or `--source` with optional `--audience`, `--language`, `--type`.
+
+
 ## Agent Skills compliance
 
 Each skill may ship `references/canonical/` templates (read-only shape
@@ -233,6 +245,6 @@ All skills share a common reference library at `agile-workflow/references/`:
 ## Development
 
 ```bash
-PYTHONPATH=agile-workflow python3 -m unittest discover -s test -v
+PYTHONPATH=agile-workflow python3.12 -m pytest test/ -v
 ./scripts/validate-skills.sh
 ```
