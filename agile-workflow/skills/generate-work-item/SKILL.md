@@ -7,7 +7,8 @@ description: >
   ticket", "create a ticket", "create an issue", "create a user story", "create a feature",
   "create an epic", "generate a work item", or provides a work-item type plus a problem to turn
   into backlog work. For team-format enrichment (emoji sections, story-point drivers), use
-  enrich-work-item instead.
+  enrich-work-item instead. For plain-language requirement and acceptance-criteria prose, this skill
+  delegates a sub-pass to generate-plain-language-documentation in PHASE 4.
 license: MIT
 compatibility: Requires Context7 MCP, Azure DevOps MCP, and an AI Codex vault with Specs/ and Tickets/ folders.
 metadata:
@@ -43,6 +44,8 @@ References (start at `./references/pipeline.md`):
 - `../../references/decomposition-rules.md` — hierarchy and parent rules.
 - `../../references/ticket-structure.md` — vault hook constraints (frontmatter, filename).
 - `../../references/azure-mechanics.md` — create/link MCP calls + gotchas.
+- `../generate-plain-language-documentation/references/integration-notes.md` — prose polish sub-pass
+  (PHASE 4).
 
 Context7: read `context7-mcp` skill; server `plugin-context7-plugin-context7`.
 
@@ -128,6 +131,11 @@ not modify):
 - `## Critérios de Aceite` — `- [ ]` checkboxes, testable, infinitive verbs
 
 Path: `<vault>/Tickets/Ready/<prefix>-<kebab-slug>.md` only — never vault root or `Specs/`.
+
+**Plain-language sub-pass:** Before presenting, read
+`../generate-plain-language-documentation/references/integration-notes.md` § generate-work-item and
+run a `work-item-prose` pass on `## Requisitos` and `## Critérios de Aceite` (glossary verification
+when locale is pt-BR).
 
 Frontmatter per `ticket-structure.md`: `type: ticket`, no `status:` key; filename regex
 `^(\d+|tech-debt|bug|task|spike)-[a-z0-9-]+$` (prefix with parent Feature id until Azure assigns id).

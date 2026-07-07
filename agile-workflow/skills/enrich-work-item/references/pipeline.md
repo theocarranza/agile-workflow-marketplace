@@ -44,4 +44,8 @@ Host vault enricher copies (prefer when present): `<vault>/assets/*-enricher.pro
 | `generate-work-item` | title + description | Raw `# Title` + `## Requisitos` + `## Critérios de Aceite` |
 | `enrich-work-item` | existing source text | Enricher emoji-section format per type |
 
-Typical flow: generate raw draft → enrich to team format → create in Azure.
+Typical flow: generate raw draft → plain-language prose pass → enrich to team format → create in Azure.
+
+| Skill | Prose role |
+| --- | --- |
+| `generate-plain-language-documentation` | Plain-language bullets and narrative (standalone or sub-pass) |

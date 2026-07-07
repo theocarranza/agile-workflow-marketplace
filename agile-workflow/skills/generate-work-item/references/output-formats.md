@@ -1,7 +1,9 @@
 # generate-work-item — Output Formats
 
 Uniform ticket body for **all** work-item types. This skill produces **raw** drafts — not enricher
-layouts. For team emoji sections and complexity drivers, run `enrich-work-item` on the result.
+layouts. For team emoji sections and complexity drivers, run `enrich-work-item` on the result. For
+plain-language requirement and acceptance-criteria wording, run
+`generate-plain-language-documentation` (work-item-prose sub-pass) before presenting.
 
 ## Canonical templates (read-only)
 

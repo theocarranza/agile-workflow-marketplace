@@ -6,7 +6,8 @@ description: >
   Use when the user runs /enrich-work-item, asks to "enrich a ticket", "enrich this issue",
   "format this user story", "polish this feature", "structure this epic", or provides a path, URL,
   or pasted text plus work-item type. For raw title + requirement bullets from scratch, use
-  generate-work-item instead.
+  generate-work-item instead. For plain-language narrative inside enricher sections, this skill
+  delegates a sub-pass to generate-plain-language-documentation after enricher assembly.
 license: MIT
 compatibility: Requires Azure DevOps MCP and an AI Codex vault when persisting to the ledger.
 metadata:
@@ -46,6 +47,8 @@ References (start at `./references/pipeline.md`):
 - `../../references/decomposition-rules.md` — hierarchy, story-point heuristic.
 - `../../references/ticket-structure.md` — vault hook constraints.
 - `../../references/azure-mechanics.md` — create/update MCP calls + gotchas.
+- `../generate-plain-language-documentation/references/integration-notes.md` — prose polish sub-pass
+  (PHASE 4).
 
 **Not in scope:** generating a raw work item from a title alone — use `generate-work-item` first.
 
@@ -120,6 +123,11 @@ into `<vault>/Specs/[<parent-id>-]<kebab-slug>-spec.md`. Skip when destination i
 Apply the enricher rules to produce the **exact** output format defined in enricher §4 (Epic/Feature) or
 §6 (work item). The enriched body IS the deliverable — emoji sections, scope blocks, complexity
 drivers, ASCII diagrams as the enricher specifies.
+
+**Plain-language sub-pass:** Read
+`../generate-plain-language-documentation/references/integration-notes.md` § enrich-work-item; polish
+narrative paragraphs inside sections (not emoji headings; not **Descrição Original**). Glossary-verify
+when locale is pt-BR.
 
 Run the enricher **Checklist de Auto-Revisão** before presenting.
 

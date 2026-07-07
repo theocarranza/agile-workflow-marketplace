@@ -20,6 +20,9 @@ COLLECT → INGEST → RESEARCH (Context7) → WRITE SPEC (blueprint) → GENERA
 
 Enrichment (emoji sections, drivers, host team format) is **`enrich-work-item`**, not this skill.
 
+Prose polish for requirement bullets: **`generate-plain-language-documentation`** sub-pass in PHASE 4
+(see `../generate-plain-language-documentation/references/integration-notes.md`).
+
 ## Vault output paths
 
 **Spec** (PHASE 3): `<vault>/Specs/[<parent-id>-]<kebab-slug>-spec.md`

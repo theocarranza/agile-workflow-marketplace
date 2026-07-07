@@ -8,6 +8,8 @@ description: >
   into right-sized Stories (1 Story = 1 sprint = 1 PR), draft them in the vault, enrich to the team
   format, create them in Azure DevOps parented to the FEATURE, verify the hierarchy, and audit that
   every parent requirement has a home. Self-contained rules; two approval gates before any write.
+  For plain-language scope lines and story narrative, delegates sub-passes to
+  generate-plain-language-documentation in DRAFT and ENRICH phases.
 license: MIT
 compatibility: Requires Azure DevOps MCP and an AI Codex vault. Designed for Claude Code and Cursor.
 metadata:
@@ -42,6 +44,8 @@ References (skill-specific, in `./references/`):
 
 - `canonical/canonical-user-story.md` — **read-only shape contract** for enriched Story drafts (seven
   emoji sections per `ticket-structure.md`). Do not edit; validate every draft against this template.
+- `../generate-plain-language-documentation/references/integration-notes.md` — prose polish sub-pass
+  in DRAFT and ENRICH phases.
 
 ## Input
 
@@ -70,10 +74,20 @@ Per approved stub, write a vault draft per `ticket-structure.md` and
 filename regex with the Feature-id prefix, the 7 body sections in canonical order. Content hygiene
 applies.
 
+**Plain-language sub-pass:** Read
+`../generate-plain-language-documentation/references/integration-notes.md` § decompose-backlog; run a
+`generate-plain-language-documentation` pass on scope lines and section prose (glossary-verify via
+`<vault>/assets/tech-glossary-en-pt-br.json` when locale is pt-BR).
+
 ### 4. ENRICH
 
 Tighten each draft to the team format: WHAT not HOW, ASCII diagrams, de-dup (each fact once),
 story-point justification with the per-driver MAX. The enriched body IS the exact Azure description.
+
+**Plain-language sub-pass:** Read
+`../generate-plain-language-documentation/references/integration-notes.md` § decompose-backlog; polish
+narrative paragraphs inside sections (not emoji headings; not story-point driver tables).
+Glossary-verify via `<vault>/assets/tech-glossary-en-pt-br.json` when locale is pt-BR.
 **── GATE 2 —** show the final body and WAIT for thumbs-up before any Azure write.
 
 ### 5. CREATE
