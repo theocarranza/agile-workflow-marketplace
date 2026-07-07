@@ -13,7 +13,7 @@ license: MIT
 compatibility: Bundled tech glossary supports pt-BR translation and technical-term verification without a host vault.
 metadata:
   plugin: agile-workflow
-  version: "0.7.0"
+  version: "0.7.1"
   argument-hint: "--source <text|path|url> [--audience \"...\"] [--language en|pt-br] [--type report|guide|work-item-prose|general]"
 allowed-tools: >
   Read Write Edit Glob Grep Bash
