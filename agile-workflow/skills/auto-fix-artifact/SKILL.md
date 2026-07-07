@@ -29,6 +29,8 @@ References (shared, in `../../references/`):
 References (from `validate-artifact` skill, in `../validate-artifact/references/`):
 - `validation-checks.md` — full check catalog per artifact type + category.
 - `report-format.md` — terminal output template + vault note template.
+- `canonical/canonical-validation-report.md` — **read-only shape contract** for validation reports
+  (shared with `validate-artifact`). Do not edit; conform output to this template.
 
 ---
 
