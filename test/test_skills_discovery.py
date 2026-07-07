@@ -11,6 +11,7 @@ EXPECTED = (
     "split-story",
     "generate-work-item",
     "enrich-work-item",
+    "generate-plain-language-documentation",
 )
 
 
