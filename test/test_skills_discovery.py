@@ -10,6 +10,7 @@ EXPECTED = (
     "auto-fix-artifact",
     "split-story",
     "generate-work-item",
+    "enrich-work-item",
 )
 
 
