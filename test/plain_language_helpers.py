@@ -9,10 +9,12 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent.parent
 PLUGIN_SKILLS = ROOT / "agile-workflow" / "skills"
 PLAIN_LANGUAGE_SKILL = PLUGIN_SKILLS / "generate-plain-language-documentation"
-GLOSSARY_PATH = ROOT / "AI_Codex_AgileWorkflowMarketplace" / "assets" / "tech-glossary-en-pt-br.json"
+GLOSSARY_PATH = (
+    PLAIN_LANGUAGE_SKILL / "references" / "assets" / "tech-glossary-en-pt-br.json"
+)
+GLOSSARY_DOC_PATH = "./references/assets/tech-glossary-en-pt-br.json"
 
 INTEGRATION_NOTES_REL = "../generate-plain-language-documentation/references/integration-notes.md"
-GLOSSARY_DOC_PATH = "<vault>/assets/tech-glossary-en-pt-br.json"
 
 REQUIRED_PHASES = (
     "PHASE 0",
