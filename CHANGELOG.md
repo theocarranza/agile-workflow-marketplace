@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-07-07
+
+### Changed
+
+- **Bundled skill assets policy**: Runtime inputs (glossary, enricher prompts) ship inside the
+  plugin skill packages. Skills no longer read from `<vault>/assets/` for bundled artifacts.
+- **`generate-plain-language-documentation`**: Tech glossary copied to
+  `references/assets/tech-glossary-en-pt-br.json` within the skill package.
+- **`enrich-work-item`**: Bundled `./references/enrichers/*.prompt.md` is authoritative; removed
+  vault override pattern.
+
 ## [0.7.0] - 2026-07-07
 
 ### Added
