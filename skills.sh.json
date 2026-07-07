@@ -13,6 +13,13 @@
       ]
     },
     {
+      "title": "Documentation",
+      "description": "Plain-language prose for human-facing documents and work-item narrative.",
+      "skills": [
+        "generate-plain-language-documentation"
+      ]
+    },
+    {
       "title": "Quality gates",
       "description": "Validate and auto-fix agile artifacts with the orchestrator critic.",
       "skills": [
