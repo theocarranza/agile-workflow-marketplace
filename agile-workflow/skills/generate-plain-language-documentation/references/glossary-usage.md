@@ -1,8 +1,8 @@
 # Glossary Usage
 
-Technical term verification and EN → pt-BR translation using the vault glossary.
+Technical term verification and EN → pt-BR translation using the bundled skill glossary.
 
-**File:** `<vault>/assets/tech-glossary-en-pt-br.json`
+**File:** `./references/assets/tech-glossary-en-pt-br.json`
 
 ## Schema (read the file header)
 
@@ -29,11 +29,11 @@ For each candidate term `T` in the draft:
 ```bash
 # Exact EN → pt
 jq -r --arg t "reliability" '(.aliases[$t] // ($t|ascii_downcase)) as $k | .terms[$k].pt // "NOT_FOUND"' \
-  <vault>/assets/tech-glossary-en-pt-br.json
+  ./references/assets/tech-glossary-en-pt-br.json
 
 # Substring
 jq -r '.terms | to_entries[] | select(.key|contains("commit")) | "\(.key) -> \(.value.pt)"' \
-  <vault>/assets/tech-glossary-en-pt-br.json
+  ./references/assets/tech-glossary-en-pt-br.json
 ```
 
 Prefer in-agent lookup (Read + parse) when Bash is unavailable.

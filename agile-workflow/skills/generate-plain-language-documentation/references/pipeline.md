@@ -13,12 +13,17 @@ COLLECT → INGEST (completeness contract) → DRAFT → GLOSSARY VERIFY → SEL
                          sibling skill sub-pass ──► integration-notes.md
 ```
 
-## Vault paths
+## Bundled assets
 
 | Asset | Path |
 | --- | --- |
-| Tech glossary | `<vault>/assets/tech-glossary-en-pt-br.json` |
-| Default output (when persisting) | `<vault>/Knowledge/<kebab-slug>.md` |
+| Tech glossary | `./references/assets/tech-glossary-en-pt-br.json` |
+
+## Vault output paths (when persisting)
+
+| Destination | Path |
+| --- | --- |
+| Default output | `<vault>/Knowledge/<kebab-slug>.md` |
 
 ## Document type map
 

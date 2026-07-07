@@ -10,7 +10,7 @@ description: >
   polished requirement bullets or narrative sections. Not for dense agent-facing prompts, cheat
   sheets, or SKILL.md bodies — those may stay compressed.
 license: MIT
-compatibility: Requires an AI Codex vault with assets/tech-glossary-en-pt-br.json for pt-BR or technical-term verification.
+compatibility: Bundled tech glossary supports pt-BR translation and technical-term verification without a host vault.
 metadata:
   plugin: agile-workflow
   version: "0.7.0"
@@ -35,8 +35,10 @@ References (start at `./references/pipeline.md`):
 - `./references/integration-notes.md` — how `generate-work-item`, `enrich-work-item`, and
   `decompose-backlog` delegate prose passes to this skill.
 
-Resolve vault from `.claude/codex-workflow.config.json` `codex.folder`, else glob `AI_Codex*/`.
-Glossary path: `<vault>/assets/tech-glossary-en-pt-br.json`.
+Glossary path: `./references/assets/tech-glossary-en-pt-br.json` (bundled with the skill).
+
+Resolve vault from `.claude/codex-workflow.config.json` `codex.folder`, else glob `AI_Codex*/` when
+persisting output to the ledger — not for loading skill assets.
 
 **Not in scope:** creating Azure work items, enricher emoji layouts, or backlog hierarchy — use the
 sibling skills for those; call this skill for the **prose** inside their outputs.
@@ -91,7 +93,7 @@ the host locale and remain WHAT-not-HOW. Do not add enricher emoji sections here
 **Always run** when `language` is `pt-br`. **Run selectively** for `en` when the draft contains
 domain terms that may need consistency checking.
 
-Read `./references/glossary-usage.md` and load `<vault>/assets/tech-glossary-en-pt-br.json`.
+Read `./references/glossary-usage.md` and load `./references/assets/tech-glossary-en-pt-br.json`.
 
 1. Extract candidate technical terms from the draft.
 2. Look up each term (exact key → `aliases` → substring scan per glossary schema).
