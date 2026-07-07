@@ -22,7 +22,7 @@ COLLECT → INGEST → ROUTE ENRICHER → [WRITE SPEC] → ENRICH → GATE → P
 | `feature` | `enrichers/feature-enricher.prompt.md` | `blueprints/spec-feature.md` | `canonical/canonical-feature.md` | `examples/example-feature.md` |
 | `user-story` | `enrichers/work-item-enricher.prompt.md` | `blueprints/spec-work-item.md` | `canonical/canonical-user-story.md` | `examples/example-user-story.md` |
 
-Host vault enricher copies (prefer when present): `<vault>/assets/*-enricher.prompt.md`
+Enricher prompts are bundled under `./references/enrichers/` — authoritative; no vault override.
 
 ## Vault output paths (when persisting to ledger)
 

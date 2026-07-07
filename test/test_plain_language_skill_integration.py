@@ -125,6 +125,11 @@ class TestEnrichWorkItemIntegration(unittest.TestCase):
     def test_pipeline_lists_plain_language_skill(self) -> None:
         self.assertIn("generate-plain-language-documentation", self.pipeline)
 
+    def test_no_vault_enricher_override(self) -> None:
+        self.assertNotIn("<vault>/assets/", self.skill_md)
+        self.assertNotIn("prefer when present", self.skill_md.lower())
+        self.assertIn("./references/enrichers/", self.skill_md)
+
 
 class TestDecomposeBacklogIntegration(unittest.TestCase):
     def setUp(self) -> None:

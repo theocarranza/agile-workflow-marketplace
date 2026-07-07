@@ -77,7 +77,8 @@ applies.
 **Plain-language sub-pass:** Read
 `../generate-plain-language-documentation/references/integration-notes.md` § decompose-backlog; run a
 `generate-plain-language-documentation` pass on scope lines and section prose (glossary-verify via
-`<vault>/assets/tech-glossary-en-pt-br.json` when locale is pt-BR).
+`../generate-plain-language-documentation/references/assets/tech-glossary-en-pt-br.json` when locale
+is pt-BR).
 
 ### 4. ENRICH
 
@@ -87,7 +88,8 @@ story-point justification with the per-driver MAX. The enriched body IS the exac
 **Plain-language sub-pass:** Read
 `../generate-plain-language-documentation/references/integration-notes.md` § decompose-backlog; polish
 narrative paragraphs inside sections (not emoji headings; not story-point driver tables).
-Glossary-verify via `<vault>/assets/tech-glossary-en-pt-br.json` when locale is pt-BR.
+Glossary-verify via `../generate-plain-language-documentation/references/assets/tech-glossary-en-pt-br.json`
+when locale is pt-BR.
 **── GATE 2 —** show the final body and WAIT for thumbs-up before any Azure write.
 
 ### 5. CREATE

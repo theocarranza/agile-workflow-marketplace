@@ -201,9 +201,9 @@ raw draft.
 ### Skill: `generate-plain-language-documentation`
 
 Turn technical source material into plain-language prose for humans — documentation, reports,
-guides, and work-item narrative (`work-item-prose`). Uses the vault glossary
-(`assets/tech-glossary-en-pt-br.json`) for **pt-BR** translation and technical-term verification.
-Sibling skills delegate prose passes here without a separate user gate (see
+guides, and work-item narrative (`work-item-prose`). Uses the bundled skill glossary
+(`references/assets/tech-glossary-en-pt-br.json`) for **pt-BR** translation and technical-term
+verification. Sibling skills delegate prose passes here without a separate user gate (see
 `references/integration-notes.md` in the skill package).
 
 Trigger: `/generate-plain-language-documentation`, "document this in plain language", "rewrite for

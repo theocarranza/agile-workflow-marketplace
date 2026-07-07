@@ -43,7 +43,6 @@ References (start at `./references/pipeline.md`):
 - `./references/blueprints/` — spec forms for optional analysis ledger in `<vault>/Specs/`.
 - `./references/examples/` — illustrative dummy outputs (content reference only; shape contract is
   `./references/canonical/`).
-- `<vault>/assets/*-enricher.prompt.md` — host vault copies (**prefer when present**).
 - `../../references/decomposition-rules.md` — hierarchy, story-point heuristic.
 - `../../references/ticket-structure.md` — vault hook constraints.
 - `../../references/azure-mechanics.md` — create/update MCP calls + gotchas.
@@ -103,7 +102,7 @@ Read `./references/output-formats.md` and the matching enricher:
 | `feature` | `enrichers/feature-enricher.prompt.md` |
 | `user-story` | `enrichers/work-item-enricher.prompt.md` |
 
-Prefer `<vault>/assets/<type>-enricher.prompt.md` when it exists.
+Load enricher prompts from `./references/enrichers/` — bundled with the skill; no vault override.
 
 Follow enricher **Contexto Obrigatório** when host monorepo docs exist; skip gracefully when absent.
 

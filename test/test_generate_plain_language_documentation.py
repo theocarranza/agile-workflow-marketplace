@@ -70,6 +70,7 @@ class TestPlainLanguageSkillReferences(unittest.TestCase):
 
     def test_glossary_path_documented(self) -> None:
         self.assertIn(GLOSSARY_DOC_PATH, self.skill_md)
+        self.assertNotIn("<vault>/assets/tech-glossary", self.skill_md)
         glossary_usage = read_skill_text(
             "generate-plain-language-documentation", "references", "glossary-usage.md"
         )

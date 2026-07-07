@@ -47,7 +47,7 @@ Do not change `# Title`, spec wikilink, or section heading names required by can
 1. **DRAFT:** polish one-line scope lines and section prose per `canonical-user-story.md`.
 2. **ENRICH:** same sub-pass as enrich-work-item on enriched story bodies (narrative paragraphs only).
 3. Preserve story-point driver tables and emoji section order.
-4. Glossary-verify via `<vault>/assets/tech-glossary-en-pt-br.json` when locale is pt-BR (see
+4. Glossary-verify via `./references/assets/tech-glossary-en-pt-br.json` when locale is pt-BR (see
    `glossary-usage.md`).
 
 ---
