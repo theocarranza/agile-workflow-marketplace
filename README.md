@@ -2,7 +2,7 @@
 
 [![Release](https://img.shields.io/github/v/release/theocarranza/agile-workflow-marketplace?label=version&color=0e7c86)](https://github.com/theocarranza/agile-workflow-marketplace/releases)
 [![License: MIT](https://img.shields.io/github/license/theocarranza/agile-workflow-marketplace)](LICENSE)
-[![Skills](https://img.shields.io/badge/skills-5-2563eb)](skills/)
+[![Skills](https://img.shields.io/badge/skills-6-2563eb)](skills/)
 [![Agent Skills](https://img.shields.io/badge/spec-agentskills.io-5C2D91)](https://agentskills.io/specification)
 [![skills.sh](https://img.shields.io/badge/listed-skills.sh-000000)](https://skills.sh/)
 
@@ -16,7 +16,7 @@
 
 A standalone multi-host plugin marketplace for Agile backlog workflows against **Azure DevOps**.
 
-Five [Agent Skills](https://agentskills.io/specification)-compliant conductors plus a deterministic **Python orchestrator** for quality gates. Ships Claude Code, Cursor, Codex, and Antigravity plugin manifests, MCP wiring, and an Obsidian vault ledger.
+Six [Agent Skills](https://agentskills.io/specification)-compliant conductors plus a deterministic **Python orchestrator** for quality gates. Ships Claude Code, Cursor, Codex, and Antigravity plugin manifests, MCP wiring, and an Obsidian vault ledger.
 
 ## Install
 
@@ -68,7 +68,7 @@ Manual / Claude-only alternative:
 
 ### Skills only (registry install)
 
-Root `skills/` symlinks expose the five skills for [skills.sh](https://skills.sh/) and [openskills.cc](https://openskills.cc/skills) discovery:
+Root `skills/` symlinks expose the six skills for [skills.sh](https://skills.sh/) and [openskills.cc](https://openskills.cc/skills) discovery:
 
 ```bash
 npx skills add theocarranza/agile-workflow-marketplace
@@ -182,11 +182,26 @@ Trigger: "fix this artifact", "auto-fix the ticket", or supply a vault path / Az
 
 ### Skill: `generate-work-item`
 
-Generate an Epic, Feature, User Story, or Task from an idea: Context7 research → vault `Specs/` note → enriched ticket draft → Azure DevOps on approval. Uses host enricher prompts for ticket bodies.
+Generate an Epic, Feature, User Story, or Task from an idea: Context7 research → vault `Specs/`
+note → **raw** ticket draft (uniform sections per `output-formats.md`) → optional handoff to
+`enrich-work-item` or Azure DevOps on approval. Does **not** run enricher prompts.
 
-Trigger: `/generate-work-item`, "create a ticket/story/feature/epic/task", or supply type + description.
+Trigger: `/generate-work-item`, "create a ticket/story/feature/epic/task", or supply type +
+description.
+
+### Skill: `enrich-work-item`
+
+Enrich an existing or freshly generated work item to the team format: type-specific enricher
+prompts, canonical shape targets, ASCII diagrams, story-point hygiene, and Azure ingest
+(attachments and description references). One item per invocation.
+
+Trigger: `/enrich-work-item`, "enrich this story/feature/epic", or supply vault path / Azure ID /
+raw draft.
 
 ## Agent Skills compliance
+
+Each skill may ship `references/canonical/` templates (read-only shape
+contracts) alongside skill-specific blueprints and pipelines.
 
 Each skill follows the [Agent Skills open standard](https://agentskills.io/specification): root `skills/<name>/SKILL.md` (symlinked to `agile-workflow/skills/`) with `name`, `description`, `license`, optional `references/`, and progressive disclosure. Repo page grouping: `skills.sh.json`. Licensed under [MIT](LICENSE).
 

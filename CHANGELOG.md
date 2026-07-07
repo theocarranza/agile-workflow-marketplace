@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-07-07
+
+### Added
+
+- **`enrich-work-item` skill**: Standalone enrichment conductor (Epic / Feature / User Story) with
+  type-specific enricher prompts, canonical shape examples, and Azure ingest (attachments plus
+  description references). Complements `generate-work-item` after the generate/enrich split.
+- **Canonical templates** (`references/canonical/` per skill): Read-only shape contracts wired
+  into `SKILL.md` for `decompose-backlog`, `generate-work-item`, `enrich-work-item`,
+  `split-story`, and `validate-artifact`.
+- **`orchestrator_core/output_formats.py`**: Structural validators for raw ticket drafts,
+  spikes, and validation reports.
+- Unit tests: `test/test_output_formats.py` (24 structural compliance cases; 46 tests total in
+  `test/`).
+- Vault feature notes: `Features/generate-work-item.md`, `Features/enrich-work-item.md`.
+
+### Changed
+
+- **`generate-work-item` reboot**: Emits uniform **raw** ticket bodies via `output-formats.md`
+  and slim spec blueprints; enricher prompts removed (moved to `enrich-work-item`).
+- **`azure-mechanics.md`**: Shared rules for Azure read paths, attachments, and description
+  reference handling used by enrich and ingest flows.
+- Agent Skills registry: six skills in `skills.sh.json`, root `skills/enrich-work-item`
+  symlink, and marketplace/plugin manifests listing `enrich-work-item`.
+- Plugin version bumped to **0.6.0**.
+
 ## [0.5.0] - 2026-07-06
 
 ### Added
