@@ -3,7 +3,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from orchestrator_core.artifact_validator import outcome_from_results, validate_artifact
-from orchestrator_core.ingest import ingest_vault_file
+from orchestrator_core.ingest import ingest_from_text, ingest_vault_file
 from orchestrator_core.reflection import ReflectionState, advance_reflection, evaluate_reflection
 
 
@@ -11,12 +11,43 @@ FIXTURE = Path(__file__).resolve().parent.parent / (
     "AI_Codex_AgileWorkflowMarketplace/Tickets/Ready/6869-login-form-validation.md"
 )
 
+RAW_GENERATE_STORY = """\
+---
+date: 2026-07-08
+type: ticket
+work_item_type: User Story
+parent_feature: 6869
+tags: [ticket, user-story]
+---
+
+# Validação de campos do formulário de login
+
+[[Specs/6869-login-form-validation-spec]]
+
+## Requisitos
+
+- Validar formato de e-mail ao sair do campo
+- Validar senha não vazia no envio
+
+## Critérios de Aceite
+
+- [ ] Exibir erro quando e-mail estiver vazio
+- [ ] Exibir erro quando senha estiver vazia
+"""
+
 
 class TestArtifactValidator(unittest.TestCase):
     def test_good_story_passes(self) -> None:
         record = ingest_vault_file(FIXTURE)
         results = validate_artifact(record)
         self.assertEqual(outcome_from_results(results), "PASS")
+
+    def test_raw_generate_story_passes(self) -> None:
+        record = ingest_from_text(RAW_GENERATE_STORY, filename="6869-login-form-validation")
+        results = validate_artifact(record)
+        self.assertEqual(outcome_from_results(results), "PASS")
+        names = [r.name for r in results if r.result == "FAIL"]
+        self.assertNotIn("body-section-missing: 🎯 O quê", names)
 
     def test_missing_type_fails(self) -> None:
         record = ingest_vault_file(FIXTURE)
