@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Iterable, Literal
 
 from .ingest import FILENAME_RE, ArtifactRecord
 
@@ -54,6 +54,41 @@ def _word_count(text: str) -> int:
     return len([w for w in re.split(r"\s+", text.strip()) if w])
 
 
+def _extract_h2_headings(body: str) -> list[str]:
+    return [m.group(1).strip() for m in re.finditer(r"^#{2}\s+(.+)$", body, re.MULTILINE)]
+
+
+BodyFormat = Literal["raw_generate", "enriched_story", "enriched_feature", "enriched_epic", "unknown"]
+
+
+def _detect_body_format(body: str) -> BodyFormat:
+    from .output_formats import ENRICH_EPIC_SECTIONS, ENRICH_FEATURE_SECTIONS
+
+    h2 = _extract_h2_headings(body)
+    if "Requisitos" in h2:
+        return "raw_generate"
+    if any(section in h2 for section in STORY_SECTIONS):
+        return "enriched_story"
+    if any(section in h2 for section in ENRICH_FEATURE_SECTIONS):
+        return "enriched_feature"
+    if any(section in h2 for section in ENRICH_EPIC_SECTIONS):
+        return "enriched_epic"
+    return "unknown"
+
+
+def _append_format_validation(
+    results: list[CheckResult],
+    *,
+    name: str,
+    fmt_result,
+) -> None:
+    if fmt_result.ok:
+        results.append(CheckResult(name, "PASS", "", "STRUCTURAL"))
+        return
+    for error in fmt_result.errors:
+        results.append(CheckResult(name, "FAIL", error, "STRUCTURAL"))
+
+
 def validate_artifact(
     record: ArtifactRecord,
     *,
@@ -96,47 +131,107 @@ def validate_artifact(
                 CheckResult(name, "SKIP", "source is Azure, not a vault draft", "STRUCTURAL")
             )
 
-    if artifact_type == "User Story":
-        missing_sections: list[str] = []
-        for section in STORY_SECTIONS:
-            if not _section_present(record.body, section):
-                missing_sections.append(section)
+    body_format = _detect_body_format(record.body)
+
+    if body_format == "raw_generate":
+        from .output_formats import validate_generate_work_item_body
+
+        _append_format_validation(
+            results,
+            name="body-raw-generate-format",
+            fmt_result=validate_generate_work_item_body(record.body),
+        )
+    elif artifact_type == "User Story":
+        if body_format == "enriched_story":
+            from .output_formats import (
+                validate_enrich_user_story_body,
+                validate_ticket_structure_body,
+            )
+
+            fmt_result = (
+                validate_ticket_structure_body(record.body)
+                if all(_section_present(record.body, section) for section in STORY_SECTIONS)
+                else validate_enrich_user_story_body(record.body)
+            )
+            _append_format_validation(results, name="body-enriched-story-format", fmt_result=fmt_result)
+        else:
+            missing_sections: list[str] = []
+            for section in STORY_SECTIONS:
+                if not _section_present(record.body, section):
+                    missing_sections.append(section)
+                    results.append(
+                        CheckResult(
+                            f"body-section-missing: {section}",
+                            "FAIL",
+                            f"section `{section}` absent",
+                            "STRUCTURAL",
+                        )
+                    )
+            if not missing_sections:
                 results.append(
                     CheckResult(
-                        f"body-section-missing: {section}",
-                        "FAIL",
-                        f"section `{section}` absent",
+                        "body-sections",
+                        "PASS",
+                        f"all {len(STORY_SECTIONS)} required sections present",
                         "STRUCTURAL",
                     )
                 )
-        if not missing_sections:
+    elif artifact_type == "Feature":
+        if body_format == "enriched_feature":
+            from .output_formats import validate_enrich_feature_body
+
+            _append_format_validation(
+                results,
+                name="body-enriched-feature-format",
+                fmt_result=validate_enrich_feature_body(record.body),
+            )
+        else:
+            title_ok = bool(record.title.strip())
+            desc_ok = bool(record.body.strip())
             results.append(
                 CheckResult(
-                    "body-sections",
-                    "PASS",
-                    f"all {len(STORY_SECTIONS)} required sections present",
+                    "body-title-present",
+                    "PASS" if title_ok else "FAIL",
+                    "" if title_ok else "title is empty",
                     "STRUCTURAL",
                 )
             )
-    elif artifact_type in ("Feature", "Epic"):
-        title_ok = bool(record.title.strip())
-        desc_ok = bool(record.body.strip())
-        results.append(
-            CheckResult(
-                "body-title-present",
-                "PASS" if title_ok else "FAIL",
-                "" if title_ok else "title is empty",
-                "STRUCTURAL",
+            results.append(
+                CheckResult(
+                    "body-description-present",
+                    "PASS" if desc_ok else "FAIL",
+                    "" if desc_ok else "description is empty",
+                    "STRUCTURAL",
+                )
             )
-        )
-        results.append(
-            CheckResult(
-                "body-description-present",
-                "PASS" if desc_ok else "FAIL",
-                "" if desc_ok else "description is empty",
-                "STRUCTURAL",
+    elif artifact_type == "Epic":
+        if body_format == "enriched_epic":
+            from .output_formats import validate_enrich_epic_body
+
+            _append_format_validation(
+                results,
+                name="body-enriched-epic-format",
+                fmt_result=validate_enrich_epic_body(record.body),
             )
-        )
+        else:
+            title_ok = bool(record.title.strip())
+            desc_ok = bool(record.body.strip())
+            results.append(
+                CheckResult(
+                    "body-title-present",
+                    "PASS" if title_ok else "FAIL",
+                    "" if title_ok else "title is empty",
+                    "STRUCTURAL",
+                )
+            )
+            results.append(
+                CheckResult(
+                    "body-description-present",
+                    "PASS" if desc_ok else "FAIL",
+                    "" if desc_ok else "description is empty",
+                    "STRUCTURAL",
+                )
+            )
 
     if record.source == "vault" and record.azure_id is None:
         results.append(
@@ -183,7 +278,7 @@ def validate_artifact(
         else:
             hierarchy_story_ok = None
 
-    if artifact_type == "User Story":
+    if artifact_type == "User Story" and body_format != "raw_generate":
         complexidade = _section_content(record.body, "📊 Complexidade")
         drivers_ok = complexidade and all(d in complexidade for d in COMPLEXITY_DRIVERS)
         results.append(
@@ -251,16 +346,26 @@ def validate_artifact(
         )
     )
     if artifact_type == "User Story":
-        sp = record.story_points
-        sp_ok = sp is not None and sp > 0
-        results.append(
-            CheckResult(
-                "dor-story-points-set",
-                "PASS" if sp_ok else "FAIL",
-                "" if sp_ok else "story points not set",
-                "DoR",
+        if body_format == "raw_generate":
+            results.append(
+                CheckResult(
+                    "dor-story-points-set",
+                    "SKIP",
+                    "raw generate-work-item draft — run enrich-work-item before sizing",
+                    "DoR",
+                )
             )
-        )
+        else:
+            sp = record.story_points
+            sp_ok = sp is not None and sp > 0
+            results.append(
+                CheckResult(
+                    "dor-story-points-set",
+                    "PASS" if sp_ok else "FAIL",
+                    "" if sp_ok else "story points not set",
+                    "DoR",
+                )
+            )
         if hierarchy_story_ok is True:
             dor_link = "PASS"
             dor_detail = ""
