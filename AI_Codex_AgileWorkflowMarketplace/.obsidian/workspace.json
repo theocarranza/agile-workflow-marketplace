@@ -11,13 +11,14 @@
             "id": "2b5f60e96a57a8e8",
             "type": "leaf",
             "state": {
-              "type": "bases",
+              "type": "markdown",
               "state": {
-                "file": "Features.base",
-                "viewName": "All Features"
+                "file": "assets/work-item-enricher.prompt.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-table",
-              "title": "Features"
+              "icon": "lucide-file",
+              "title": "work-item-enricher.prompt"
             }
           }
         ]
@@ -77,7 +78,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 644.5
   },
   "right": {
     "id": "bebc7e38b4cc0622",
@@ -93,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Features.base",
+                "file": "assets/work-item-enricher.prompt.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -103,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Features"
+              "title": "Backlinks for work-item-enricher.prompt"
             }
           },
           {
@@ -168,8 +169,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -184,25 +184,41 @@
   },
   "active": "2b5f60e96a57a8e8",
   "lastOpenFiles": [
+    "Features/split-story.md",
+    "Features/validate-artifact.md",
+    "Knowledge/Open Skills Marketplace.md",
+    "Knowledge/Agent Skills Adoption Notes.md",
+    "Knowledge/Agent Orientation.md",
+    "Agent_Sessions.base",
+    "Features.base",
+    "README.md",
+    "Tickets.base",
+    "Tickets/Ready/6869-login-form-validation.md",
+    "assets/tech-glossary-en-pt-br.json",
+    "Features/generate-work-item.md",
+    "Features/generate-plain-language-documentation.md",
+    "Features/enrich-work-item.md",
+    "Agent_Sessions/2026-07-07-023800-generate-plain-language-documentation-skill.md",
+    "Features/orchestrator-core.md",
+    "Features/auto-fix-artifact.md",
+    "6868-e2e-agentic-workflow-v2-redesign.md",
+    "assets/epic-enricher.prompt.md",
+    "Agent_Reports/2026-07-02-autofix-login-form-validation.md",
+    "assets/work-item-enricher.prompt.md",
+    "assets/feature-enricher.prompt.md",
+    "feature-6501-telas-de-início-de-atendimento-retroativo.md",
+    "Knowledge/Open Skills Catalog Cards.md",
+    "Knowledge/Agent Skills Overview.md",
+    "Knowledge/Frontmatter Convention.md",
+    "Agent_Reports/2026-06-25-validate-6992.md",
+    "Agent_Reports/2026-06-25-validate-6992.md.tmp.206468.ed65fa697ee7",
+    "Features/auto-fix-artifact.md.tmp.187321.e75a7b36d9bb",
     "Agent_Sessions/2026-06-25-200000-validate-artifact-run.md",
     "Agent_Sessions/2026-06-25-200000-validate-artifact-run.md.tmp.188733.7eb61ac567b4",
     "Agent_Sessions/2026-06-25-190000-plugin-update-q.md.tmp.188733.2009f736e358",
     "Agent_Sessions/2026-06-25-190000-plugin-update-q.md.tmp.188733.5bb1453df282",
     "Agent_Sessions/2026-06-25-190000-plugin-update-q.md",
     "Agent_Sessions/2026-06-25-190000-plugin-update-q.md.tmp.187321.2b175579467b",
-    "Agent_Sessions/2026-06-25-160000-split-story-design.md.tmp.187321.b1938c41af10",
-    "Agent_Sessions/2026-06-25-160000-split-story-design.md.tmp.187321.28a8e10ea0a5",
-    "2026-06-25.md",
-    "Features.base",
-    "Features/split-story.md",
-    "Features/split-story.md.tmp.174741.f8fd106c9da0",
-    "Agent_Sessions/2026-06-25-160000-split-story-design.md",
-    "Agent_Sessions/2026-06-25-160000-split-story-design.md.tmp.174741.1cc352cde97b",
-    "Knowledge/Agent Orientation.md",
-    "Agent_Sessions.base",
-    "README.md",
-    "Agent_Sessions/2026-06-25-143000-validate-artifact-skill.md",
-    "Agent_Sessions/README.md",
-    "Features/validate-artifact.md"
+    "2026-06-25.md"
   ]
 }
