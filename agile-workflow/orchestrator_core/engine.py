@@ -97,7 +97,7 @@ class OrchestratorEngine:
             critiques = [c for c in output.get("critiques", []) if c]
             fail_checks = output.get("outcome") == "fail" or output.get("blocked")
 
-            if name == "validate-artifact" and not critiques:
+            if name == "validate-artifact" and output.get("outcome") == "pass":
                 stream.dispatch(
                     Event(type="TaskCompletedEvent", payload={"task_id": task_id, "output": output})
                 )
@@ -217,7 +217,8 @@ class OrchestratorEngine:
         results = validate_artifact(record)
         report = format_terminal_report(record, results)
         critiques = critiques_from_results(results)
-        if critiques:
+        has_failures = any(r.result == "FAIL" for r in results)
+        if has_failures:
             write_error_log(self.project_root, skill_name, critiques_to_error_log(critiques))
             return False, report
         clear_error_log(self.project_root, skill_name)
