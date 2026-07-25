@@ -65,6 +65,8 @@ Gather inputs **one at a time** via the host UI. Each step: brief purpose, requi
 | `work_item_type` | yes | `epic` \| `feature` \| `user-story` |
 | `parent` | when type ≠ epic | Parent id or Azure URL (Epic→Feature, Feature→Story) |
 | `attachment` | no | Supporting doc URL or vault path |
+| `language` | no | `en` \| `pt-br`, default **pt-BR**. When omitted, follow the existing Locale rule (match
+  `description`'s language) instead of forcing the default. |
 
 Also accept flags from `/generate-work-item` or conversational inference (see Examples).
 
@@ -193,7 +195,8 @@ Append checkpoint to open `Agent_Sessions/` record when the host keeps a session
 - **One gate** before persistence writes.
 - **Hierarchy invariants** — never link Story to Epic; always pass `type: "parent"` on link.
 - **Hook-safe drafts** — valid frontmatter and filename per `ticket-structure.md`.
-- **Locale** — match the language of `description` for section labels and body prose.
+- **Locale** — an explicit `language` input wins; otherwise match the language of `description` for
+  section labels and body prose. Default pt-BR when neither gives a signal.
 
 ## Examples
 

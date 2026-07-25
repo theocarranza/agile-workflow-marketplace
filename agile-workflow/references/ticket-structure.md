@@ -18,6 +18,8 @@ work_item_type: User Story
 parent_feature: <feature-id>
 parent_epic: <epic-id>
 azure_id: <assigned-after-creation>
+language: pt-BR         # optional — en | pt-BR, default pt-BR; selects which section-label set
+                         # the validator checks the body against (see Body sections below)
 tags: [ticket, user-story, ...]
 ---
 ```
@@ -35,16 +37,31 @@ Until Azure assigns the real id, prefix with the **parent Feature id** (e.g.
 
 ## Body sections (order)
 
-The body is written once and becomes the Azure description verbatim. Section labels follow the host
-team's language (originating team uses pt-BR):
+The body is written once and becomes the Azure description verbatim. Section labels follow the
+draft's `language:` frontmatter value — **the validator matches on the exact label for that
+language**, so pick one and set the frontmatter key accordingly; do not mix labels from both
+columns in one draft.
 
-1. **🎯 O quê** — what, as descriptive sentences, one idea per line.
-2. **💡 Por quê** — why this Story exists.
-3. **📋 Comportamento esperado** — expected behavior; ASCII diagrams here (see azure-mechanics.md).
-4. **✅ Critérios de Aceite** — acceptance criteria as checkboxes.
-5. **🔧 Notas Técnicas** — technical notes; areas/modules, not invented implementation.
-6. **📊 Complexidade** — story points + the per-driver MAX justification (decomposition-rules.md).
-7. **📄 Descrição Original** — the verbatim parent slice this Story traces to.
+| # | pt-BR (default) | en | Purpose |
+|---|---|---|---|
+| 1 | 🎯 O quê | 🎯 What | What, as descriptive sentences, one idea per line. |
+| 2 | 💡 Por quê | 💡 Why | Why this Story exists. |
+| 3 | 📋 Comportamento esperado | 📋 Expected Behavior | Expected behavior; ASCII diagrams here (see azure-mechanics.md). |
+| 4 | ✅ Critérios de Aceite | ✅ Acceptance Criteria | Acceptance criteria as checkboxes. |
+| 5 | 🔧 Notas Técnicas | 🔧 Technical Notes | Technical notes; areas/modules, not invented implementation. |
+| 6 | 📊 Complexidade | 📊 Complexity | Story points + the per-driver MAX justification (decomposition-rules.md). |
+| 7 | 📄 Descrição Original | 📄 Original Description | The verbatim parent slice this Story traces to. |
+
+The 6-driver story-point heuristic names (decomposition-rules.md) also localize:
+
+| pt-BR | en |
+|---|---|
+| Escopo | Scope |
+| Incerteza | Uncertainty |
+| Integrações | Integrations |
+| Dados | Data |
+| QA | QA |
+| Rollout | Rollout |
 
 ## Content hygiene
 

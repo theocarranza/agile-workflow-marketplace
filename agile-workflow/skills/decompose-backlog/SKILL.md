@@ -43,13 +43,20 @@ References (in `../../references/`):
 References (skill-specific, in `./references/`):
 
 - `canonical/canonical-user-story.md` — **read-only shape contract** for enriched Story drafts (seven
-  emoji sections per `ticket-structure.md`). Do not edit; validate every draft against this template.
+  emoji sections per `ticket-structure.md`, pt-BR labels). Do not edit; validate every draft against
+  this template when `language` is `pt-BR`.
+- `canonical/canonical-user-story.en.md` — same shape contract with English section labels. Use when
+  `language` is `en`.
 - `../generate-plain-language-documentation/references/integration-notes.md` — prose polish sub-pass
   in DRAFT and ENRICH phases.
 
 ## Input
 
-A parent work item **id** (Epic or Feature). Optional: target iteration, story-point ceiling override.
+A parent work item **id** (Epic or Feature). Optional: target iteration, story-point ceiling override,
+`language` (`en` | `pt-BR`, default **pt-BR**) — selects which canonical template and section-label
+set (`ticket-structure.md` → Body sections) every drafted Story uses; set it once for the whole run
+and record it as `language:` in each draft's frontmatter so `validate-artifact` checks against the
+matching labels.
 
 ## Phases
 
@@ -69,10 +76,11 @@ of Story stubs (title + one-line scope + dependencies), each tracing to a verbat
 
 ### 3. DRAFT
 
-Per approved stub, write a vault draft per `ticket-structure.md` and
-`./references/canonical/canonical-user-story.md` — hook-valid frontmatter (`type`, no `status`),
-filename regex with the Feature-id prefix, the 7 body sections in canonical order. Content hygiene
-applies.
+Per approved stub, write a vault draft per `ticket-structure.md` and the canonical template matching
+the run's `language` (`./references/canonical/canonical-user-story.md` for pt-BR,
+`canonical-user-story.en.md` for en) — hook-valid frontmatter (`type`, no `status`, `language:` set
+to the chosen value), filename regex with the Feature-id prefix, the 7 body sections in canonical
+order using that language's labels. Content hygiene applies.
 
 **Plain-language sub-pass:** Read
 `../generate-plain-language-documentation/references/integration-notes.md` § decompose-backlog; run a

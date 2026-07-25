@@ -17,14 +17,20 @@ Each check emits: `{ name, result: PASS|FAIL|WARN|SKIP, detail }`.
 
 **User Story** — all 7 sections must be present. Emit one `body-section-missing: <name>` FAIL per absent section.
 
-Required sections (detect by emoji + label heading):
-- `🎯 O quê`
-- `💡 Por quê`
-- `📋 Comportamento esperado`
-- `✅ Critérios de Aceite`
-- `🔧 Notas Técnicas`
-- `📊 Complexidade`
-- `📄 Descrição Original`
+Required sections are **language-aware**: resolved from the artifact's `language:` frontmatter
+(`en` or `pt-BR`; default **pt-BR** when the key is absent or unrecognized — see
+`ticket-structure.md`). A draft's headings must match the label set for its declared language;
+mixing labels from both columns fails the check the same as a missing section.
+
+| pt-BR (default) | en |
+|---|---|
+| `🎯 O quê` | `🎯 What` |
+| `💡 Por quê` | `💡 Why` |
+| `📋 Comportamento esperado` | `📋 Expected Behavior` |
+| `✅ Critérios de Aceite` | `✅ Acceptance Criteria` |
+| `🔧 Notas Técnicas` | `🔧 Technical Notes` |
+| `📊 Complexidade` | `📊 Complexity` |
+| `📄 Descrição Original` | `📄 Original Description` |
 
 **Feature / Epic** — title non-empty AND description non-empty. FAIL if either absent.
 
@@ -47,9 +53,9 @@ Failures are logged and validation continues to the next check.
 
 | Check | Condition | Result |
 |---|---|---|
-| `content-complexidade-breakdown` | `📊 Complexidade` section contains per-driver scores — keywords: Escopo, Incerteza, Integrações, Dados, QA, Rollout | FAIL if absent |
+| `content-complexidade-breakdown` | Complexity section (`📊 Complexidade` / `📊 Complexity` per declared language) contains per-driver scores — keywords: Escopo/Scope, Incerteza/Uncertainty, Integrações/Integrations, Dados/Data, QA, Rollout | FAIL if absent |
 | `content-story-points-set` | Story points field > 0 (frontmatter `story_points` or Azure `Microsoft.VSTS.Scheduling.StoryPoints`) | FAIL if unset or 0 |
-| `content-descricao-original-present` | `📄 Descrição Original` section is non-empty | FAIL if empty |
+| `content-descricao-original-present` | Original-description section (`📄 Descrição Original` / `📄 Original Description` per declared language) is non-empty | FAIL if empty |
 
 ### All artifact types
 
