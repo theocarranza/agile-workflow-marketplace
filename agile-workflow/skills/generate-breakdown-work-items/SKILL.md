@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires Azure DevOps MCP for Azure destinations and an AI Codex vault with Implementation_Plans/ for ledger writes.
 metadata:
   plugin: agile-workflow
-  version: "0.2.0"
+  version: "0.3.0"
   argument-hint: "--ref <id|url|path> [--destination filesystem|azure|both] [--language en|pt-BR]"
 allowed-tools: >
   Read Write Edit Glob Grep Bash
@@ -33,7 +33,7 @@ References (skill-specific, in `./references/`):
 
 - `./references/intake-ux.md` — prompt order, invariant/variant lists, `all` / `other` / `Recommended`
 - `./references/plan-generation.md` — Feature+Story ingest, AC coverage, ledger Implementation Plan
-- `./references/atomic-tasks.md` — **US3 — not yet shipped**
+- `./references/atomic-tasks.md` — atomic Tasks, Staging/Review/Breakdown, destination writers
 - `./references/fan-out.md` — **US4 — not yet shipped**
 
 Shared references (in `../../references/`):
@@ -118,17 +118,28 @@ Optional: WAIT for user accept/edit of the plan before PHASE 3.
 
 ---
 
-## PHASE 3 — DECOMPOSE TASKS (stub — US3)
+## PHASE 3 — DECOMPOSE TASKS
 
-**Not implemented yet.** Will split the saved plan into atomic Tasks plus Staging, Review, and
-Breakdown (assignee = Story assignee, state = Done). Requires `plan_path` from PHASE 2.
+Read `./references/atomic-tasks.md` § Task list construction.
+
+1. Refuse to continue unless `plan_path` exists on disk.
+2. Split the saved plan into atomic, testable Tasks (one ≈ one atomic commit).
+3. Always append **Staging**, then **Review**, then **Breakdown** last.
+4. Breakdown: assignee = Story assignee; state = Done.
+5. Present the proposed Task list as a variant multi-select (`all`, `other…`, `Recommended` per
+   `intake-ux.md`) and WAIT for selection before PHASE 4.
 
 ---
 
-## PHASE 4 — PERSIST (stub — US3)
+## PHASE 4 — PERSIST
 
-**Not implemented yet.** Will attach Tasks as children and write to `destination`
-(filesystem, Azure, or both).
+Read `./references/atomic-tasks.md` § Persist.
+
+1. Write selected Tasks to intake `destination` (`filesystem`, `azure`, or `both`).
+2. Attach every Task as a **child of the User Story** (Azure: `wit_add_child_work_items` or
+   create + link `type: "parent"`; vault: parent Story ref in frontmatter).
+3. Update Breakdown assignee/state; read-back assert parent + Done.
+4. Report `plan_path`, Task ids/paths, and Breakdown outcome.
 
 ---
 
@@ -143,11 +154,10 @@ without silently skipping failures.
 ## Examples
 
 ```text
-/generate-breakdown-work-items --ref 12345
-→ ask destination → language defaults to en → confirm intake
-→ read Feature + Story → save Implementation_Plans/YYYY-MM-DD-….md
-→ STOP before Tasks until US3 ships
+/generate-breakdown-work-items --ref 12345 --destination both
+→ intake confirm → Feature+Story ingest → save Implementation_Plans/…
+→ propose Tasks (AC steps + Staging + Review + Breakdown) → persist to vault + Azure
 
 /generate-breakdown-work-items --ref Tickets/Backlog/0000-us1-….md --destination filesystem --language en
-→ confirm intake → ingest Feature + Story ACs → write plan to ledger
+→ confirm intake → plan on ledger → Task drafts under Tickets/
 ```
