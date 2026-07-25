@@ -1,0 +1,27 @@
+{
+  "name": "generate-breakdown-work-items",
+  "description": "Intake UX for breaking a User Story (or Feature/Epic) into an Implementation Plan and atomic child Tasks from acceptance criteria.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "work_item_ref": {
+        "type": "string",
+        "description": "Azure work item ID, URL, or vault/filesystem path to a User Story, Feature, or Epic"
+      },
+      "destination": {
+        "type": "string",
+        "enum": ["filesystem", "azure", "both"],
+        "description": "Where to write the Implementation Plan and Tasks"
+      },
+      "language": {
+        "type": "string",
+        "enum": ["en", "pt-BR"],
+        "description": "Output language; defaults to en when omitted"
+      }
+    },
+    "required": ["work_item_ref"]
+  },
+  "output_signature": {
+    "required": ["work_item_ref", "source_kind", "destination", "language"]
+  }
+}
