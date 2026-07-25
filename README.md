@@ -2,7 +2,7 @@
 
 [![Release](https://img.shields.io/github/v/release/theocarranza/agile-workflow-marketplace?label=version&color=0e7c86)](https://github.com/theocarranza/agile-workflow-marketplace/releases)
 [![License: MIT](https://img.shields.io/github/license/theocarranza/agile-workflow-marketplace)](LICENSE)
-[![Skills](https://img.shields.io/badge/skills-7-2563eb)](skills/)
+[![Skills](https://img.shields.io/badge/skills-8-2563eb)](skills/)
 [![Agent Skills](https://img.shields.io/badge/spec-agentskills.io-5C2D91)](https://agentskills.io/specification)
 [![skills.sh](https://img.shields.io/badge/listed-skills.sh-000000)](https://skills.sh/)
 
@@ -16,7 +16,7 @@
 
 A standalone multi-host plugin marketplace for Agile backlog workflows against **Azure DevOps**.
 
-Seven [Agent Skills](https://agentskills.io/specification)-compliant conductors plus a deterministic **Python orchestrator** for quality gates. Ships Claude Code, Cursor, Codex, and Antigravity plugin manifests, MCP wiring, and an Obsidian vault ledger.
+Eight [Agent Skills](https://agentskills.io/specification)-compliant conductors plus a deterministic **Python orchestrator** for quality gates. Ships Claude Code, Cursor, Codex, and Antigravity plugin manifests, MCP wiring, and an Obsidian vault ledger.
 
 ## Install
 
@@ -68,7 +68,7 @@ Manual / Claude-only alternative:
 
 ### Skills only (registry install)
 
-Root `skills/` symlinks expose the seven skills for [skills.sh](https://skills.sh/) and [openskills.cc](https://openskills.cc/skills) discovery:
+Root `skills/` symlinks expose the eight skills for [skills.sh](https://skills.sh/) and [openskills.cc](https://openskills.cc/skills) discovery:
 
 ```bash
 npx skills add theocarranza/agile-workflow-marketplace
@@ -208,6 +208,17 @@ verification. Sibling skills delegate prose passes here without a separate user 
 
 Trigger: `/generate-plain-language-documentation`, "document this in plain language", "rewrite for
 the product team", or `--source` with optional `--audience`, `--language`, `--type`.
+
+### Skill: `generate-breakdown-work-items`
+
+From a User Story (or Feature/Epic fan-out), collect work-item reference, output destination, and
+language; write an Implementation Plan to the ledger; attach atomic child Tasks — including
+Staging, Review, and a Done Breakdown Task. Intake enforces selection UX rules (`Recommended`,
+`all`, trailing `other…`). Fan-out runs the Story workflow per child without silently skipping
+failures.
+
+Trigger: `/generate-breakdown-work-items`, "break down this story into tasks", or supply a Story /
+Feature / Epic id, URL, or vault path.
 
 
 ## Agent Skills compliance

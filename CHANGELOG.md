@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.7.3] - 2026-07-24
+### Added
+
+- **`generate-breakdown-work-items` skill**: Intake UX, Implementation Plan generation to the
+  ledger, atomic Task decomposition (Staging / Review / Breakdown), and Feature/Epic fan-out.
+  Registered in `skills.sh.json`, plugin/marketplace descriptions, and root `skills/` symlink.
+
 
 ### Changed
 

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "assets/work-item-enricher.prompt.md",
+                "file": "Features/generate-breakdown-work-items.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "work-item-enricher.prompt"
+              "title": "generate-breakdown-work-items"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "assets/work-item-enricher.prompt.md",
+                "file": "Features/generate-breakdown-work-items.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for work-item-enricher.prompt"
+              "title": "Backlinks for generate-breakdown-work-items"
             }
           },
           {
@@ -169,7 +169,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -184,41 +185,41 @@
   },
   "active": "2b5f60e96a57a8e8",
   "lastOpenFiles": [
+    "Implementation_Plans/2026-07-25-generate-breakdown-work-items.md",
+    "Implementation_Plans",
+    "Features/generate-plain-language-documentation.md",
+    "Tickets/Backlog/0000-us4-feature-epic-fanout.md",
+    "Tickets/Backlog/0000-us1-intake-selection-ux.md",
+    "Tickets/Backlog/0000-us2-implementation-plan-generation.md",
+    "Tickets/Backlog/0000-us4-feature-epic-fanout.md.tmp.109131.b56a116f5279",
+    "Tickets/Backlog/0000-us3-atomic-task-decomposition.md.tmp.109131.0965ccb82b3e",
+    "Tickets/Backlog/0000-us2-implementation-plan-generation.md.tmp.109131.a72a4074a33b",
+    "Tickets/Backlog/0000-us1-intake-selection-ux.md.tmp.109131.e1dff5ca2769",
+    "Tickets/Backlog/0000-us4-feature-epic-fanout.md.tmp.109131.e846e1725473",
+    "Tickets/Backlog/0000-us3-atomic-task-decomposition.md.tmp.109131.20a970b41814",
+    "Tickets/Backlog/0000-us2-implementation-plan-generation.md.tmp.109131.16ff661fa716",
+    "Tickets/Backlog/0000-us1-intake-selection-ux.md.tmp.109131.10e5ba636243",
+    "Tickets/Backlog/0000-us4-feature-epic-fanout.md.tmp.109131.bef1ebf713fb",
+    "Tickets/Backlog/0000-us3-atomic-task-decomposition.md",
+    "Features/generate-breakdown-work-items.md",
+    "Features/generate-work-item.md",
+    "Agent_Reports/2026-07-25-validate-spike-generate-breakdown-work-items.md",
+    "Features/spike-generate-breakdown-work-items.md",
+    "Agent_Reports/2026-07-25-validate-generate-breakdown-work-items.md",
+    "Features/Generate_Breakdown_Work_Items.md",
     "Features/split-story.md",
     "Features/validate-artifact.md",
     "Knowledge/Open Skills Marketplace.md",
     "Knowledge/Agent Skills Adoption Notes.md",
     "Knowledge/Agent Orientation.md",
-    "Agent_Sessions.base",
-    "Features.base",
     "README.md",
-    "Tickets.base",
     "Tickets/Ready/6869-login-form-validation.md",
-    "assets/tech-glossary-en-pt-br.json",
-    "Features/generate-work-item.md",
-    "Features/generate-plain-language-documentation.md",
     "Features/enrich-work-item.md",
     "Agent_Sessions/2026-07-07-023800-generate-plain-language-documentation-skill.md",
     "Features/orchestrator-core.md",
     "Features/auto-fix-artifact.md",
     "6868-e2e-agentic-workflow-v2-redesign.md",
     "assets/epic-enricher.prompt.md",
-    "Agent_Reports/2026-07-02-autofix-login-form-validation.md",
-    "assets/work-item-enricher.prompt.md",
-    "assets/feature-enricher.prompt.md",
-    "feature-6501-telas-de-início-de-atendimento-retroativo.md",
-    "Knowledge/Open Skills Catalog Cards.md",
-    "Knowledge/Agent Skills Overview.md",
-    "Knowledge/Frontmatter Convention.md",
-    "Agent_Reports/2026-06-25-validate-6992.md",
-    "Agent_Reports/2026-06-25-validate-6992.md.tmp.206468.ed65fa697ee7",
-    "Features/auto-fix-artifact.md.tmp.187321.e75a7b36d9bb",
-    "Agent_Sessions/2026-06-25-200000-validate-artifact-run.md",
-    "Agent_Sessions/2026-06-25-200000-validate-artifact-run.md.tmp.188733.7eb61ac567b4",
-    "Agent_Sessions/2026-06-25-190000-plugin-update-q.md.tmp.188733.2009f736e358",
-    "Agent_Sessions/2026-06-25-190000-plugin-update-q.md.tmp.188733.5bb1453df282",
-    "Agent_Sessions/2026-06-25-190000-plugin-update-q.md",
-    "Agent_Sessions/2026-06-25-190000-plugin-update-q.md.tmp.187321.2b175579467b",
-    "2026-06-25.md"
+    "Agent_Reports/2026-07-02-autofix-login-form-validation.md"
   ]
 }
