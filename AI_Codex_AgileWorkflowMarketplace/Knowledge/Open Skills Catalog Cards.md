@@ -16,7 +16,7 @@ Copy-paste listing drafts for [openskills.cc](https://openskills.cc/) / OpenClaw
 | --- | --- |
 | **Name** | agile-workflow |
 | **Category** | Development Tools / Productivity |
-| **Description** | Azure DevOps backlog workflow skills: decompose Features into Stories, validate and auto-fix artifacts, split oversized stories, generate Epics/Features/Stories/Tasks with Context7-backed specs. Deterministic Python orchestrator for quality gates. |
+| **Description** | Azure DevOps backlog workflow skills: decompose Features into Stories, validate and auto-fix artifacts, split oversized stories, generate Epics/Features/Stories/Tasks with Context7-backed specs, and break Stories into Implementation Plans plus atomic Tasks. Deterministic Python orchestrator for quality gates. |
 | **Install (full plugin)** | `./install.sh -y --azure-org <org> --project-dir <path>` |
 | **Install (skills only)** | `npx skills add theocarranza/agile-workflow-marketplace` |
 | **Install (AGENTS.md agents)** | `npx openskills install theocarranza/agile-workflow-marketplace --universal && npx openskills sync -y` |
@@ -24,7 +24,7 @@ Copy-paste listing drafts for [openskills.cc](https://openskills.cc/) / OpenClaw
 | **Requires** | Azure DevOps MCP, AI Codex vault, optional Context7 MCP |
 | **Standard** | [agentskills.io](https://agentskills.io/home) |
 | **License** | MIT |
-| **Skills** | 7 |
+| **Skills** | 8 |
 
 ## Per-skill cards
 
@@ -72,6 +72,13 @@ Plain-language prose for documentation, reports, guides, and work-item narrative
 `pt-br` verification. Sub-skill mode for sibling backlog conductors.
 
 **Triggers:** `/generate-plain-language-documentation`, "document in plain language", rewrite requests.
+
+### generate-breakdown-work-items
+
+From a User Story (or Feature/Epic fan-out): intake UX → Implementation Plan on the ledger →
+atomic child Tasks (Staging, Review, Done Breakdown). Destinations: filesystem, Azure, or both.
+
+**Triggers:** `/generate-breakdown-work-items`, "break down this story into tasks".
 
 ## Publication checklist
 

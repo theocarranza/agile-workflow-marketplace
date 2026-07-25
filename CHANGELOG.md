@@ -7,12 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-07-25
+
 ### Added
 
 - **`generate-breakdown-work-items` skill**: Intake UX, Implementation Plan generation to the
   ledger, atomic Task decomposition (Staging / Review / Breakdown), and Feature/Epic fan-out.
   Registered in `skills.sh.json`, plugin/marketplace descriptions, and root `skills/` symlink.
+- Skill package under `agile-workflow/skills/generate-breakdown-work-items/` with
+  `intake-ux.md`, `plan-generation.md`, `atomic-tasks.md`, and `fan-out.md` references.
+- Vault feature, child Stories, and Implementation Plan under
+  `AI_Codex_AgileWorkflowMarketplace/`.
 
+### Changed
+
+- Agent Skills registry: eighth skill in `skills.sh.json`, root
+  `skills/generate-breakdown-work-items` symlink, marketplace/plugin manifests, and README.
+- Plugin version bumped to **0.8.0**.
+
+## [0.7.3] - 2026-07-24
 
 ### Changed
 
