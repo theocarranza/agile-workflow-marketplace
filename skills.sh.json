@@ -4,12 +4,13 @@
   "groupings": [
     {
       "title": "Backlog",
-      "description": "Decompose parents, split oversized stories, and generate new work items.",
+      "description": "Decompose parents, split oversized stories, generate work items, and break Stories into Tasks.",
       "skills": [
         "decompose-backlog",
         "split-story",
         "generate-work-item",
-        "enrich-work-item"
+        "enrich-work-item",
+        "generate-breakdown-work-items"
       ]
     },
     {
