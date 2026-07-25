@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires Azure DevOps MCP for Azure destinations and an AI Codex vault with Implementation_Plans/ for ledger writes.
 metadata:
   plugin: agile-workflow
-  version: "0.1.0"
+  version: "0.2.0"
   argument-hint: "--ref <id|url|path> [--destination filesystem|azure|both] [--language en|pt-BR]"
 allowed-tools: >
   Read Write Edit Glob Grep Bash
@@ -32,7 +32,7 @@ child Tasks. Load references as each phase needs them — this file is the score
 References (skill-specific, in `./references/`):
 
 - `./references/intake-ux.md` — prompt order, invariant/variant lists, `all` / `other` / `Recommended`
-- `./references/plan-generation.md` — **US2 — not yet shipped**
+- `./references/plan-generation.md` — Feature+Story ingest, AC coverage, ledger Implementation Plan
 - `./references/atomic-tasks.md` — **US3 — not yet shipped**
 - `./references/fan-out.md` — **US4 — not yet shipped**
 
@@ -85,30 +85,43 @@ work-item bodies, write the Ledger, or call Azure write APIs in this phase.
 }
 ```
 
-On confirmation, proceed to PHASE 1 when that phase is implemented; until then STOP with the
-confirmed record and note that plan generation / task decomposition / fan-out land in later Stories.
+On confirmation, proceed to PHASE 1.
 
 ---
 
-## PHASE 1 — INGEST (stub — US2)
+## PHASE 1 — INGEST
 
-**Not implemented yet.** Will read Feature + User Story bodies (or enumerate children for
-Feature/Epic). Do not invent acceptance criteria. If invoked before US2 ships: STOP and report
-that plan generation is not available.
+Read `./references/plan-generation.md` § PHASE 1.
+
+1. Resolve `work_item_ref` to a work item (Azure id/url or vault/filesystem path).
+2. If type is **Feature** or **Epic**: hand off to PHASE 5 (fan-out). Until fan-out ships, STOP
+   with that message — do not draft a parent-level plan.
+3. If type is **User Story**: read the **parent Feature body** and the **Story body** before any
+   plan drafting. STOP if the Feature cannot be resolved or if acceptance criteria are missing.
+4. Extract `acceptance_criteria` **verbatim** (en/pt-BR section labels per
+   `../../references/ticket-structure.md`). Never invent or rewrite ACs.
 
 ---
 
-## PHASE 2 — IMPLEMENTATION PLAN (stub — US2)
+## PHASE 2 — IMPLEMENTATION PLAN
 
-**Not implemented yet.** Will analyze acceptance criteria, write
-`<vault>/Implementation_Plans/…`, and refuse Task creation until the plan file exists.
+Read `./references/plan-generation.md` § PHASE 2.
+
+1. Draft a plan that **addresses every** acceptance-criteria entry.
+2. Write it to `<vault>/Implementation_Plans/YYYY-MM-DD-<story-slug>.md` with the frontmatter
+   contract in `plan-generation.md`.
+3. Re-read the file; record `plan_path` on the run context; present path + summary.
+4. **Do not create Tasks** in this phase. If PHASE 3 is invoked without a saved `plan_path` on
+   disk → STOP: "Implementation Plan not saved; refusing Task creation."
+
+Optional: WAIT for user accept/edit of the plan before PHASE 3.
 
 ---
 
 ## PHASE 3 — DECOMPOSE TASKS (stub — US3)
 
 **Not implemented yet.** Will split the saved plan into atomic Tasks plus Staging, Review, and
-Breakdown (assignee = Story assignee, state = Done).
+Breakdown (assignee = Story assignee, state = Done). Requires `plan_path` from PHASE 2.
 
 ---
 
@@ -122,8 +135,8 @@ Breakdown (assignee = Story assignee, state = Done).
 ## PHASE 5 — FAN-OUT (stub — US4)
 
 **Not implemented yet.** When the resolved work item is a Feature or Epic, will run the User
-Story workflow for each child Story, reusing intake `destination` and `language`, without
-silently skipping failures.
+Story workflow (PHASE 1–4) for each child Story, reusing intake `destination` and `language`,
+without silently skipping failures.
 
 ---
 
@@ -131,8 +144,10 @@ silently skipping failures.
 
 ```text
 /generate-breakdown-work-items --ref 12345
-→ ask destination → language defaults to en → confirm intake → (later phases when shipped)
+→ ask destination → language defaults to en → confirm intake
+→ read Feature + Story → save Implementation_Plans/YYYY-MM-DD-….md
+→ STOP before Tasks until US3 ships
 
-/generate-breakdown-work-items --ref Features/foo.md --destination both --language pt-BR
-→ confirm intake record → (later phases when shipped)
+/generate-breakdown-work-items --ref Tickets/Backlog/0000-us1-….md --destination filesystem --language en
+→ confirm intake → ingest Feature + Story ACs → write plan to ledger
 ```

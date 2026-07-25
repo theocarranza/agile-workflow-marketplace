@@ -1,6 +1,6 @@
 {
   "name": "generate-breakdown-work-items",
-  "description": "Intake UX for breaking a User Story (or Feature/Epic) into an Implementation Plan and atomic child Tasks from acceptance criteria.",
+  "description": "Break a User Story into an Implementation Plan (ledger) and atomic child Tasks from acceptance criteria; intake UX plus plan generation.",
   "input_schema": {
     "type": "object",
     "properties": {
