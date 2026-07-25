@@ -16,7 +16,7 @@
 
 A standalone multi-host plugin marketplace for Agile backlog workflows against **Azure DevOps**.
 
-Eight [Agent Skills](https://agentskills.io/specification)-compliant conductors plus a deterministic **Python orchestrator** for quality gates. Ships Claude Code, Cursor, Codex, and Antigravity plugin manifests, MCP wiring, and an Obsidian vault ledger. Current plugin release: **v0.8.0**.
+Eight [Agent Skills](https://agentskills.io/specification)-compliant conductors plus a deterministic **Python orchestrator** for quality gates. Ships Claude Code, Cursor, Codex, and Antigravity plugin manifests, MCP wiring, and an Obsidian vault ledger. Current plugin release: **v0.8.1**.
 
 ## Install
 
@@ -40,7 +40,7 @@ Non-interactive:
 Remote bootstrap (no manual clone):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/theocarranza/agile-workflow-marketplace/master/install.sh \
+curl -fsSL https://raw.githubusercontent.com/theocarranza/agile-workflow-marketplace/main/install.sh \
   | bash -s -- -y --azure-org <org-slug> --project-dir /path/to/your/project
 ```
 

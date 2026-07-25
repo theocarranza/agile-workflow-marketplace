@@ -1,4 +1,6 @@
 import json
+import os
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -15,6 +17,9 @@ from scripts.install import (
     validate_azure_org,
     wire_project_mcp,
 )
+
+ROOT = Path(__file__).resolve().parent.parent
+INSTALL_SH = ROOT / "install.sh"
 
 
 class TestInstallHelpers(unittest.TestCase):
@@ -147,6 +152,39 @@ class TestInstallHelpers(unittest.TestCase):
 
     def test_mcp_json_hosts_excludes_cursor(self) -> None:
         self.assertNotIn("cursor", _MCP_JSON_HOSTS)
+
+
+class TestInstallShBootstrap(unittest.TestCase):
+    def test_local_checkout_reaches_python_installer(self) -> None:
+        proc = subprocess.run(
+            ["bash", str(INSTALL_SH), "--help"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        combined = (proc.stdout + proc.stderr).lower()
+        self.assertIn("azure-org", combined)
+        self.assertNotIn("bootstrapping", combined)
+
+    def test_piped_install_bootstraps_instead_of_cwd_install_py(self) -> None:
+        env = {
+            **os.environ,
+            "AGILE_WORKFLOW_REPO": "file:///nonexistent-agile-workflow-marketplace",
+            "AGILE_WORKFLOW_REF": "main",
+        }
+        proc = subprocess.run(
+            ["bash", "-s", "--", "-y", "--azure-org", "demo", "--project-dir", "/tmp"],
+            input=INSTALL_SH.read_text(encoding="utf-8"),
+            capture_output=True,
+            text=True,
+            env=env,
+            check=False,
+        )
+        combined = proc.stdout + proc.stderr
+        self.assertIn("Bootstrapping", combined)
+        self.assertNotIn("can't open file", combined)
+        self.assertNotEqual(proc.returncode, 0)
 
 
 if __name__ == "__main__":

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-07-25
+
+### Fixed
+
+- **`install.sh` curl|bash bootstrap**: Piped installs no longer resolve `scripts/install.py`
+  relative to the current working directory (which produced
+  `python3: can't open file '…/scripts/install.py'`). When not run from a checkout, the
+  script shallow-clones the repo and runs the installer from that clone.
+- README remote install URL now uses the `main` branch (not `master`).
+
 ## [0.8.0] - 2026-07-25
 
 ### Added
