@@ -212,9 +212,10 @@ the product team", or `--source` with optional `--audience`, `--language`, `--ty
 ### Skill: `generate-breakdown-work-items`
 
 From a User Story (or Feature/Epic fan-out), collect work-item reference, output destination, and
-language, then (in later phases) write an Implementation Plan to the ledger and attach atomic child
-Tasks — including Staging, Review, and a Done Breakdown Task. Intake enforces selection UX rules
-(`Recommended`, `all`, trailing `other…`).
+language; write an Implementation Plan to the ledger; attach atomic child Tasks — including
+Staging, Review, and a Done Breakdown Task. Intake enforces selection UX rules (`Recommended`,
+`all`, trailing `other…`). Fan-out runs the Story workflow per child without silently skipping
+failures.
 
 Trigger: `/generate-breakdown-work-items`, "break down this story into tasks", or supply a Story /
 Feature / Epic id, URL, or vault path.

@@ -11,7 +11,7 @@ license: MIT
 compatibility: Requires Azure DevOps MCP for Azure destinations and an AI Codex vault with Implementation_Plans/ for ledger writes.
 metadata:
   plugin: agile-workflow
-  version: "0.3.0"
+  version: "0.4.0"
   argument-hint: "--ref <id|url|path> [--destination filesystem|azure|both] [--language en|pt-BR]"
 allowed-tools: >
   Read Write Edit Glob Grep Bash
@@ -34,7 +34,7 @@ References (skill-specific, in `./references/`):
 - `./references/intake-ux.md` — prompt order, invariant/variant lists, `all` / `other` / `Recommended`
 - `./references/plan-generation.md` — Feature+Story ingest, AC coverage, ledger Implementation Plan
 - `./references/atomic-tasks.md` — atomic Tasks, Staging/Review/Breakdown, destination writers
-- `./references/fan-out.md` — **US4 — not yet shipped**
+- `./references/fan-out.md` — Feature/Epic child discovery, per-Story loop, failure isolation
 
 Shared references (in `../../references/`):
 
@@ -94,8 +94,7 @@ On confirmation, proceed to PHASE 1.
 Read `./references/plan-generation.md` § PHASE 1.
 
 1. Resolve `work_item_ref` to a work item (Azure id/url or vault/filesystem path).
-2. If type is **Feature** or **Epic**: hand off to PHASE 5 (fan-out). Until fan-out ships, STOP
-   with that message — do not draft a parent-level plan.
+2. If type is **Feature** or **Epic**: go to PHASE 5 (fan-out). Do not draft a parent-level plan.
 3. If type is **User Story**: read the **parent Feature body** and the **Story body** before any
    plan drafting. STOP if the Feature cannot be resolved or if acceptance criteria are missing.
 4. Extract `acceptance_criteria` **verbatim** (en/pt-BR section labels per
@@ -143,11 +142,16 @@ Read `./references/atomic-tasks.md` § Persist.
 
 ---
 
-## PHASE 5 — FAN-OUT (stub — US4)
+## PHASE 5 — FAN-OUT
 
-**Not implemented yet.** When the resolved work item is a Feature or Epic, will run the User
-Story workflow (PHASE 1–4) for each child Story, reusing intake `destination` and `language`,
-without silently skipping failures.
+Read `./references/fan-out.md`.
+
+1. Enumerate **all** child User Stories under the Feature (or under Features of an Epic) **before**
+   processing any Story.
+2. Optionally present a variant multi-select (`all` / `other…`) of Stories to include.
+3. For each selected Story: run PHASE 1–4 with the same intake `destination` and `language`.
+4. On failure: record the error and **continue** remaining Stories (no silent skip).
+5. End with a success/fail summary; partial failure if any Story failed.
 
 ---
 
@@ -158,6 +162,6 @@ without silently skipping failures.
 → intake confirm → Feature+Story ingest → save Implementation_Plans/…
 → propose Tasks (AC steps + Staging + Review + Breakdown) → persist to vault + Azure
 
-/generate-breakdown-work-items --ref Tickets/Backlog/0000-us1-….md --destination filesystem --language en
-→ confirm intake → plan on ledger → Task drafts under Tickets/
+/generate-breakdown-work-items --ref Features/generate-breakdown-work-items.md --destination filesystem
+→ list child Stories → for each: plan + Tasks → report OK/FAIL per Story
 ```
