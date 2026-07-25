@@ -16,7 +16,9 @@ Identifique o tipo baseado em palavras-chave:
 
 **Ordem de leitura:**
 
-**2.1. Documentação do Monorepo (sempre primeiro)**
+**2.1. Roteador do monorepo (sempre primeiro)**
+
+Leia `../../AGENTS.md` e siga a rota **"Enriquecer/planejar work item"** — não explore código a esmo, use o roteamento:
 - `../../docs/domain.md` - modelo de domínio e projetos
 - `../../docs/architecture.md` - arquitetura e integração entre projetos
 
@@ -30,8 +32,7 @@ Com base na descrição e no entendimento do domínio, **infira quais projetos s
 
 **2.3. Documentação dos Projetos Identificados**
 Para cada projeto identificado, consulte:
-- `projects/[projeto]/AGENTS.md` - instruções do projeto
-- `projects/[projeto]/AGENTS_RULES.md` - regras específicas
+- `projects/[projeto]/AGENTS.md` — roteador do projeto
 
 **2.4. Análise de Código Direcionada**
 - Com base na descrição e no entendimento do domínio, identifique quais áreas do código investigar

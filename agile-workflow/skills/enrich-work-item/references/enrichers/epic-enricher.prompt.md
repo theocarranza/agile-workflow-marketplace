@@ -10,7 +10,9 @@ Transforme a descrição de **Epic** em documentação estruturada focada em obj
 
 **Ordem de leitura:**
 
-**1.1. Documentação do Monorepo (sempre primeiro)**
+**1.1. Roteador do monorepo (sempre primeiro)**
+
+Leia `../../AGENTS.md` e siga a rota **"Enriquecer/planejar work item"** — não explore código a esmo, use o roteamento:
 - `../../docs/domain.md` - modelo de domínio e projetos
 - `../../docs/architecture.md` - arquitetura e integração entre projetos
 - `../../docs/product-management/backlog-roadmap-strategy.md` - estratégia de backlog e roadmap
@@ -24,8 +26,7 @@ Com base na descrição e no entendimento do domínio, **infira quais projetos s
 
 **1.3. Documentação dos Projetos Identificados**
 Para cada projeto identificado, consulte:
-- `projects/[projeto]/AGENTS.md` - instruções do projeto
-- `projects/[projeto]/AGENTS_RULES.md` - regras específicas
+- `projects/[projeto]/AGENTS.md` — roteador do projeto
 
 ### 2. Regras Críticas de Qualidade
 
@@ -103,7 +104,7 @@ Identifique o tipo de Epic:
 - [Área/Módulo do sistema]
 - [Projeto(s): Aplicatudo/Functions/bHave Admin/bhaviews/bhave-docs]
 
-## 🔗 Dependências e Riscos Estratégicos
+## 🚧 Dependências e Riscos Estratégicos
 - [Dependência externa ou risco estratégico importante]
 - [Dependência ou risco]
 
@@ -203,7 +204,7 @@ A plataforma atualmente depende apenas de autenticação por senha, o que repres
 - Módulo de Segurança
 - Projetos: Aplicatudo (Flutter), Functions (Node.js)
 
-## 🔗 Dependências e Riscos Estratégicos
+## 🚧 Dependências e Riscos Estratégicos
 - Dependência de APIs nativas de biometria (iOS/Android)
 - Necessidade de integração com provedor de SMS para 2FA
 - Risco de impacto na experiência do usuário se implementação for complexa

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.3] - 2026-07-24
+
+### Changed
+
+- **`enrich-work-item` enricher prompts**: Synced `references/enrichers/*.prompt.md` with the
+  upstream host-team source — Contexto Obrigatório now routes through a single `../../AGENTS.md`
+  router (dropping the separate `AGENTS_RULES.md` lookup) and the Feature enricher consolidates
+  plan/feature-flag guidance into `domain.md` (dropping the standalone
+  `plans-and-subscriptions.md` reference). Epic enricher's Dependências e Riscos Estratégicos
+  heading emoji changed 🔗 → 🚧 to match upstream.
+
+### Removed
+
+- Stale duplicate copies of the enricher prompts and the pt-BR tech glossary under
+  `AI_Codex_AgileWorkflowMarketplace/assets/`, left over from before the 0.7.1 bundled-assets
+  migration. The vault's `assets/` folder is documented for images/binary attachments only; the
+  bundled copies inside each skill's own `references/` are the single source of truth.
+
 ## [0.7.1] - 2026-07-07
 
 ### Changed

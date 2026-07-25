@@ -12,11 +12,12 @@ Transforme a descrição de **Feature** em documentação estruturada e focada e
 
 **Ordem de leitura:**
 
-**1.1. Documentação do Monorepo (sempre primeiro)**
-- `../../docs/domain.md` - modelo de domínio, projetos e sistema de permissões (Feature Flags globais)
+**1.1. Roteador do monorepo (sempre primeiro)**
+
+Leia `../../AGENTS.md` e siga a rota **"Enriquecer/planejar work item"** — não explore código a esmo, use o roteamento:
+- `../../docs/domain.md` - glossário, papéis, invariantes (`INV-n`) e planos (Experimental, Nível I, Nível II)
 - `../../docs/architecture.md` - arquitetura e integração entre projetos
 - `../../docs/product-management/backlog-roadmap-strategy.md` - estratégia de backlog
-- `../../docs/plans-and-subscriptions.md` - planos (Experimental, Nível I, Nível II) e funcionalidades por plano
 
 **1.2. Identificação de Projetos**
 Com base na descrição e no entendimento do domínio, **infira quais projetos serão envolvidos**:
@@ -28,8 +29,7 @@ Com base na descrição e no entendimento do domínio, **infira quais projetos s
 
 **1.3. Documentação dos Projetos Identificados**
 Para cada projeto identificado, consulte:
-- `projects/[projeto]/AGENTS.md` - instruções do projeto
-- `projects/[projeto]/AGENTS_RULES.md` - regras específicas
+- `projects/[projeto]/AGENTS.md` — roteador do projeto
 
 **1.4. Análise de Código Direcionada**
 - Com base na descrição, identifique áreas do código relacionadas
@@ -93,8 +93,8 @@ Identifique o tipo de Feature:
 ## ✅ Critérios de Sucesso
 - [ ] [Critério mensurável e observável - foco em resultado, não em implementação]
 - [ ] [Critério mensurável e observável]
-- [ ] [Disponibilidade por plano: definir a quais planos a Feature pertence consultando `plans-and-subscriptions.md`; usar "todos os planos" SOMENTE se for realmente o caso]
-- [ ] [SE APLICÁVEL: Feature flag global `[nome]` implementada e habilitada — apenas quando houver rollout controlado/kill-switch; ver `domain.md` › Sistema de Permissões]
+- [ ] [Disponibilidade por plano: definir a quais planos a Feature pertence consultando `domain.md`; usar "todos os planos" SOMENTE se for realmente o caso]
+- [ ] [SE APLICÁVEL: Feature flag global `[nome]` implementada e habilitada — apenas quando houver rollout controlado/kill-switch; ver `domain.md` › Papéis (FeatureFlag)]
 
 ## 🔧 Áreas/Módulos Envolvidos
 - [Área/Módulo do sistema]
@@ -126,8 +126,8 @@ Identifique o tipo de Feature:
 - ✅ Métricas de sucesso (quando aplicável)
 - ✅ Estados finais desejados
 - ✅ Validações de valor entregue
-- ✅ **DEFINIR DISPONIBILIDADE POR PLANO:** indicar a quais planos a Feature pertence (consultar `plans-and-subscriptions.md`); NÃO assumir "todos os planos" — há funcionalidades exclusivas de certos planos (ex.: Biblioteca em Experimental + Nível II)
-- ✅ **FEATURE FLAG (SE APLICÁVEL):** quando houver rollout controlado ou kill-switch, citar a feature flag global a implementar/habilitar (ver `domain.md` › Sistema de Permissões)
+- ✅ **DEFINIR DISPONIBILIDADE POR PLANO:** indicar a quais planos a Feature pertence (consultar `domain.md`); NÃO assumir "todos os planos" — há funcionalidades exclusivas de certos planos (ex.: Biblioteca em Experimental + Nível II)
+- ✅ **FEATURE FLAG (SE APLICÁVEL):** quando houver rollout controlado ou kill-switch, citar a feature flag global a implementar/habilitar (ver `domain.md` › Papéis, nota sobre `FeatureFlag`)
 
 **Critérios que NÃO devem ser incluídos:**
 - ❌ "User Stories implementadas" (óbvio)
@@ -140,7 +140,7 @@ Identifique o tipo de Feature:
 - ✅ "Taxa de sucesso de login aumenta em 20%"
 - ✅ "Tempo médio de login reduz para menos de 2 segundos"
 - ✅ "Dashboard exibe widgets personalizáveis pelo usuário"
-- ✅ "Feature disponível nos planos Nível I e Nível II" (disponibilidade definida conforme `plans-and-subscriptions.md`)
+- ✅ "Feature disponível nos planos Nível I e Nível II" (disponibilidade definida conforme `domain.md`)
 - ✅ "Feature flag global `biometricLogin` habilitada para rollout controlado" (quando aplicável)
 
 **Exemplos de critérios inválidos:**
@@ -179,7 +179,7 @@ Permitir que usuários façam login no app mobile usando autenticação biométr
 - [ ] Usuários podem optar por usar biometria ou senha tradicional
 - [ ] Taxa de sucesso de login aumenta em pelo menos 15%
 - [ ] Tempo médio de login reduz para menos de 2 segundos
-- [ ] Disponível em todos os planos — autenticação não é gated por plano (ver `plans-and-subscriptions.md`)
+- [ ] Disponível em todos os planos — autenticação não é gated por plano (ver `domain.md`)
 - [ ] Feature flag global `biometricLogin` para rollout controlado (se necessário)
 
 ## 🔧 Áreas/Módulos Envolvidos
