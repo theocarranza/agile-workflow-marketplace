@@ -2,23 +2,62 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Any, Iterable
 
 from .ingest import FILENAME_RE, ArtifactRecord
 
-STORY_SECTIONS = (
-    "🎯 O quê",
-    "💡 Por quê",
-    "📋 Comportamento esperado",
-    "✅ Critérios de Aceite",
-    "🔧 Notas Técnicas",
-    "📊 Complexidade",
-    "📄 Descrição Original",
-)
+# Section labels keyed by semantic name, one dict per supported `language:` frontmatter value.
+# Order matters: dict insertion order is the required section order for that language.
+SECTION_LABELS_BY_LANGUAGE: dict[str, dict[str, str]] = {
+    "pt-br": {
+        "what": "🎯 O quê",
+        "why": "💡 Por quê",
+        "expected_behavior": "📋 Comportamento esperado",
+        "acceptance_criteria": "✅ Critérios de Aceite",
+        "technical_notes": "🔧 Notas Técnicas",
+        "complexity": "📊 Complexidade",
+        "original_description": "📄 Descrição Original",
+    },
+    "en": {
+        "what": "🎯 What",
+        "why": "💡 Why",
+        "expected_behavior": "📋 Expected Behavior",
+        "acceptance_criteria": "✅ Acceptance Criteria",
+        "technical_notes": "🔧 Technical Notes",
+        "complexity": "📊 Complexity",
+        "original_description": "📄 Original Description",
+    },
+}
 
-COMPLEXITY_DRIVERS = ("Escopo", "Incerteza", "Integrações", "Dados", "QA", "Rollout")
+STORY_SECTIONS_BY_LANGUAGE: dict[str, tuple[str, ...]] = {
+    lang: tuple(labels.values()) for lang, labels in SECTION_LABELS_BY_LANGUAGE.items()
+}
+
+COMPLEXITY_DRIVERS_BY_LANGUAGE: dict[str, tuple[str, ...]] = {
+    "pt-br": ("Escopo", "Incerteza", "Integrações", "Dados", "QA", "Rollout"),
+    "en": ("Scope", "Uncertainty", "Integrations", "Data", "QA", "Rollout"),
+}
+
+DEFAULT_LANGUAGE = "pt-br"
+
+# Flat pt-BR defaults, kept for callers that still import the plain tuples directly
+# (e.g. output_formats.py call sites that haven't opted into a `language` parameter).
+STORY_SECTIONS = STORY_SECTIONS_BY_LANGUAGE[DEFAULT_LANGUAGE]
+COMPLEXITY_DRIVERS = COMPLEXITY_DRIVERS_BY_LANGUAGE[DEFAULT_LANGUAGE]
+
 MACHINE_PATH_RE = re.compile(r"(/home/|/Users/|C:\\|D:\\)")
 META_PROSE_RE = re.compile(r"\b(TBD|to be defined|a definir)\b", re.I)
+
+
+def resolve_language(frontmatter: dict[str, Any]) -> str:
+    """Normalize a `language:` frontmatter value to a supported key; defaults to pt-BR.
+
+    Accepts "en" or "pt-br"/"pt-BR" (case-insensitive); any other or missing value falls back
+    to `DEFAULT_LANGUAGE` so pre-existing drafts without a `language:` key keep validating as
+    pt-BR, the host team's original convention.
+    """
+    raw = str(frontmatter.get("language") or "").strip().lower()
+    return raw if raw in SECTION_LABELS_BY_LANGUAGE else DEFAULT_LANGUAGE
 
 
 def _has_meta_prose_outside_todo(body: str) -> re.Match | None:
@@ -62,6 +101,9 @@ def validate_artifact(
     """Rule-based validation mirroring validation-checks.md."""
     results: list[CheckResult] = []
     artifact_type = record.type
+    language = resolve_language(record.frontmatter)
+    section_labels = SECTION_LABELS_BY_LANGUAGE[language]
+    complexity_drivers = COMPLEXITY_DRIVERS_BY_LANGUAGE[language]
 
     if record.source == "vault":
         results.append(
@@ -98,7 +140,7 @@ def validate_artifact(
 
     if artifact_type == "User Story":
         missing_sections: list[str] = []
-        for section in STORY_SECTIONS:
+        for section in section_labels.values():
             if not _section_present(record.body, section):
                 missing_sections.append(section)
                 results.append(
@@ -114,7 +156,7 @@ def validate_artifact(
                 CheckResult(
                     "body-sections",
                     "PASS",
-                    f"all {len(STORY_SECTIONS)} required sections present",
+                    f"all {len(section_labels)} required sections present ({language})",
                     "STRUCTURAL",
                 )
             )
@@ -184,13 +226,13 @@ def validate_artifact(
             hierarchy_story_ok = None
 
     if artifact_type == "User Story":
-        complexidade = _section_content(record.body, "📊 Complexidade")
-        drivers_ok = complexidade and all(d in complexidade for d in COMPLEXITY_DRIVERS)
+        complexidade = _section_content(record.body, section_labels["complexity"])
+        drivers_ok = complexidade and all(d in complexidade for d in complexity_drivers)
         results.append(
             CheckResult(
                 "content-complexidade-breakdown",
                 "PASS" if drivers_ok else "FAIL",
-                "" if drivers_ok else "missing one or more driver keywords in Complexidade section",
+                "" if drivers_ok else f"missing one or more driver keywords in {section_labels['complexity']} section",
                 "CONTENT",
             )
         )
@@ -204,12 +246,12 @@ def validate_artifact(
                 "CONTENT",
             )
         )
-        desc_orig = _section_content(record.body, "📄 Descrição Original")
+        desc_orig = _section_content(record.body, section_labels["original_description"])
         results.append(
             CheckResult(
                 "content-descricao-original-present",
                 "PASS" if desc_orig else "FAIL",
-                "" if desc_orig else "Descrição Original section is empty",
+                "" if desc_orig else f"{section_labels['original_description']} section is empty",
                 "CONTENT",
             )
         )

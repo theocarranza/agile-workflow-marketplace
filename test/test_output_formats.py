@@ -78,6 +78,37 @@ Usuários não recebem feedback ao submeter formulários inválidos.
 História fictícia para validação de login.
 """
 
+COMPLIANT_TICKET_STRUCTURE_EN = """\
+## 🎯 What
+
+Validate login fields with inline error messages.
+
+## 💡 Why
+
+Users get no feedback when submitting invalid forms.
+
+## 📋 Expected Behavior
+
+- Show an error when leaving an empty field
+
+## ✅ Acceptance Criteria
+
+- [ ] Show a message when the email field is empty
+- [ ] Show a message when the password field is empty
+
+## 🔧 Technical Notes
+
+- Authentication module
+
+## 📊 Complexity
+
+**2 points** — Largest driver: Scope=2, Uncertainty=1, Integrations=1, Data=1, QA=2, Rollout=1 → 2 points
+
+## 📄 Original Description
+
+Fictional story for login validation.
+"""
+
 COMPLIANT_SPIKE = """\
 **🎯 O quê**
 
@@ -203,6 +234,11 @@ class TestTicketStructureFormat(unittest.TestCase):
         body = _read_canonical("split-story", "canonical-user-story.md")
         self.assertTrue(validate_ticket_structure_body(body).ok)
 
+    def test_decompose_canonical_en_passes(self) -> None:
+        body = _read_canonical("decompose-backlog", "canonical-user-story.en.md")
+        result = validate_ticket_structure_body(body, language="en")
+        self.assertTrue(result.ok, msg=str(result.errors))
+
     def test_compliant_synthetic_passes(self) -> None:
         self.assertTrue(validate_ticket_structure_body(COMPLIANT_TICKET_STRUCTURE).ok)
 
@@ -211,6 +247,22 @@ class TestTicketStructureFormat(unittest.TestCase):
         result = validate_ticket_structure_body(body)
         self.assertFalse(result.ok)
         self.assertTrue(any("Complexidade" in e for e in result.errors))
+
+    def test_pt_br_body_fails_when_language_en_requested(self) -> None:
+        result = validate_ticket_structure_body(COMPLIANT_TICKET_STRUCTURE, language="en")
+        self.assertFalse(result.ok)
+
+    def test_en_compliant_passes_with_language_en(self) -> None:
+        result = validate_ticket_structure_body(COMPLIANT_TICKET_STRUCTURE_EN, language="en")
+        self.assertTrue(result.ok, msg=str(result.errors))
+
+    def test_en_body_fails_under_default_pt_br_language(self) -> None:
+        result = validate_ticket_structure_body(COMPLIANT_TICKET_STRUCTURE_EN)
+        self.assertFalse(result.ok)
+
+    def test_unknown_language_falls_back_to_pt_br(self) -> None:
+        result = validate_ticket_structure_body(COMPLIANT_TICKET_STRUCTURE, language="fr")
+        self.assertTrue(result.ok, msg=str(result.errors))
 
 
 class TestSplitStorySpikeFormat(unittest.TestCase):

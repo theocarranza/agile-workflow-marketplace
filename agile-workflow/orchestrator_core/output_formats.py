@@ -5,7 +5,13 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-from .artifact_validator import COMPLEXITY_DRIVERS, STORY_SECTIONS
+from .artifact_validator import (
+    COMPLEXITY_DRIVERS,
+    COMPLEXITY_DRIVERS_BY_LANGUAGE,
+    DEFAULT_LANGUAGE,
+    SECTION_LABELS_BY_LANGUAGE,
+    STORY_SECTIONS_BY_LANGUAGE,
+)
 
 HEADING_RE = re.compile(r"^(#{1,3})\s+(.+)$", re.MULTILINE)
 BOLD_SECTION_RE = re.compile(r"^\*\*(.+?)\*\*\s*$", re.MULTILINE)
@@ -179,24 +185,35 @@ def validate_enrich_user_story_body(body: str) -> FormatValidationResult:
     return FormatValidationResult(ok=not errors, errors=errors)
 
 
-def validate_ticket_structure_body(body: str) -> FormatValidationResult:
-    """Seven-section enriched user story (decompose-backlog, split-story)."""
-    result = _sections_in_order(body, STORY_SECTIONS)
+def validate_ticket_structure_body(
+    body: str, *, language: str = DEFAULT_LANGUAGE
+) -> FormatValidationResult:
+    """Seven-section enriched user story (decompose-backlog, split-story).
+
+    `language` selects which label set (`en` or `pt-br`) the section headings and complexity
+    drivers must match; defaults to pt-BR, the host team's original convention.
+    """
+    language = language if language in SECTION_LABELS_BY_LANGUAGE else DEFAULT_LANGUAGE
+    labels = SECTION_LABELS_BY_LANGUAGE[language]
+    sections = STORY_SECTIONS_BY_LANGUAGE[language]
+    drivers = COMPLEXITY_DRIVERS_BY_LANGUAGE[language]
+
+    result = _sections_in_order(body, sections)
     if not result.ok:
         return result
 
     errors: list[str] = []
-    ac_body = _section_content(body, "✅ Critérios de Aceite")
+    ac_body = _section_content(body, labels["acceptance_criteria"])
     if ac_body and not CHECKBOX_RE.search(ac_body):
-        errors.append("Critérios de Aceite must use - [ ] checkbox items")
+        errors.append(f"{labels['acceptance_criteria']} must use - [ ] checkbox items")
 
-    complexidade = _section_content(body, "📊 Complexidade")
-    if complexidade and not all(driver in complexidade for driver in COMPLEXITY_DRIVERS):
-        errors.append("Complexidade must mention all six drivers")
+    complexidade = _section_content(body, labels["complexity"])
+    if complexidade and not all(driver in complexidade for driver in drivers):
+        errors.append(f"{labels['complexity']} must mention all six drivers")
 
-    desc_orig = _section_content(body, "📄 Descrição Original")
+    desc_orig = _section_content(body, labels["original_description"])
     if not desc_orig:
-        errors.append("Descrição Original must be non-empty")
+        errors.append(f"{labels['original_description']} must be non-empty")
 
     return FormatValidationResult(ok=not errors, errors=errors)
 
