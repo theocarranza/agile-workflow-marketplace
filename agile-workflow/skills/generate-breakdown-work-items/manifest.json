@@ -1,6 +1,6 @@
 {
   "name": "generate-breakdown-work-items",
-  "description": "Break a User Story into an Implementation Plan (ledger) and atomic child Tasks from acceptance criteria; intake UX plus plan generation.",
+  "description": "Break a User Story into a ledger Implementation Plan and atomic child Tasks (Staging, Review, Breakdown) for filesystem and/or Azure.",
   "input_schema": {
     "type": "object",
     "properties": {
