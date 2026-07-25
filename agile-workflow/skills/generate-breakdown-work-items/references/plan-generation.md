@@ -26,10 +26,8 @@ Determine `work_item_type`:
 **Branch:**
 
 - **User Story** → continue ingest below, then PHASE 2.
-- **Feature or Epic** → hand off to fan-out (`./fan-out.md`, US4). Do **not** invent a plan for the parent itself.
+- **Feature or Epic** → hand off to fan-out (`./fan-out.md`). Do **not** invent a plan for the parent itself.
 - Anything else → STOP and report unsupported type.
-
-Until fan-out ships: if type is Feature/Epic, STOP with a clear message that fan-out is not yet available.
 
 ### User Story ingest (required reads)
 
