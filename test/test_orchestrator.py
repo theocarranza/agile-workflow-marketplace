@@ -17,6 +17,30 @@ FIXTURE = Path(__file__).resolve().parent.parent / (
     "AI_Codex_AgileWorkflowMarketplace/Tickets/Ready/6869-login-form-validation.md"
 )
 
+RAW_GENERATE_STORY = """\
+---
+date: 2026-07-08
+type: ticket
+work_item_type: User Story
+parent_feature: 6869
+tags: [ticket, user-story]
+---
+
+# Validação de campos do formulário de login
+
+[[Specs/6869-login-form-validation-spec]]
+
+## Requisitos
+
+- Validar formato de e-mail ao sair do campo
+- Validar senha não vazia no envio
+
+## Critérios de Aceite
+
+- [ ] Exibir erro quando e-mail estiver vazio
+- [ ] Exibir erro quando senha estiver vazia
+"""
+
 
 EN_STORY_BODY = """\
 # Validate login form fields and show inline errors
@@ -58,6 +82,13 @@ class TestArtifactValidator(unittest.TestCase):
         results = validate_artifact(record)
         self.assertEqual(outcome_from_results(results), "PASS")
 
+    def test_raw_generate_story_passes(self) -> None:
+        record = ingest_from_text(RAW_GENERATE_STORY, filename="6869-login-form-validation")
+        results = validate_artifact(record)
+        self.assertEqual(outcome_from_results(results), "PASS")
+        names = [r.name for r in results if r.result == "FAIL"]
+        self.assertNotIn("body-section-missing: 🎯 O quê", names)
+
     def test_missing_type_fails(self) -> None:
         record = ingest_vault_file(FIXTURE)
         bad = replace(record, frontmatter={})
@@ -80,7 +111,10 @@ class TestArtifactValidator(unittest.TestCase):
         results = validate_artifact(record)
         self.assertEqual(outcome_from_results(results), "FAIL")
         names = [r.name for r in results if r.result == "FAIL"]
-        self.assertTrue(any(name.startswith("body-section-missing: 🎯") for name in names))
+        # Default language is pt-BR; EN headings route as enriched_story and fail format checks.
+        self.assertTrue(
+            any(name.startswith("body-section-missing: 🎯") or name == "body-enriched-story-format" for name in names)
+        )
 
     def test_en_story_passes_with_language_en_frontmatter(self) -> None:
         record = ingest_from_text(
