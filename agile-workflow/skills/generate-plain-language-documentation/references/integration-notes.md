@@ -6,7 +6,7 @@ How sibling agile-workflow skills delegate prose to `generate-plain-language-doc
 
 | Mode | Gate | Return |
 | --- | --- | --- |
-| **Standalone** | PHASE 5 gate before vault write | Full document to user |
+| **Standalone** | PHASE 5 gate before local write | Full document to user |
 | **Sub-skill** | Caller skill's gate only | Polished sections in place |
 
 Sub-skill mode: read this skill's PHASE 2–4 instructions; skip PHASE 0 when caller already collected

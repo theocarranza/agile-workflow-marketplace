@@ -1,11 +1,11 @@
 # Epic Spec Blueprint
 
-Blank form for specs written to **`<vault>/Specs/`** before the Epic ticket. Context7 research
+Blank form for specs written to **`<artifacts>/Specs/`** before the Epic ticket. Context7 research
 feeds **Tech stack** and **Research summary**; strategic content feeds the Epic ticket body.
 
 Source enricher: `../enrichers/epic-enricher.prompt.md`
 
-## Vault filename
+## Artifacts filename
 
 `[<epic-id>-]<kebab-slug>-spec.md`
 

@@ -1,6 +1,6 @@
 # Plain-Language Principles
 
-Human-facing documentation standard. Derived from the vault feature spec
+Human-facing documentation standard. Derived from the artifacts path feature spec
 `Features/generate-plain-language-documentation.md`.
 
 ## Mission

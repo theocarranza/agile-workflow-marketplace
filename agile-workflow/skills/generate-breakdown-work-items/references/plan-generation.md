@@ -3,7 +3,7 @@
 Reference for `generate-breakdown-work-items` PHASE 1 (ingest) and PHASE 2 (plan).
 Depends on a confirmed intake record from `./intake-ux.md`.
 
-**Hard rule:** Save the Implementation Plan to the AI Codex Ledger **before** any Task is created.
+**Hard rule:** Save the Implementation Plan to the local artifacts **before** any Task is created.
 PHASE 3+ must refuse to run until the plan file exists on disk.
 
 ## PHASE 1 — Ingest
@@ -21,7 +21,7 @@ From intake `work_item_ref` / `source_kind`:
 Determine `work_item_type`:
 
 - Azure: `System.WorkItemType` (`User Story` | `Feature` | `Epic` | …)
-- Vault: frontmatter `work_item_type` / `type: feature` / Feature folder / ticket sections
+- Artifacts: frontmatter `work_item_type` / `type: feature` / Feature folder / ticket sections
 
 **Branch:**
 
@@ -35,8 +35,8 @@ Always load **both** before drafting the plan:
 
 1. **Parent Feature body**
    - Azure: follow `System.Parent` / parent relation; `wit_get_work_item` on the Feature id
-   - Vault: `parent_feature_vault`, `parent_feature`, or Features/ path from frontmatter / links
-   - If parent Feature cannot be resolved: STOP and ask once for the Feature id or vault path
+   - Artifacts: `parent_feature_artifacts path`, `parent_feature`, or Features/ path from frontmatter / links
+   - If parent Feature cannot be resolved: STOP and ask once for the Feature id or artifacts path
 2. **User Story body** — title, description/sections, assignee when present
 
 Capture a normalized record:
@@ -50,7 +50,7 @@ Capture a normalized record:
     assignee: string | null
     acceptance_criteria: string[]   // verbatim lines; never invent
     azure_id: number | null
-    source: "vault" | "azure" | "filesystem"
+    source: "artifacts path" | "azure" | "filesystem"
   }
   feature: {
     id_or_path: string
@@ -95,11 +95,13 @@ Write prose and headings in intake `language` (`en` default). Suggested structur
 4. Delivery steps — ordered, atomic-commit-sized steps (one self-contained, testable change each) that will later become Tasks
 5. Defaults note — Staging, Review, and Breakdown Tasks will be added in Task decomposition (do not create those Tasks here)
 
-Do not create Azure or vault Task work items in this phase.
+Do not create Azure or artifacts path Task work items in this phase.
 
-### Ledger path and frontmatter
+### Artifacts path and frontmatter
 
-Resolve vault root (config `codex.folder` or `AI_Codex*/`). Ensure `Implementation_Plans/` exists.
+Resolve the artifacts root with `bin/agile-workflow config --show`. If unset, ASK the user where
+plans should go and save it with `config --set artifacts_path=<path>`. Never guess a location, and
+never create a directory structure the user did not ask for.
 
 **Filename:** `YYYY-MM-DD-<story-slug>.md`
 
@@ -112,8 +114,8 @@ Resolve vault root (config `codex.folder` or `AI_Codex*/`). Ensure `Implementati
 ```yaml
 ---
 type: implementation-plan
-feature: <feature id or vault path>
-story: <story id or vault path>
+feature: <feature id or artifacts path>
+story: <story id or artifacts path>
 skill: generate-breakdown-work-items
 language: en   # or pt-BR
 destination: filesystem  # echo intake; informational

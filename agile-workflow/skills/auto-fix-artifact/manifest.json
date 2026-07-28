@@ -4,7 +4,7 @@
   "input_schema": {
     "type": "object",
     "properties": {
-      "file_path": { "type": "string", "description": "Path to vault draft markdown file" },
+      "file_path": { "type": "string", "description": "Path to a draft markdown file" },
       "draft_content": { "type": "string", "description": "Revised draft content from Actor" },
       "attempt": { "type": "integer", "description": "Current reflection attempt number" },
       "max_attempts": { "type": "integer", "description": "Circuit breaker threshold (default 3)" },

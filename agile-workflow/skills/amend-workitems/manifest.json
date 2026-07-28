@@ -1,6 +1,6 @@
 {
   "name": "amend-workitems",
-  "description": "Analyze approved instructions and safely amend an Epic or Feature tree, including Features, User Stories, child Tasks, and related Ledger Implementation Plans.",
+  "description": "Analyze approved instructions and safely amend an Epic or Feature tree, including Features, User Stories, child Tasks, and related Implementation Plans.",
   "input_schema": {
     "type": "object",
     "properties": {
@@ -10,7 +10,7 @@
       },
       "reference": {
         "type": "string",
-        "description": "Epic or Feature Azure id/URL, Ledger path, or filesystem path"
+        "description": "Epic or Feature Azure id/URL, or filesystem path"
       },
       "scope": {
         "type": "string",

@@ -2,16 +2,17 @@
 name: generate-breakdown-work-items
 description: >
   From a User Story (or Feature/Epic with child Stories), generate an Implementation Plan in the
-  AI Codex Ledger and atomic child Tasks aligned to acceptance criteria — including Staging,
+  local artifacts and atomic child Tasks aligned to acceptance criteria — including Staging,
   Review, and a Done Breakdown Task. Use when the user runs /generate-breakdown-work-items, says
   "break down this story into tasks", "create tasks from acceptance criteria", "breakdown work
-  items", or provides a Story/Feature/Epic id, URL, or vault path and wants plan + Task children
+  items", or provides a Story/Feature/Epic id, URL, or artifacts path and wants plan + Task children
   for delivery. Does not invent acceptance criteria or implement product code.
 license: MIT
-compatibility: Requires Azure DevOps MCP for Azure destinations and an AI Codex vault with Implementation_Plans/ for ledger writes.
+compatibility: Requires Azure DevOps MCP for Azure destinations; a configured artifacts path for local writes.
 metadata:
   plugin: agile-workflow
-  version: "0.4.0"
+  version: "0.5.0"
+  orchestrator-skill: "estimate-breakdown"
   argument-hint: "--ref <id|url|path> [--destination filesystem|azure|both] [--language en|pt-BR]"
 allowed-tools: >
   Read Write Edit Glob Grep Bash
@@ -26,23 +27,25 @@ allowed-tools: >
 
 # Generate Breakdown Work Items
 
-Conductor for turning Story acceptance criteria into a ledger Implementation Plan and atomic
+Conductor for turning Story acceptance criteria into a artifacts path Implementation Plan and atomic
 child Tasks. Load references as each phase needs them — this file is the score, not the textbook.
 
 References (skill-specific, in `./references/`):
 
 - `./references/intake-ux.md` — prompt order, invariant/variant lists, `all` / `other` / `Recommended`
-- `./references/plan-generation.md` — Feature+Story ingest, AC coverage, ledger Implementation Plan
+- `./references/plan-generation.md` — Feature+Story ingest, AC coverage, artifacts path Implementation Plan
 - `./references/atomic-tasks.md` — atomic Tasks, Staging/Review/Breakdown, destination writers
 - `./references/fan-out.md` — Feature/Epic child discovery, per-Story loop, failure isolation
 
 Shared references (in `../../references/`):
 
 - `azure-mechanics.md` — MCP calls, linking gotchas, URL→id
-- `ticket-structure.md` — vault draft constraints
+- `ticket-structure.md` — local draft constraints
 - `decomposition-rules.md` — hierarchy (Epic → Feature → Story → Task)
 
-Resolve vault from `.claude/codex-workflow.config.json` `codex.folder`, else glob `AI_Codex*/`.
+Resolve the artifacts path with `bin/agile-workflow config --show`, which reads
+`.agile-workflow/config.json` and falls back to older locations. See
+`../../references/project-config.md`.
 
 **Not in scope:** inventing or rewriting acceptance criteria; Feature-level story-point estimation;
 implementing the product under breakdown — only plan + work-item persistence.
@@ -55,7 +58,7 @@ Read `./references/intake-ux.md` before prompting. Gather inputs **one at a time
 
 | Input | Required | Purpose |
 | --- | --- | --- |
-| `work_item_ref` | yes | Azure ID, URL, or vault/filesystem path to Story, Feature, or Epic |
+| `work_item_ref` | yes | Azure ID, URL, or artifacts path/filesystem path to Story, Feature, or Epic |
 | `destination` | yes | `filesystem` \| `azure` \| `both` \| `other:…` |
 | `language` | no | `en` (default when omitted) \| `pt-BR` \| `other:…` |
 
@@ -74,7 +77,7 @@ Also accept flags from `/generate-breakdown-work-items` or conversational infere
 ### Confirmation gate
 
 Present the normalized intake record and **WAIT** for explicit confirmation. Do **not** read
-work-item bodies, write the Ledger, or call Azure write APIs in this phase.
+work-item bodies, write the Artifacts, or call Azure write APIs in this phase.
 
 ```text
 {
@@ -93,7 +96,7 @@ On confirmation, proceed to PHASE 1.
 
 Read `./references/plan-generation.md` § PHASE 1.
 
-1. Resolve `work_item_ref` to a work item (Azure id/url or vault/filesystem path).
+1. Resolve `work_item_ref` to a work item (Azure id/url or artifacts path/filesystem path).
 2. If type is **Feature** or **Epic**: go to PHASE 5 (fan-out). Do not draft a parent-level plan.
 3. If type is **User Story**: read the **parent Feature body** and the **Story body** before any
    plan drafting. STOP if the Feature cannot be resolved or if acceptance criteria are missing.
@@ -107,7 +110,7 @@ Read `./references/plan-generation.md` § PHASE 1.
 Read `./references/plan-generation.md` § PHASE 2.
 
 1. Draft a plan that **addresses every** acceptance-criteria entry.
-2. Write it to `<vault>/Implementation_Plans/YYYY-MM-DD-<story-slug>.md` with the frontmatter
+2. Write it to `<artifacts>/Implementation_Plans/YYYY-MM-DD-<story-slug>.md` with the frontmatter
    contract in `plan-generation.md`.
 3. Re-read the file; record `plan_path` on the run context; present path + summary.
 4. **Do not create Tasks** in this phase. If PHASE 3 is invoked without a saved `plan_path` on
@@ -136,7 +139,7 @@ Read `./references/atomic-tasks.md` § Persist.
 
 1. Write selected Tasks to intake `destination` (`filesystem`, `azure`, or `both`).
 2. Attach every Task as a **child of the User Story** (Azure: `wit_add_child_work_items` or
-   create + link `type: "parent"`; vault: parent Story ref in frontmatter).
+   create + link `type: "parent"`; artifacts path: parent Story ref in frontmatter).
 3. Update Breakdown assignee/state; read-back assert parent + Done.
 4. Report `plan_path`, Task ids/paths, and Breakdown outcome.
 
@@ -160,7 +163,7 @@ Read `./references/fan-out.md`.
 ```text
 /generate-breakdown-work-items --ref 12345 --destination both
 → intake confirm → Feature+Story ingest → save Implementation_Plans/…
-→ propose Tasks (AC steps + Staging + Review + Breakdown) → persist to vault + Azure
+→ propose Tasks (AC steps + Staging + Review + Breakdown) → persist to the artifacts path + Azure
 
 /generate-breakdown-work-items --ref Features/generate-breakdown-work-items.md --destination filesystem
 → list child Stories → for each: plan + Tasks → report OK/FAIL per Story

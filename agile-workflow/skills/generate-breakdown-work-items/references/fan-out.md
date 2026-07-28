@@ -29,12 +29,12 @@ a short inventory to the user, then start the loop.
    the Epic. Never treat Features as Stories.
 5. Batch-read with `wit_get_work_items_batch_by_ids` when listing many ids.
 
-### Vault / filesystem
+### Artifacts / filesystem
 
-1. Feature file: find tickets with `parent_feature_vault` / `parent_feature` pointing at this
+1. Feature file: find tickets with `parent_feature_artifacts path` / `parent_feature` pointing at this
    Feature, or Tickets under a known Feature id prefix.
 2. Epic: resolve child Feature files, then Stories under those Features.
-3. If discovery is ambiguous → STOP and ask once for an explicit Story list or vault glob.
+3. If discovery is ambiguous → STOP and ask once for an explicit Story list or path lookup.
 
 If **zero** child Stories → STOP with a clear message (nothing to break down).
 
@@ -59,7 +59,7 @@ For each selected User Story, **in order**:
 - One Story's failure **must not** silently skip the remaining Stories.
 - On failure: log the error, mark that Story `failed`, **continue** with the next Story.
 - Do not abort the entire fan-out unless the user asks to stop, or a fatal shared fault occurs
-  (vault unwritable, Azure auth lost).
+  (artifacts path unwritable, Azure auth lost).
 
 ## Final report
 

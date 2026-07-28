@@ -2,6 +2,26 @@
 
 The exact MCP calls and the traps that bite if you skip them. These are invariant — not seams.
 
+## Before the first Azure call: know the project
+
+Org, project, team, and process live in `.agile-workflow/config.json`. Read them with:
+
+```bash
+bin/agile-workflow config --show      # exits non-zero when something required is missing
+```
+
+If a value is missing, **discover it rather than asking the user to type a slug** — then persist it
+so it is never asked again:
+
+| Missing | Discover with | Then |
+|---|---|---|
+| project | `core_list_projects` | `config --set azure.project=<name>` |
+| team | `core_list_project_teams` | `config --set azure.team=<name>` |
+| process | `wit_list_backlogs` — the Stories backlog column names it: `StoryPoints` → agile, `Effort` → scrum, `Size` → cmmi | `config --set azure.process=<name>` |
+
+Present the options and let the user pick when there is more than one. Full rules in
+`project-config.md`.
+
 ## Read a work item (ingest)
 
 Use `wit_get_work_item(id=<id>, expand=relations)` to load fields and relations in one call.
@@ -20,7 +40,7 @@ GET https://dev.azure.com/{org}/{project}/_apis/wit/attachments/{attachmentId}?f
 Auth: MCP credentials, or `AZURE_DEVOPS_EXT_PAT` / `ADO_PAT` (Basic, empty username), or `az login`.
 
 **Description references:** Parse `System.Description` for markdown links, bare URLs, filenames that
-match attachment names, and vault/repo paths. Fetch those sources into supplementary context before
+match attachment names, and local and repo paths. Fetch those sources into supplementary context before
 enrichment — see `enrich-work-item/references/azure-ingest.md` for the full bundle rules.
 
 ## Create a Story
@@ -48,6 +68,40 @@ wit_work_item_unlink   id=<story> type=related      # remove the stray Related l
 wit_work_item_unlink   id=<story> type=parent       # remove a wrong parent (e.g. → Epic)
 wit_work_items_link    id=<story> linkToId=<feature> type=parent
 ```
+
+## Scheduling fields (estimation and capacity)
+
+Azure keeps two independent estimation tiers. Points on the Story feed velocity and forecasting;
+hours on the Task feed capacity bars and the burndown. Neither reads the other.
+
+| Field | Reference name | Notes |
+|---|---|---|
+| Story Points | `Microsoft.VSTS.Scheduling.StoryPoints` | Agile process only |
+| Effort | `Microsoft.VSTS.Scheduling.Effort` | Scrum equivalent |
+| Size | `Microsoft.VSTS.Scheduling.Size` | CMMI equivalent |
+| Remaining Work | `Microsoft.VSTS.Scheduling.RemainingWork` | **Drives capacity and burndown.** Every process has it |
+| Original Estimate | `Microsoft.VSTS.Scheduling.OriginalEstimate` | **Absent on Scrum** — guard before writing |
+| Completed Work | `Microsoft.VSTS.Scheduling.CompletedWork` | Absent on Scrum |
+| Activity | `Microsoft.VSTS.Common.Activity` | `Discipline` in CMMI; allowed values are per-project |
+
+**A Task with no `RemainingWork` is invisible to the sprint.** It appears on the board and in the
+hierarchy, but contributes nothing to the capacity bar or the burndown line — the sprint reads as
+empty while looking healthy.
+
+**Hours are derived, applied, and reported.** They come from the Story's points, split across its
+Tasks — so they are written without asking, and every figure set or changed is named in the run
+summary. The one thing that stops a write is the capacity ceiling: if the total exceeds the
+assignee's remaining hours in the active sprint, STOP and ask. See
+`orchestrator_core/estimation/breakdown.py`, and take field names from
+`orchestrator_core/providers/azure_devops/fields.py` rather than retyping them.
+
+Capacity itself lives under a different API area from `wit_*` and is read-only for these skills:
+
+```
+GET https://dev.azure.com/{org}/{project}/{team}/_apis/work/teamsettings/iterations/{iterationId}/capacities?api-version=7.1
+```
+
+Never PUT capacity — that rewrites other people's sprint configuration.
 
 ## Rendering rules
 

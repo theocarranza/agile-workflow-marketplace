@@ -10,7 +10,7 @@ COLLECT → INGEST → ROUTE ENRICHER → [WRITE SPEC] → ENRICH → GATE → P
          └─ source url | path | text
               │
               ├─ Azure URL/id → azure-ingest.md (work item + attachments + refs)
-              ├─ vault/filesystem path → Read verbatim
+              ├─ artifacts path/filesystem path → Read verbatim
               └─ pasted text → use as description
 ```
 
@@ -22,18 +22,18 @@ COLLECT → INGEST → ROUTE ENRICHER → [WRITE SPEC] → ENRICH → GATE → P
 | `feature` | `enrichers/feature-enricher.prompt.md` | `blueprints/spec-feature.md` | `canonical/canonical-feature.md` | `examples/example-feature.md` |
 | `user-story` | `enrichers/work-item-enricher.prompt.md` | `blueprints/spec-work-item.md` | `canonical/canonical-user-story.md` | `examples/example-user-story.md` |
 
-Enricher prompts are bundled under `./references/enrichers/` — authoritative; no vault override.
+Enricher prompts are bundled under `./references/enrichers/` — authoritative; no local override.
 
-## Vault output paths (when persisting to ledger)
+## Artifacts output paths (when persisting to artifacts path)
 
-**Spec** (optional): `<vault>/Specs/[<parent-id>-]<kebab-slug>-spec.md`
+**Spec** (optional): `<artifacts>/Specs/[<parent-id>-]<kebab-slug>-spec.md`
 
-**Enriched draft**: `<vault>/Tickets/Ready/<prefix>-<kebab-slug>.md` (default; adapt to host layout)
+**Enriched draft**: `<artifacts>/Tickets/Ready/<prefix>-<kebab-slug>.md` (default; adapt to host layout)
 
 ## Shared plugin references
 
 - `../../references/decomposition-rules.md` — hierarchy, story-point heuristic
-- `../../references/ticket-structure.md` — vault hook constraints
+- `../../references/ticket-structure.md` — draft file constraints
 - `../../references/azure-mechanics.md` — Azure MCP calls + gotchas
 - `./azure-ingest.md` — Azure URL/id resolve: work item, attachments, description refs
 

@@ -3,13 +3,13 @@
 ## Terminal output template
 
 ```
-Validating <type> — "<title>" [<source: vault|azure>]
+Validating <type> — "<title>" [<source: artifacts path|azure>]
 ============================================================
 
 STRUCTURAL
   [PASS]  frontmatter-type-present
   [FAIL]  frontmatter-status-absent — `status: active` found in frontmatter
-  [SKIP]  filename-regex — source is Azure, not a vault draft
+  [SKIP]  filename-regex — source is Azure, not a local draft
 
 HIERARCHY
   [PASS]  hierarchy-story-parent-is-feature — parent #6868 is Feature "Payment Flow"
@@ -38,22 +38,22 @@ Rules:
 - Detail field: omit for PASS unless the detail adds value (e.g., confirming a parent id).
 - Separator line: 60 `=` characters (header) and 60 `-` characters (before summary).
 
-## Vault note frontmatter
+## Report frontmatter
 
 ```yaml
 ---
 date: <YYYY-MM-DD>
 type: report
-artifact: <azure-id or vault-filename>
+artifact: <azure-id or artifacts path-filename>
 artifact_type: <Epic|Feature|User Story>
-source: <vault|azure>
+source: <artifacts path|azure>
 outcome: <pass|fail>
 ---
 ```
 
-Do NOT include `status:` — the vault hook forbids it in `Agent_Reports/`.
+Do NOT include `status:` — the draft contract forbids it in report frontmatter.
 
-## Vault note body
+## Report body
 
 Reproduce the terminal output from the Report phase verbatim as a fenced code block:
 

@@ -1,10 +1,10 @@
 # Feature Spec Blueprint
 
-Blank form for specs written to **`<vault>/Specs/`** before the Feature ticket.
+Blank form for specs written to **`<artifacts>/Specs/`** before the Feature ticket.
 
 Source enricher: `../enrichers/feature-enricher.prompt.md`
 
-## Vault filename
+## Artifacts filename
 
 `<parent-epic-id>-<kebab-slug>-spec.md`
 

@@ -6,7 +6,7 @@
     "properties": {
       "source": {
         "type": "string",
-        "description": "Inline text, vault path, or URL of source material to rewrite"
+        "description": "Inline text, local path, or URL of source material to rewrite"
       },
       "audience": {
         "type": "string",

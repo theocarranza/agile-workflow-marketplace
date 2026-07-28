@@ -5,7 +5,7 @@ Each check emits: `{ name, result: PASS|FAIL|WARN|SKIP, detail }`.
 
 ## a) STRUCTURAL
 
-### Vault draft only
+### Local draft only
 
 | Check | Condition | Result |
 |---|---|---|
@@ -36,7 +36,7 @@ mixing labels from both columns fails the check the same as a missing section.
 
 ## b) HIERARCHY
 
-Requires Azure MCP (`wit_get_work_item`). If `azure_id` is null and source is vault, emit
+Requires Azure MCP (`wit_get_work_item`). If `azure_id` is null and source is a local file, emit
 `WARN hierarchy-skipped-no-azure-id` and skip the entire category.
 
 Failures are logged and validation continues to the next check.
@@ -55,6 +55,7 @@ Failures are logged and validation continues to the next check.
 |---|---|---|
 | `content-complexidade-breakdown` | Complexity section (`📊 Complexidade` / `📊 Complexity` per declared language) contains per-driver scores — keywords: Escopo/Scope, Incerteza/Uncertainty, Integrações/Integrations, Dados/Data, QA, Rollout | FAIL if absent |
 | `content-story-points-set` | Story points field > 0 (frontmatter `story_points` or Azure `Microsoft.VSTS.Scheduling.StoryPoints`) | FAIL if unset or 0 |
+| `content-effort-hours-plausible` | Declared `effort_hours` sits inside the reference band for its story points | SKIP if unestimated; WARN if outside the band or ≤ 0; never FAIL |
 | `content-descricao-original-present` | Original-description section (`📄 Descrição Original` / `📄 Original Description` per declared language) is non-empty | FAIL if empty |
 
 ### All artifact types

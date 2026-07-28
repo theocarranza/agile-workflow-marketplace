@@ -98,7 +98,7 @@ reader to use. Include a hit when any of the following match:
 | Bare URLs | `https://`, `http://` |
 | Wiki / doc phrases (PT or EN) | `ver anexo`, `see attached`, `conforme documento`, `referência:` |
 | Filename echo | Description mentions `requirements.docx` and an attachment has that name |
-| Vault / repo paths | `docs/plan.md`, `Specs/6800-foo-spec.md`, `AI_Codex/...` |
+| Local / repo paths | `docs/plan.md`, `Specs/6800-foo-spec.md` |
 | Azure wiki / other work items | `/_wiki/`, `/_workitems/edit/` links |
 
 **Do not** re-fetch the work item's own URL. Deduplicate by URL, attachment id, and path.
@@ -140,11 +140,11 @@ For each external URL found in the description (and not already an attachment re
 2. On failure: record `fetch_failed: true` and the URL; continue.
 3. Cap very large pages — summarize key requirements; keep URL in bundle metadata.
 
-### Vault / filesystem paths
+### Artifacts / filesystem paths
 
-When the description references a path under the Codex vault or repo:
+When the description references a path under the Codex local or repo:
 
-1. Resolve relative to vault root (`codex.folder` from `.claude/codex-workflow.config.json`) or repo root.
+1. Resolve relative to artifacts root (`bin/agile-workflow config --show`) or repo root.
 2. `Read` the file when it exists; include verbatim or summarized per size.
 3. On missing file: note in bundle; do not invent content.
 

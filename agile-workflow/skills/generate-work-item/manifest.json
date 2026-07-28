@@ -23,7 +23,7 @@
       },
       "attachment": {
         "type": "string",
-        "description": "Supporting documentation URL or vault path"
+        "description": "Supporting documentation URL or local path"
       },
       "language": {
         "type": "string",
