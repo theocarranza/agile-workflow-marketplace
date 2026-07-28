@@ -28,9 +28,11 @@ def resolve_project_root() -> Path:
     return Path.cwd()
 
 
-def resolve_vault_dir(project_root: Path) -> Path:
-    folder = os.environ.get("CODEX_VAULT_FOLDER", "AI_Codex_AgileWorkflowMarketplace").strip()
-    return project_root / folder
+def resolve_state_dir(project_root: Path) -> Path:
+    """`.agile-workflow/` -- the plugin's own state directory, never a user location."""
+    from .project_config import plugin_dir
+
+    return plugin_dir(project_root)
 
 
 def process_message(line: str, engine: OrchestratorEngine) -> str:
@@ -73,11 +75,11 @@ def process_message(line: str, engine: OrchestratorEngine) -> str:
 def main() -> None:
     project_root = resolve_project_root()
     skills_dir = resolve_skills_dir()
-    vault_dir = resolve_vault_dir(project_root)
+    state_dir = resolve_state_dir(project_root)
     engine = OrchestratorEngine(
         skills_dir,
         project_root=project_root,
-        vault_dir=vault_dir,
+        state_dir=state_dir,
         quiet=True,
     )
     for line in sys.stdin:

@@ -10,7 +10,7 @@ from .adapters import build_skill_prompt, critiques_to_error_log
 from .artifact_validator import critiques_from_results, validate_artifact
 from .handlers import execute_handler
 from .hooks import authorization_hook, cli_ui_hook
-from .ingest import ingest_vault_file
+from .ingest import ingest_file
 from .mailbox import clear_error_log, write_error_log, write_prompt
 from .manifests import manifest_by_name
 from .reflection import load_mistakes
@@ -42,14 +42,14 @@ class OrchestratorEngine:
         skills_dir: Path,
         *,
         project_root: Path,
-        vault_dir: Path,
+        state_dir: Path,
         max_retries: int = 3,
         interactive: bool = False,
         quiet: bool = False,
     ) -> None:
         self.skills_dir = skills_dir
         self.project_root = project_root
-        self.vault_dir = vault_dir
+        self.state_dir = state_dir
         self.max_retries = max_retries
         self.interactive = interactive
         self.quiet = quiet
@@ -92,7 +92,7 @@ class OrchestratorEngine:
                 name,
                 arguments,
                 skills_dir=self.skills_dir,
-                vault_dir=self.vault_dir,
+                state_dir=self.state_dir,
             )
             critiques = [c for c in output.get("critiques", []) if c]
             fail_checks = output.get("outcome") == "fail" or output.get("blocked")
@@ -170,7 +170,7 @@ class OrchestratorEngine:
         file_path = arguments.get("file_path", "")
         record = None
         if file_path and Path(file_path).is_file():
-            record = ingest_vault_file(Path(file_path))
+            record = ingest_file(Path(file_path))
         from .reflection import ReflectionDecision, ReflectionState
 
         reflection_data = output.get("reflection", {})
@@ -184,7 +184,7 @@ class OrchestratorEngine:
             mode=output.get("mode", "correcao"),
             blocked=output.get("blocked", False),
         )
-        mistakes = load_mistakes(self.vault_dir, skill_name=skill_name)
+        mistakes = load_mistakes(self.state_dir, skill_name=skill_name)
         return build_skill_prompt(
             skill_name=skill_name,
             skill_instructions=output.get("instructions", ""),
@@ -200,20 +200,20 @@ class OrchestratorEngine:
             skill_name,
             {"file_path": file_path},
             skills_dir=self.skills_dir,
-            vault_dir=self.vault_dir,
+            state_dir=self.state_dir,
         )
         prompt = build_skill_prompt(
             skill_name=skill_name,
             skill_instructions=output.get("instructions", ""),
             mode=mode,
             file_path=file_path,
-            record=ingest_vault_file(Path(file_path)) if Path(file_path).is_file() else None,
-            mistakes=load_mistakes(self.vault_dir, skill_name=skill_name),
+            record=ingest_file(Path(file_path)) if Path(file_path).is_file() else None,
+            mistakes=load_mistakes(self.state_dir, skill_name=skill_name),
         )
         return write_prompt(self.project_root, skill_name, prompt)
 
     def evaluate_file(self, file_path: Path, *, skill_name: str = "validate-artifact") -> tuple[bool, str]:
-        record = ingest_vault_file(file_path)
+        record = ingest_file(file_path)
         results = validate_artifact(record)
         report = format_terminal_report(record, results)
         critiques = critiques_from_results(results)

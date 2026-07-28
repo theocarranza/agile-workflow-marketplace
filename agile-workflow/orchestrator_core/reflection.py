@@ -70,12 +70,17 @@ def evaluate_reflection(
     return ReflectionDecision(critiques=critiques, reflection=next_state, mode=mode, blocked=blocked)
 
 
-def mistakes_path(vault_dir: Path) -> Path:
-    return vault_dir / "_mistakes" / MISTAKES_FILENAME
+def mistakes_path(state_dir: Path) -> Path:
+    """The mistakes record, in the plugin's own state directory.
+
+    This is plugin memory used by the retry loop, not a user work product, so it lives
+    under `.agile-workflow/` and never in a location the user owns.
+    """
+    return state_dir / MISTAKES_FILENAME
 
 
-def load_mistakes(vault_dir: Path, *, skill_name: str | None = None) -> list[dict[str, Any]]:
-    path = mistakes_path(vault_dir)
+def load_mistakes(state_dir: Path, *, skill_name: str | None = None) -> list[dict[str, Any]]:
+    path = mistakes_path(state_dir)
     if not path.is_file():
         return []
     try:
@@ -89,13 +94,13 @@ def load_mistakes(vault_dir: Path, *, skill_name: str | None = None) -> list[dic
 
 
 def append_mistake(
-    vault_dir: Path,
+    state_dir: Path,
     *,
     flaw: str,
     skill_name: str,
     artifact: str,
 ) -> bool:
-    path = mistakes_path(vault_dir)
+    path = mistakes_path(state_dir)
     path.parent.mkdir(parents=True, exist_ok=True)
     existing: list[dict[str, Any]] = []
     if path.is_file():

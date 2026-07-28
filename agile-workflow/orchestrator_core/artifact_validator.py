@@ -118,6 +118,41 @@ def _detect_body_format(body: str) -> BodyFormat:
     return "unknown"
 
 
+def _effort_hours_check(record: ArtifactRecord) -> CheckResult:
+    """Compare a declared duration against the band for its point value.
+
+    Advisory only. An unestimated item SKIPs rather than FAILs: leaving the field empty is
+    an honest state, and a made-up number would be worse than none. This check exists to
+    catch a figure that contradicts its own story points, not to demand one.
+    """
+    from .estimation import EstimationConfig, estimate_hours
+
+    hours = record.effort_hours
+    if hours is None:
+        return CheckResult("content-effort-hours-plausible", "SKIP", "no effort estimate recorded", "CONTENT")
+    if hours <= 0:
+        return CheckResult(
+            "content-effort-hours-plausible", "WARN", f"effort_hours is {hours:g}; expected a positive number", "CONTENT"
+        )
+
+    expected = estimate_hours(record.story_points, config=EstimationConfig())
+    if expected is None:
+        return CheckResult(
+            "content-effort-hours-plausible", "PASS", f"{hours:g}h (no story points to compare against)", "CONTENT"
+        )
+    if expected.low <= hours <= expected.high:
+        return CheckResult(
+            "content-effort-hours-plausible", "PASS", f"{hours:g}h within {expected.low:g}-{expected.high:g}h", "CONTENT"
+        )
+    return CheckResult(
+        "content-effort-hours-plausible",
+        "WARN",
+        f"{hours:g}h sits outside the {expected.low:g}-{expected.high:g}h reference band "
+        f"for {record.story_points:g} points; confirm the estimate or the points",
+        "CONTENT",
+    )
+
+
 def _append_format_validation(
     results: list[CheckResult],
     *,
@@ -144,7 +179,7 @@ def validate_artifact(
     complexity_drivers = COMPLEXITY_DRIVERS_BY_LANGUAGE[language]
     story_sections = STORY_SECTIONS_BY_LANGUAGE[language]
 
-    if record.source == "vault":
+    if record.source == "file":
         results.append(
             CheckResult(
                 "frontmatter-type-present",
@@ -174,7 +209,7 @@ def validate_artifact(
     else:
         for name in ("frontmatter-type-present", "frontmatter-status-absent", "filename-regex"):
             results.append(
-                CheckResult(name, "SKIP", "source is Azure, not a vault draft", "STRUCTURAL")
+                CheckResult(name, "SKIP", "source is Azure, not a local file", "STRUCTURAL")
             )
 
     body_format = _detect_body_format(record.body)
@@ -279,7 +314,7 @@ def validate_artifact(
                 )
             )
 
-    if record.source == "vault" and record.azure_id is None:
+    if record.source == "file" and record.azure_id is None:
         results.append(
             CheckResult(
                 "hierarchy-skipped-no-azure-id",
@@ -373,6 +408,7 @@ def validate_artifact(
             "CONTENT",
         )
     )
+    results.append(_effort_hours_check(record))
 
     title_words = _word_count(record.title)
     results.append(
