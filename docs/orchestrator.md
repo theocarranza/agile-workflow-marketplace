@@ -47,7 +47,7 @@ Or scaffold only the mailbox in an already-wired project:
 
 | Command | Purpose |
 | --- | --- |
-| `validate --file <path> [--persist]` | Run rule-based critic; print report; optional vault persist |
+| `validate --file <path> [--persist]` | Run rule-based critic; print report; optional artifacts path persist |
 | `evaluate --skill <name> --file <path>` | Quality gate; writes `<skill>.error.log` on failure |
 | `compile --skill <name> --file <path> [--mode novo\|correcao]` | Write compiled prompt to mailbox |
 | `resume --skill <name> --file <path>` | `correcao` if error.log exists, else `novo` |
@@ -56,7 +56,7 @@ Or scaffold only the mailbox in an already-wired project:
 Environment:
 
 - `CODEX_PROJECT_ROOT` / `CURSOR_PROJECT_DIR` — project root (default: cwd)
-- `CODEX_VAULT_FOLDER` — vault name (default: `AI_Codex_AgileWorkflowMarketplace`)
+- `CODEX_VAULT_FOLDER` — artifacts path name (default: `<artifacts>_AgileWorkflowMarketplace`)
 - `ORCHESTRATOR_INTERACTIVE=1` — prompt for `IMPLEMENTATION APPROVED` on circuit breaker
 
 ## MCP setup
@@ -71,7 +71,7 @@ Add to your project's `.mcp.json` (local file — not committed if globally igno
       "args": ["-m", "orchestrator_core", "mcp"],
       "env": {
         "PYTHONPATH": "agile-workflow",
-        "CODEX_VAULT_FOLDER": "AI_Codex_AgileWorkflowMarketplace"
+        "CODEX_VAULT_FOLDER": "<artifacts>_AgileWorkflowMarketplace"
       }
     }
   }
@@ -101,5 +101,5 @@ PYTHONPATH=agile-workflow python3 -m unittest discover -s test -v
 
 ## Related
 
-- [orchestrator-core feature note](../AI_Codex_AgileWorkflowMarketplace/Features/orchestrator-core.md)
+- [orchestrator-core feature note](../<artifacts>/Features/orchestrator-core.md)
 - [validation-checks.md](../agile-workflow/skills/validate-artifact/references/validation-checks.md)

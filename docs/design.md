@@ -8,11 +8,11 @@ audit at the end. It is the executable orchestration that the team's existing pl
 docs and enricher prompts describe but never operationalized into a repeatable procedure.
 
 It carries its **own** copy of the decomposition rules (hierarchy, Definition of Ready,
-story-point heuristic, ticket structure) and the Azure DevOps / vault mechanics, so it runs
+story-point heuristic, ticket structure) and the Azure DevOps / artifacts path mechanics, so it runs
 without depending on any particular repository's `docs/` being present or readable.
 
 **Portability note.** Concrete conventions named below — the draft directory (`Tickets/Ready/`),
-the filename regex, the section labels in the local language, and the session-record/ledger
+the filename regex, the section labels in the local language, and the session-record/artifacts
 protocol — are the *defaults observed in the originating monorepo*. They are the skill's out-of-box
 behavior, but the skill treats them as configurable seams, not hard requirements, so it can adapt to
 a host repo that organizes drafts or records differently. The Azure DevOps mechanics and the
@@ -36,7 +36,7 @@ split into, how to word each).
 ## Phases
 
 The skill is a thin **conductor** over seven ordered phases. Each phase has a clear input and
-a clear artifact out. Two hard approval gates protect the vault and Azure from unapproved
+a clear artifact out. Two hard approval gates protect the artifacts path and Azure from unapproved
 writes. Phases are resumable — a dead session can re-enter at VERIFY/AUDIT against the ids.
 
 ```
@@ -50,11 +50,11 @@ writes. Phases are resumable — a dead session can re-enter at VERIFY/AUDIT aga
                → ordered list of Story stubs (title + 1-line scope + deps).
                ── GATE 1: present the split, wait for approval before drafting.
 
-3. DRAFT       Write each Story to the vault Tickets/Ready/ as a draft that PASSES the
+3. DRAFT       Write each Story to the artifacts path Tickets/Ready/ as a draft that PASSES the
                hooks (frontmatter: type present, status forbidden; naming regex).
                Structure: O quê / Por quê / Comportamento / Critérios /
                Notas Técnicas / Complexidade / Descrição Original.
-               → vault draft files.
+               → local draft files.
 
 4. ENRICH      Apply the work-item-enricher contract: tighten wording, ASCII diagrams,
                story-point justification, de-dup (each fact stated once).
@@ -66,7 +66,7 @@ writes. Phases are resumable — a dead session can re-enter at VERIFY/AUDIT aga
                → Azure work items.
 
 6. VERIFY      Structural. Read each created item back; assert System.Parent == Feature id;
-               chain Epic→Feature→Story holds; reconcile vault frontmatter with the
+               chain Epic→Feature→Story holds; reconcile artifacts path frontmatter with the
                Azure-assigned id. → verified hierarchy + updated drafts.
 
 7. AUDIT       Content + coverage. Retrieve each created item FRESH from Azure (not the
@@ -93,7 +93,7 @@ The traps this skill exists to prevent — encoded as checkable assertions, not 
 - **Description format = Markdown** so ASCII diagrams render. Work-item *bodies* use ASCII
   diagrams (Mermaid renders only in the Wiki, not in work-item descriptions).
 
-### Vault hooks (preflight before DRAFT)
+### Artifacts hooks (preflight before DRAFT)
 - Frontmatter: `type:` required; `status:` forbidden in `Tickets/`.
 - Filename regex: `^(\d+|tech-debt|bug|task|spike)-[a-z0-9-]+`, lowercase. Use the parent
   Feature id as prefix until Azure assigns the real id, then rename.
@@ -111,7 +111,7 @@ The traps this skill exists to prevent — encoded as checkable assertions, not 
 **Inputs**
 - Required: a **parent work item id** (Epic or Feature).
 - Optional: target sprint/iteration; story-point ceiling override (defaults to team standard).
-- Implicit context: Azure project + repo; vault `Tickets/Ready/` location.
+- Implicit context: Azure project + repo; artifacts path `Tickets/Ready/` location.
 
 **Parent-type branch**
 - Parent is a **Feature** → decompose straight into Stories.
@@ -119,10 +119,10 @@ The traps this skill exists to prevent — encoded as checkable assertions, not 
   child Feature. No silent Epic-parented Stories.
 
 **Outputs**
-1. Vault drafts in `Tickets/Ready/` (hook-valid, enriched, reconciled to Azure ids).
+1. Local drafts in `Tickets/Ready/` (hook-valid, enriched, reconciled to Azure ids).
 2. Created Azure Stories, parented to the Feature.
 3. A coverage report (Phase 7): parent-requirement → Story map, pass/gap.
-4. A session-record checkpoint, per the host repo's ledger protocol (if present).
+4. A session-record checkpoint, per the host repo's artifacts protocol (if present).
 
 **Failure handling**
 - Every Azure-mutating phase (CREATE) is preceded by an approval gate and followed by a
