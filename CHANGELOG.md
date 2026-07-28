@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-07-28
+
+### Added
+
+- **`amend-workitems` skill**: UI intake, complete-tree backup and scan, keyword-ranked placement
+  choices, approval-gated content amendments, Implementation Plan updates, and non-destructive
+  Task-child reconciliation.
+- Antigravity IDE and Antigravity CLI installation targets for the plugin bundle.
+
+### Changed
+
+- Agent Skills registry, manifests, README, and plugin version updated to nine skills (`0.9.0`).
+
+### Fixed
+
+- Codex plugin metadata now uses the host-compatible `defaultPrompt` array shape.
+- `amend-workitems` declares the Azure attachment-read tool required for complete tree backups.
+
 ## [0.8.1] - 2026-07-25
 
 ### Fixed

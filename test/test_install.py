@@ -10,9 +10,11 @@ from scripts.install import (
     _MCP_JSON_HOSTS,
     detect_hosts,
     detect_vault_folder,
+    link_cli_skills,
     merge_json_mcp,
     parse_targets,
     read_azure_org_from_mcp,
+    register_antigravity_plugin,
     resolve_tool_paths,
     validate_azure_org,
     wire_project_mcp,
@@ -23,6 +25,44 @@ INSTALL_SH = ROOT / "install.sh"
 
 
 class TestInstallHelpers(unittest.TestCase):
+    def test_link_cli_skills_links_only_missing_entries(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "source" / "skills"
+            source.mkdir(parents=True)
+            (source / "alpha").mkdir()
+            (source / "beta").mkdir()
+            destination = root / "destination"
+            self.assertTrue(link_cli_skills(source.parent, destination))
+            self.assertEqual((destination / "alpha").resolve(), (source / "alpha").resolve())
+            (destination / "beta").unlink()
+            (destination / "beta").mkdir()
+            self.assertTrue(link_cli_skills(source.parent, destination))
+            self.assertTrue((destination / "beta").is_dir())
+
+    @patch("scripts.install.Path.home")
+    def test_register_antigravity_wires_cli_plugin_and_skills(self, mock_home) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            mock_home.return_value = root / "home"
+            install = root / "install"
+            plugin = install / "agile-workflow"
+            (plugin / ".codex-plugin").mkdir(parents=True)
+            (plugin / ".codex-plugin" / "plugin.json").write_text(
+                json.dumps({"name": "agile-workflow", "version": "0.9.0", "description": "test"}),
+                encoding="utf-8",
+            )
+            (plugin / "skills" / "amend-workitems").mkdir(parents=True)
+            (plugin / "skills" / "amend-workitems" / "SKILL.md").write_text("---\nname: amend-workitems\n---\n", encoding="utf-8")
+            self.assertTrue(register_antigravity_plugin(install))
+            cli_plugin = root / "home" / ".gemini" / "antigravity-cli" / "plugins" / "agile-workflow"
+            self.assertEqual(json.loads((cli_plugin / "plugin.json").read_text())["name"], "agile-workflow")
+            self.assertTrue((cli_plugin / "skills" / "amend-workitems" / "SKILL.md").is_file())
+            self.assertEqual(
+                (root / "home" / ".gemini" / "antigravity-cli" / "skills" / "amend-workitems").resolve(),
+                (plugin / "skills" / "amend-workitems").resolve(),
+            )
+
     def test_read_azure_org_from_mcp(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / ".mcp.json"

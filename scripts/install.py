@@ -170,6 +170,24 @@ def copy_plugin_bundle(
             shutil.copytree(src, dest / ".codex-plugin", ignore=_COPY_IGNORE)
 
 
+def link_cli_skills(proot: Path, destination: Path) -> bool:
+    """Expose every bundled skill through a host CLI's native skills directory."""
+    skills = proot / "skills"
+    if not skills.is_dir():
+        return False
+    destination.mkdir(parents=True, exist_ok=True)
+    linked = False
+    for skill in sorted(path for path in skills.iterdir() if path.is_dir()):
+        target = destination / skill.name
+        if target.is_symlink():
+            target.unlink()
+        elif target.exists():
+            continue
+        target.symlink_to(skill.resolve())
+        linked = True
+    return linked
+
+
 def register_claude_plugin(install_dir: Path) -> bool:
     proot = plugin_root(install_dir)
     manifest = _load_plugin_manifest(proot)
@@ -264,6 +282,8 @@ def register_cursor_plugin(install_dir: Path) -> bool:
         json.dumps(plugin_meta, indent=2) + "\n",
         encoding="utf-8",
     )
+    # Cursor CLI discovers native skills independently of plugin cache loading.
+    link_cli_skills(proot, Path.home() / ".cursor" / "skills")
     return True
 
 
@@ -343,6 +363,21 @@ def register_antigravity_plugin(install_dir: Path) -> bool:
             encoding="utf-8",
         )
         ok = True
+
+    # Antigravity CLI has a separate plugin root from the IDE global root.
+    cli_plugins = Path.home() / ".gemini" / "antigravity-cli" / "plugins"
+    cli_plugin_dir = cli_plugins / PLUGIN_NAME
+    copy_plugin_bundle(proot, cli_plugin_dir, include_codex_plugin=False)
+    cli_plugin_dir.joinpath("plugin.json").write_text(
+        json.dumps({"name": PLUGIN_NAME, "description": description}, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    cli_plugin_dir.joinpath("installed_version.json").write_text(
+        json.dumps({"version": version}) + "\n",
+        encoding="utf-8",
+    )
+    link_cli_skills(proot, Path.home() / ".gemini" / "antigravity-cli" / "skills")
+    ok = True
 
     return ok
 

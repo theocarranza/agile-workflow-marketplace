@@ -10,7 +10,8 @@
         "split-story",
         "generate-work-item",
         "enrich-work-item",
-        "generate-breakdown-work-items"
+        "generate-breakdown-work-items",
+        "amend-workitems"
       ]
     },
     {

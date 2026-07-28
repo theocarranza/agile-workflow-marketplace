@@ -12,6 +12,8 @@ EXPECTED = (
     "generate-work-item",
     "enrich-work-item",
     "generate-plain-language-documentation",
+    "generate-breakdown-work-items",
+    "amend-workitems",
 )
 
 

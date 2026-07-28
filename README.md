@@ -2,7 +2,7 @@
 
 [![Release](https://img.shields.io/github/v/release/theocarranza/agile-workflow-marketplace?label=version&color=0e7c86)](https://github.com/theocarranza/agile-workflow-marketplace/releases)
 [![License: MIT](https://img.shields.io/github/license/theocarranza/agile-workflow-marketplace)](LICENSE)
-[![Skills](https://img.shields.io/badge/skills-8-2563eb)](skills/)
+[![Skills](https://img.shields.io/badge/skills-9-2563eb)](skills/)
 [![Agent Skills](https://img.shields.io/badge/spec-agentskills.io-5C2D91)](https://agentskills.io/specification)
 [![skills.sh](https://img.shields.io/badge/listed-skills.sh-000000)](https://skills.sh/)
 
@@ -16,7 +16,7 @@
 
 A standalone multi-host plugin marketplace for Agile backlog workflows against **Azure DevOps**.
 
-Eight [Agent Skills](https://agentskills.io/specification)-compliant conductors plus a deterministic **Python orchestrator** for quality gates. Ships Claude Code, Cursor, Codex, and Antigravity plugin manifests, MCP wiring, and an Obsidian vault ledger. Current plugin release: **v0.8.1**.
+Nine [Agent Skills](https://agentskills.io/specification)-compliant conductors plus a deterministic **Python orchestrator** for quality gates. Ships Claude Code, Cursor, Codex, and Antigravity (IDE and CLI) plugin manifests, MCP wiring, and an Obsidian vault ledger. Current plugin release: **v0.9.0**.
 
 ## Install
 
@@ -68,7 +68,7 @@ Manual / Claude-only alternative:
 
 ### Skills only (registry install)
 
-Root `skills/` symlinks expose the eight skills for [skills.sh](https://skills.sh/) and [openskills.cc](https://openskills.cc/skills) discovery:
+Root `skills/` symlinks expose the nine skills for [skills.sh](https://skills.sh/) and [openskills.cc](https://openskills.cc/skills) discovery:
 
 ```bash
 npx skills add theocarranza/agile-workflow-marketplace
@@ -219,6 +219,22 @@ failures.
 
 Trigger: `/generate-breakdown-work-items`, "break down this story into tasks", or supply a Story /
 Feature / Epic id, URL, or vault path.
+
+### Skill: `amend-workitems`
+
+Analyze user corrections against a complete Epic or Feature tree. The skill snapshots the full
+Epic → Feature → Story → Task hierarchy, searches the Ledger with Obsidian when available, offers
+single-select placement choices with `Other` last, and presents one approved change set before
+delegating content updates to the existing enrichment, prose, breakdown, and validation skills.
+Related Implementation Plans and Task child lists are reconciled without deleting existing Tasks
+or changing hierarchy/state by default.
+
+Trigger: `/amend-workitems`, "amend this work-item tree", or provide correction instructions and
+an Epic/Feature id, URL, or Ledger path.
+
+Antigravity installs expose the plugin in both the IDE global directory and the separate CLI
+directory (`~/.gemini/antigravity-cli/plugins/agile-workflow`); CLI skill links are also placed in
+the host's native skills directory.
 
 
 ## Agent Skills compliance
