@@ -27,20 +27,24 @@ dropped requirement (caught in AUDIT). If a Story has no parent slice, it is sco
 
 ## Story-point heuristic (6-driver MAX)
 
-Score each driver 1/2/3/5; the Story's points = the **MAX** across drivers (not the sum). This keeps
-one hard dimension from being diluted by easy ones.
+Score each driver 1/2/3/5/8; the Story's points = the **MAX** across drivers (not the sum). This
+keeps one hard dimension from being diluted by easy ones.
 
-| Driver       | 1                | 2                  | 3                       | 5                          |
-|--------------|------------------|--------------------|-------------------------|----------------------------|
-| Escopo       | one tiny change  | one area           | multiple artifacts/area | multiple areas             |
-| Incerteza    | known            | mostly known       | some unknowns           | significant unknowns       |
-| Integrações  | none             | one stable         | a couple to integrate   | many / unstable            |
-| Dados        | none             | trivial            | some shaping            | complex modeling/migration |
-| QA           | trivial          | unit-level         | a flow                  | multi-screen E2E journey   |
-| Rollout      | none             | flag/simple        | coordinated             | risky/irreversible         |
+| Driver       | 1                | 2                  | 3                       | 5                          | 8                        |
+|--------------|------------------|--------------------|-------------------------|----------------------------|--------------------------|
+| Escopo       | one tiny change  | one area           | multiple artifacts/area | multiple areas             | cross-project/refactor   |
+| Incerteza    | known            | mostly known       | some unknowns           | significant unknowns       | PoC + iterations         |
+| Integrações  | none             | one stable         | a couple to integrate   | many / unstable            | several new / high risk  |
+| Dados        | none             | trivial            | some shaping            | complex modeling/migration | needs downtime window    |
+| QA           | trivial          | unit-level         | a flow                  | multi-screen E2E journey   | extensive regression     |
+| Rollout      | none             | flag/simple        | coordinated             | risky/irreversible         | complex rollback/multi-team |
+
+**MAX has no exceptions** — two drivers at 5 is a 5-point Story, not an 8-point one.
 
 Record the per-driver scores and the MAX in the Story's Complexity section so the estimate is
 auditable, e.g. `5 pts — driver: QA=5 (multi-screen E2E); Escopo=5; rest ≤3`.
+
+Points size a Story; they are not a duration. For turning points into hours, see `estimation.md`.
 
 ## Definition of Ready (each Story must meet)
 

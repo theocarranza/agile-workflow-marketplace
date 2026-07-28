@@ -247,6 +247,10 @@ Sugira ao usuário um título para item descrito, fora do markdown.
 
 **Regra principal:** Use o **MAIOR valor** entre todos os drivers avaliados.
 
+**A regra MAX não tem exceções.** Dois drivers em 5 continuam sendo 5 pontos, não 8. Quando duas
+dimensões são realmente difíceis, isso aparece na decisão de dividir a história — não inflando a
+pontuação.
+
 | Maior Driver | Complexidade | Exemplo |
 |-------------|--------------|----------|
 | Todos os drivers = 1 | **1 ponto** | Validação simples, 1 arquivo, solução óbvia |
@@ -254,7 +258,6 @@ Sugira ao usuário um título para item descrito, fora do markdown.
 | Maior driver = 3 | **3 pontos** | 1 área + contrato ou dúvidas moderadas |
 | Maior driver = 5 | **5 pontos** | Múltiplas áreas ou nova integração |
 | Maior driver = 8 | **8 pontos** | Cross-projeto ou refatoração extensa → **considerar dividir** |
-| Dois drivers = 5 | **8 pontos** | Dois aspectos complexos → **considerar dividir** |
 | Maior driver > 8 | **13+ pontos** | **Dividir antes de estimar** |
 
 **Importante:**
