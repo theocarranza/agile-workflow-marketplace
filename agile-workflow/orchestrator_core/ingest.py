@@ -23,6 +23,22 @@ class ArtifactRecord:
     azure_id: int | None
     frontmatter: dict[str, Any] = field(default_factory=dict)
     raw: str = ""
+    effort_hours: float | None = None
+    """Estimated duration. None means unestimated -- which is honest, not a failure."""
+
+
+def coerce_float(value: Any) -> float | None:
+    """Best-effort numeric coercion for frontmatter values. Never raises."""
+    if isinstance(value, bool) or value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value.strip())
+        except ValueError:
+            return None
+    return None
 
 
 def parse_frontmatter(text: str) -> tuple[dict[str, Any], str]:
@@ -94,15 +110,16 @@ def ingest_from_text(text: str, *, filename: str | None = None) -> ArtifactRecor
         body=body,
         story_points=float(story_points) if isinstance(story_points, (int, float)) else None,
         parent_id=None,
-        source="vault",
+        source="file",
         filename=filename,
         azure_id=None,
         frontmatter=frontmatter,
         raw=text,
+        effort_hours=coerce_float(frontmatter.get("effort_hours")),
     )
 
 
-def ingest_vault_file(path: Path) -> ArtifactRecord:
+def ingest_file(path: Path) -> ArtifactRecord:
     raw = path.read_text(encoding="utf-8")
     frontmatter, body = parse_frontmatter(raw)
     artifact_type = normalize_work_item_type(
@@ -125,11 +142,12 @@ def ingest_vault_file(path: Path) -> ArtifactRecord:
         body=body,
         story_points=float(story_points) if isinstance(story_points, (int, float)) else None,
         parent_id=parent_id,
-        source="vault",
+        source="file",
         filename=path.stem,
         azure_id=int(azure_id) if isinstance(azure_id, int) else None,
         frontmatter=frontmatter,
         raw=raw,
+        effort_hours=coerce_float(frontmatter.get("effort_hours")),
     )
 
 
@@ -141,6 +159,7 @@ def ingest_azure_record(
     story_points: float | None,
     parent_id: int | None,
     azure_id: int,
+    effort_hours: float | None = None,
 ) -> ArtifactRecord:
     return ArtifactRecord(
         type=normalize_work_item_type(work_item_type) or work_item_type,
@@ -153,4 +172,5 @@ def ingest_azure_record(
         azure_id=azure_id,
         frontmatter={},
         raw=description or "",
+        effort_hours=effort_hours,
     )

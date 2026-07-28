@@ -9,7 +9,6 @@ from unittest.mock import patch
 from scripts.install import (
     _MCP_JSON_HOSTS,
     detect_hosts,
-    detect_vault_folder,
     link_cli_skills,
     merge_json_mcp,
     parse_targets,
@@ -93,11 +92,6 @@ class TestInstallHelpers(unittest.TestCase):
             self.assertIn("other", data["mcpServers"])
             self.assertIn("azure-devops", data["mcpServers"])
 
-    def test_detect_vault_folder(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            (root / "AI_Codex_Foo").mkdir()
-            self.assertEqual(detect_vault_folder(root), "AI_Codex_Foo")
 
     def test_validate_azure_org_rejects_spaces(self) -> None:
         with self.assertRaises(ValueError):
@@ -149,7 +143,6 @@ class TestInstallHelpers(unittest.TestCase):
                 project,
                 install_dir=install,
                 azure_org="my-org",
-                vault_folder="AI_Codex_Test",
                 targets=["cursor"],
             )
             self.assertFalse((project / ".mcp.json").exists())
@@ -182,8 +175,7 @@ class TestInstallHelpers(unittest.TestCase):
                     project,
                     install_dir=install,
                     azure_org="my-org",
-                    vault_folder="AI_Codex_Test",
-                    targets=["cursor"],
+                        targets=["cursor"],
                 )
             self.assertEqual(
                 json.loads(global_mcp.read_text(encoding="utf-8")),

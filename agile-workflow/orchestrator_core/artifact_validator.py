@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Iterable, Literal
 
 from .ingest import FILENAME_RE, ArtifactRecord
@@ -118,6 +119,59 @@ def _detect_body_format(body: str) -> BodyFormat:
     return "unknown"
 
 
+def _effort_hours_check(record: ArtifactRecord, state_dir: Path | None = None) -> CheckResult:
+    """Compare a declared duration against the band for its point value.
+
+    Advisory only. An unestimated item SKIPs rather than FAILs: leaving the field empty is
+    an honest state, and a made-up number would be worse than none. This check exists to
+    catch a figure that contradicts its own story points, not to demand one.
+    """
+    from .estimation import EstimationConfig, estimate_hours, load_config
+
+    # Honour the team's own bands when they have written any: warning a team against the
+    # very table they replaced would make the check worse than useless.
+    config = load_config(state_dir) if state_dir else EstimationConfig()
+
+    hours = record.effort_hours
+    if hours is None:
+        return CheckResult("content-effort-hours-plausible", "SKIP", "no effort estimate recorded", "CONTENT")
+    if hours <= 0:
+        return CheckResult(
+            "content-effort-hours-plausible", "WARN", f"effort_hours is {hours:g}; expected a positive number", "CONTENT"
+        )
+
+    expected = estimate_hours(record.story_points, config=config)
+    if expected is None:
+        return CheckResult(
+            "content-effort-hours-plausible", "PASS", f"{hours:g}h (no story points to compare against)", "CONTENT"
+        )
+    if expected.low <= hours <= expected.high:
+        return CheckResult(
+            "content-effort-hours-plausible", "PASS", f"{hours:g}h within {expected.low:g}-{expected.high:g}h", "CONTENT"
+        )
+    return CheckResult(
+        "content-effort-hours-plausible",
+        "WARN",
+        f"{hours:g}h sits outside the {expected.low:g}-{expected.high:g}h reference band "
+        f"for {record.story_points:g} points; confirm the estimate or the points",
+        "CONTENT",
+    )
+
+
+def _estimation_config_check(state_dir: Path | None = None) -> CheckResult:
+    """Report malformed custom bands before validation falls back to seed defaults."""
+    from .estimation import EstimationConfig, config_diagnostics, load_config
+
+    config = load_config(state_dir) if state_dir else EstimationConfig()
+    diagnostics = config_diagnostics(config)
+    return CheckResult(
+        "config-estimation-bands-valid",
+        "WARN" if diagnostics else "PASS",
+        "; ".join(diagnostics),
+        "CONTENT",
+    )
+
+
 def _append_format_validation(
     results: list[CheckResult],
     *,
@@ -135,6 +189,7 @@ def validate_artifact(
     record: ArtifactRecord,
     *,
     hierarchy_parent_is_feature: bool | None = None,
+    state_dir: Path | None = None,
 ) -> list[CheckResult]:
     """Rule-based validation mirroring validation-checks.md."""
     results: list[CheckResult] = []
@@ -144,7 +199,7 @@ def validate_artifact(
     complexity_drivers = COMPLEXITY_DRIVERS_BY_LANGUAGE[language]
     story_sections = STORY_SECTIONS_BY_LANGUAGE[language]
 
-    if record.source == "vault":
+    if record.source == "file":
         results.append(
             CheckResult(
                 "frontmatter-type-present",
@@ -174,7 +229,7 @@ def validate_artifact(
     else:
         for name in ("frontmatter-type-present", "frontmatter-status-absent", "filename-regex"):
             results.append(
-                CheckResult(name, "SKIP", "source is Azure, not a vault draft", "STRUCTURAL")
+                CheckResult(name, "SKIP", "source is Azure, not a local file", "STRUCTURAL")
             )
 
     body_format = _detect_body_format(record.body)
@@ -279,7 +334,7 @@ def validate_artifact(
                 )
             )
 
-    if record.source == "vault" and record.azure_id is None:
+    if record.source == "file" and record.azure_id is None:
         results.append(
             CheckResult(
                 "hierarchy-skipped-no-azure-id",
@@ -373,6 +428,8 @@ def validate_artifact(
             "CONTENT",
         )
     )
+    results.append(_estimation_config_check(state_dir))
+    results.append(_effort_hours_check(record, state_dir))
 
     title_words = _word_count(record.title)
     results.append(

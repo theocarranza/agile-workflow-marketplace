@@ -19,11 +19,11 @@ COLLECT → INGEST (completeness contract) → DRAFT → GLOSSARY VERIFY → SEL
 | --- | --- |
 | Tech glossary | `./references/assets/tech-glossary-en-pt-br.json` |
 
-## Vault output paths (when persisting)
+## Artifacts output paths (when persisting)
 
 | Destination | Path |
 | --- | --- |
-| Default output | `<vault>/Knowledge/<kebab-slug>.md` |
+| Default output | `<artifacts>/Knowledge/<kebab-slug>.md` |
 
 ## Document type map
 
@@ -46,4 +46,4 @@ See `./integration-notes.md` for invocation contract (sub-skill mode skips stand
 
 ## Shared plugin references
 
-- `../../references/ticket-structure.md` — when output feeds vault ticket drafts
+- `../../references/ticket-structure.md` — when output feeds ticket drafts

@@ -11,7 +11,7 @@ sub-stories and hands them off. It operates at the Story-to-Story level, complem
 
 **In:**
 
-- Vault draft (file path), live Azure work item (ID), arbitrary file system path, or raw text pasted inline as input
+- Local draft (file path), live Azure work item (ID), arbitrary file system path, or raw text pasted inline as input
 - Point calculation using the 6-driver MAX heuristic (Escopo, Incerteza, Integrações, Dados, QA, Rollout)
 - Discrepancy detection: if declared points differ from calculated, flag and ask user which to trust
 - Spike detection: if Incerteza is the dominant driver, recommend a Spike instead of a scope split
@@ -34,12 +34,12 @@ linking mechanics; flexible on judgment calls within pattern detection and story
 
 ## Phases
 
-The skill is a conductor over five ordered phases. Two hard gates protect the vault and Azure
+The skill is a conductor over five ordered phases. Two hard gates protect the artifacts path and Azure
 from unapproved writes.
 
 ```text
 1. INGEST     Determine source from the argument:
-                vault draft      → read the markdown file; parse frontmatter + body.
+                local draft      → read the markdown file; parse frontmatter + body.
                 Azure ID         → fetch via wit_get_work_item (expand relations).
                 file system path → read the file from disk; parse as markdown.
                 raw text         → use the pasted content directly.
@@ -64,7 +64,7 @@ from unapproved writes.
 3. ANALYZE    Branch A — No split needed:
                 If active_points ≤ ceiling (default 5, overridable):
                   Report "story is right-sized" with score breakdown. Stop.
-                  No vault files written.
+                  No local files written.
 
               Branch B — Spike recommended:
                 If Incerteza driver == 5 AND is the sole MAX driver:
@@ -91,7 +91,7 @@ from unapproved writes.
                 - Estimated point value per sub-story
                 WAIT for explicit approval before drafting.
 
-4. DRAFT      Per approved sub-story, write a vault draft to Tickets/Ready/
+4. DRAFT      Per approved sub-story, write a local draft to Tickets/Ready/
               following ticket-structure.md:
                 - Hook-valid frontmatter: type present, status absent,
                   filename regex with parent Feature id prefix.
@@ -110,14 +110,14 @@ from unapproved writes.
 
 5. HANDOFF    Present drafted sub-stories summary (title + point estimate per sub-story).
               Show options:
-                1. Keep as vault drafts — done; user continues manually or
+                1. Keep as local drafts — done; user continues manually or
                    via decompose-backlog's ENRICH/CREATE/VERIFY phases.
                 2. Create in Azure and link to parent Feature — calls
                    wit_create_work_item (Markdown description) then
                    wit_work_items_link (explicit type=parent to Feature id)
                    per azure-mechanics.md; reads back each item to assert
                    System.Parent == feature_id. A failed assertion stops the run.
-                3. Discard drafts — delete vault files, stop.
+                3. Discard drafts — delete local files, stop.
 ```
 
 ## Shared references (plugin level)
@@ -139,15 +139,15 @@ New files under `./references/`:
 
 ### Inputs
 
-- Required: one of — vault draft path, Azure work item ID, file system path, or raw text pasted inline
+- Required: one of — local draft path, Azure work item ID, file system path, or raw text pasted inline
 - Optional: story-point ceiling override (default 5)
-- Implicit context: Azure project + repo; vault `Tickets/Ready/` location
+- Implicit context: Azure project + repo; artifacts path `Tickets/Ready/` location
 
 ### Outputs
 
 1. Score report — driver breakdown, calculated vs. declared (if applicable), active points used
 2. Split plan — pattern, reasoning, count, titles + scope (shown at Gate 1)
-3. Vault drafts in `Tickets/Ready/` — hook-valid, all 7 sections, coverage-verified
+3. Local drafts in `Tickets/Ready/` — hook-valid, all 7 sections, coverage-verified
 4. Azure work items (HANDOFF option 2) — created, linked to Feature, hierarchy verified
 
 ## Relationship to sibling skills

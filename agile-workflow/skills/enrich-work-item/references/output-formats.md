@@ -59,5 +59,5 @@ Shape contracts: `canonical/canonical-*.md` (read-only; see above).
 
 ## Azure description
 
-When persisting to Azure, the enriched body (below frontmatter when using the ledger) becomes the
+When persisting to Azure, the enriched body (below frontmatter when using the artifacts path) becomes the
 work-item Description in **Markdown** format.

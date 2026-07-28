@@ -1,6 +1,6 @@
 # Intake and Selection UX
 
-Reference for `generate-breakdown-work-items` PHASE 0. Selection only — no Ledger or Azure writes.
+Reference for `generate-breakdown-work-items` PHASE 0. Selection only — no Artifacts or Azure writes.
 
 ## Prompt order
 
@@ -19,7 +19,7 @@ Accept **one** of:
 
 - Azure DevOps work item **ID** (numeric)
 - Azure DevOps work item **URL** (`/_workitems/edit/{id}` or `/_workitems/view/{id}`)
-- File system / Ledger **path** (vault Feature, Epic, or User Story markdown)
+- File system / Artifacts **path** (artifacts path Feature, Epic, or User Story markdown)
 
 If none is provided: STOP and prompt before continuing. Do not invent a reference.
 
@@ -30,12 +30,12 @@ the raw reference string and a provisional `source_kind`: `id` | `url` | `path`.
 
 Present as a selectable list. Always include `other (inform or describe)` last.
 
-1. `filesystem / ledger` — write Implementation Plan and Task drafts to the AI Codex vault
+1. `filesystem` — write Implementation Plan and Task drafts to the configured artifacts path
 2. `Azure Task board` — create Azure Task children under the User Story
-3. `both` — ledger and Azure
+3. `both` — artifacts path and Azure
 4. `other (inform or describe)` — user supplies a custom destination; clarify before continuing
 
-Judgment: when the host team typically uses Azure + vault together, tag **`both`** as
+Judgment: when the host team typically uses Azure + together, tag **`both`** as
 `Recommended` and keep it **first** in the presented list (reorder so Recommended is first, then
 the remaining options, then `other…` last).
 

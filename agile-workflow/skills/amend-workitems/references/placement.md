@@ -2,7 +2,7 @@
 
 Treat each instruction as an atomic amendment. Preserve its original wording and derive a small
 search set: exact phrases, identifiers, title words, normalized tokens, and simple stems. Search
-the Ledger with Obsidian CLI/search when available, then use `rg -n -i` over the vault and plugin
+the Artifacts with Obsidian CLI/search when available, then use `rg -n -i` over the artifacts path and plugin
 references. Rank a candidate by:
 
 1. exact work-item id or URL;

@@ -11,7 +11,7 @@
       },
       "source": {
         "type": "string",
-        "description": "URL (Azure DevOps work-item URL or external doc), vault path, or inline text to enrich. Azure sources trigger attachment and description-reference resolution per references/azure-ingest.md."
+        "description": "URL (Azure DevOps work-item URL or external doc), local path, or inline text to enrich. Azure sources trigger attachment and description-reference resolution per references/azure-ingest.md."
       },
       "parent": {
         "type": "string",

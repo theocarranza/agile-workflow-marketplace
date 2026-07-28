@@ -45,10 +45,10 @@ proper names, or host-preferred equivalents — stay consistent within a run). D
 ### Breakdown rules
 
 - Title: `Breakdown` (or localized equivalent; keep recognizable)
-- **Assignee** = User Story assignee (`System.AssignedTo` on Azure; vault metadata if present).
+- **Assignee** = User Story assignee (`System.AssignedTo` on Azure; frontmatter metadata if present).
   If the Story has no assignee → leave unassigned and note in the run summary; still set Done.
 - **State** = Done (Azure: set `System.State` to the project's Done/Closed equivalent for Task;
-  vault: mark status Done in the draft body/frontmatter convention used for Tasks)
+  artifacts path: mark status Done in the draft body/frontmatter convention used for Tasks)
 - Always the **last** Task in the list
 
 ### Variant selection UX
@@ -64,17 +64,88 @@ Wait for selection. If the user deselects Staging, Review, or Breakdown → WARN
 unless they explicitly confirm omission (defaults are mandatory per Feature ACs; prefer STOP and
 re-prompt over silently dropping them).
 
+### Effort hours per Task
+
+A Task with no `RemainingWork` contributes nothing to the assignee's capacity bar or the burndown
+chart — it is invisible to the tooling that shows whether their sprint fits.
+
+Once the Task list is settled, **compute the estimates — do not reason them out.** The arithmetic
+is deterministic and lives in the orchestrator, so the same Story always yields the same hours.
+
+1. **Fetch the sprint context** through MCP and save it as one JSON file:
+   - `work_list_team_iterations` with `timeframe: "current"` → `iteration`
+   - `work_get_team_capacity` for that iteration → `capacities`
+   - `work_get_team_settings` → `team_settings`
+   - `wit_get_work_items_for_iteration` → `work_items` (so existing commitments count)
+2. **Write the Task list** as JSON: `story_id`, `story_points`, `assignee`, `iteration_ref`, and
+   `tasks[]` of `{id, title, current_hours}`. Pass a `weight` per Task only when the Implementation
+   Plan says one is materially larger; otherwise the role default applies.
+3. **Run it:**
+
+```bash
+bin/agile-workflow estimate-breakdown --input <tasks>.json --payloads <sprint>.json
+```
+
+Exit codes: `0` estimated and fits, `2` **blocked** (see below), `1` could not run.
+
+The command prints the per-Task figures, the assignee's remaining capacity, and the exact field
+writes to apply — it writes nothing itself. Apply the printed `write_ops` in PHASE 4.
+
+Estimates are **applied, not negotiated** — they derive from the Story's points, so there is
+nothing for a person to approve item by item. What is not optional is telling them: relay the
+command's change report verbatim, naming every Task whose hours were set or changed.
+
+**Task weights.** `Breakdown` is a completion marker and carries **no hours**; `Staging` and
+`Review` take a lighter share than implementation work. That is handled automatically from the
+Task titles — override with an explicit `weight` only when you have read the plan and know better.
+
+### Capacity is a ceiling
+
+When the derived hours exceed what the assignee has left, **STOP before writing anything** and ask
+for a decision. Do not scale the numbers down to fit — that would misrepresent how long the work
+takes.
+
+```
+BLOCKED — exceeds remaining capacity by 75h.
+Choose one before anything is written:
+  - split the Story so part of it moves to a later sprint
+  - move the whole Story to a later sprint
+  - reassign it to someone with capacity left
+  - reduce the Task scope, then recompute
+```
+
+If the assignee cannot be matched to a team member, or the Story is unassigned, capacity is
+unknown: report that plainly and proceed. Absence of data is not a failure.
+
+### Recompute whenever the breakdown changes
+
+**Any change to the work a Story needs invalidates its Task hours.** Tasks added, removed,
+retitled, or rescoped all mean the split no longer reflects reality — and a burndown charting a
+plan nobody follows is worse than one charting nothing.
+
+So on every such change: recompute, write the new figures, and report the difference.
+
+```
+* Wire the form:      4h → 6h
+* Validation rules:   4h → 6h
+  Tests:              2h = 2h
+  3 estimate(s) changed and were updated.
+```
+
+The capacity ceiling applies to the recomputed total as well: if the change pushes the Story past
+the assignee's remaining hours, STOP and ask as above.
+
 ---
 
 ## Persist (PHASE 4)
 
 Write only the selected Tasks to intake `destination`.
 
-### Filesystem / ledger
+### Filesystem / artifacts path
 
 When `destination` is `filesystem` or `both`:
 
-1. Write one markdown draft per Task under the vault (prefer `Tickets/Ready/` or a host Task folder).
+1. Write one markdown draft per Task under the artifacts path (prefer `Tickets/Ready/` or a host Task folder).
 2. Filename pattern per `../../references/ticket-structure.md`:
    `task-<kebab-title>` is invalid as a bare prefix — use `task-<slug>` only if the host regex
    allows `task-`; otherwise `<story-id-or-0000>-task-<slug>.md` matching
@@ -96,10 +167,22 @@ When `destination` is `azure` or `both`:
    `wit_update_work_item` to set:
    - `/fields/System.AssignedTo` → Story assignee (when present)
    - `/fields/System.State` → Done (or project-specific completed state for Task)
-4. Alternative: `wit_create_work_item` + `wit_work_items_link` with **`type: "parent"`**
+4. For **every Task**, `wit_update_work_item` to set:
+   - `/fields/Microsoft.VSTS.Scheduling.RemainingWork` → hours (drives capacity + burndown)
+   - `/fields/Microsoft.VSTS.Scheduling.OriginalEstimate` → hours — **Agile/CMMI only.** This
+     field does not exist on Scrum projects and writing it there fails silently. When the process
+     is unknown, write only `RemainingWork`, which every process has.
+   - `/fields/Microsoft.VSTS.Common.Activity` → activity, when one can be determined. Allowed
+     values are configured per project — read them rather than assuming, and leave it unset when
+     unsure. (`Discipline` on CMMI.)
+   Apply to every Task. Report each figure written; see 'Effort hours per Task' above.
+5. Set `/fields/System.IterationPath` explicitly from the parent Story rather than relying on the
+   project default, so Tasks land in the sprint their Story belongs to.
+6. Alternative: `wit_create_work_item` + `wit_work_items_link` with **`type: "parent"`**
    (Story is parent of Task). Never omit `type` (defaults to Related).
-5. **Read-back** every created Task: assert parent is the Story id; for Breakdown assert Done and
-   assignee match. Failed assertion → STOP.
+7. **Read-back** every created Task: assert parent is the Story id; for Breakdown assert Done and
+   assignee match; for any Task given hours assert `RemainingWork` matches what was computed.
+   Failed assertion → STOP.
 
 ### Shared Azure notes
 
@@ -113,6 +196,9 @@ not the Feature. Description format: Markdown.
 After persist, report:
 
 - `plan_path`
-- Task titles + destinations (vault paths and/or Azure ids)
+- Task titles + destinations (artifacts paths and/or Azure ids)
 - Breakdown assignee + state
+- Hours written per Task, with provenance, and **every figure that changed** (old → new) — nothing
+  was asked for approval, so nothing may move silently
+- The assignee's remaining capacity and whether the Story fit inside it
 - Any skipped `other:…` follow-ups still open

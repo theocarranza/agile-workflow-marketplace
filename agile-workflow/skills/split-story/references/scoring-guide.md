@@ -5,18 +5,21 @@ story-point ceiling, spike detection, and discrepancy handling.
 
 ## 6-Driver MAX Heuristic
 
-Score each driver independently on the 1/2/3/5 scale. The story's calculated points =
+Score each driver independently on the 1/2/3/5/8 scale. The story's calculated points =
 the **MAX** across all drivers (not the sum). This ensures one hard dimension cannot be
 diluted by easy ones.
 
-| Driver | 1 | 2 | 3 | 5 |
-|---|---|---|---|---|
-| **Escopo** | One tiny, isolated change | One area or module | Multiple artifacts or one complex area | Multiple areas or significant cross-cutting scope |
-| **Incerteza** | Fully known — clear spec, no research needed | Mostly known — minor unknowns resolvable in breakdown | Some meaningful unknowns — may need spike or tech research | Significant unknowns — direction unclear; investigation required before implementation |
-| **Integrações** | No integrations | One stable, well-documented integration | A couple of integrations to coordinate | Many integrations or one unstable / undocumented integration |
-| **Dados** | No data concerns | Trivial data (simple fields, no migration) | Some data shaping (schema change, mapping) | Complex modeling or data migration |
-| **QA** | Trivial — no meaningful test scenarios | Unit-level coverage only | One distinct user flow to test | Multi-screen E2E journey or complex state combinations |
-| **Rollout** | No rollout concerns | Simple feature flag or config toggle | Coordinated rollout (multiple environments / teams) | Risky or irreversible rollout (data migration, external API, billing) |
+| Driver | 1 | 2 | 3 | 5 | 8 |
+|---|---|---|---|---|---|
+| **Escopo** | One tiny, isolated change | One area or module | Multiple artifacts or one complex area | Multiple areas or significant cross-cutting scope | Cross-project or extensive refactor |
+| **Incerteza** | Fully known — clear spec, no research needed | Mostly known — minor unknowns resolvable in breakdown | Some meaningful unknowns — may need spike or tech research | Significant unknowns — direction unclear; investigation required before implementation | Proof-of-concept plus iterations before the work can be scoped |
+| **Integrações** | No integrations | One stable, well-documented integration | A couple of integrations to coordinate | Many integrations or one unstable / undocumented integration | Several new integrations, or one high-risk contract |
+| **Dados** | No data concerns | Trivial data (simple fields, no migration) | Some data shaping (schema change, mapping) | Complex modeling or data migration | Migration needing a maintenance window or downtime |
+| **QA** | Trivial — no meaningful test scenarios | Unit-level coverage only | One distinct user flow to test | Multi-screen E2E journey or complex state combinations | Extensive regression or a dedicated E2E suite |
+| **Rollout** | No rollout concerns | Simple feature flag or config toggle | Coordinated rollout (multiple environments / teams) | Risky or irreversible rollout (data migration, external API, billing) | Complex rollback, or coordination across multiple teams |
+
+**MAX has no exceptions.** Two drivers at 5 is still a 5-point story, not an 8-point one. If two
+dimensions are genuinely hard, that shows up in the split decision below, not by inflating the score.
 
 ### How to Score
 

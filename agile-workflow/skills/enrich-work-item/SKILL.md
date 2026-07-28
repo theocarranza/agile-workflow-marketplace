@@ -9,7 +9,7 @@ description: >
   generate-work-item instead. For plain-language narrative inside enricher sections, this skill
   delegates a sub-pass to generate-plain-language-documentation after enricher assembly.
 license: MIT
-compatibility: Requires Azure DevOps MCP and an AI Codex vault when persisting to the ledger.
+compatibility: Requires Azure DevOps MCP; a configured artifacts path when persisting locally.
 metadata:
   plugin: agile-workflow
   version: "0.6.0"
@@ -32,7 +32,7 @@ as each phase needs them.
 
 References (start at `./references/pipeline.md`):
 
-- `./references/pipeline.md` — type map, enricher routing, vault paths.
+- `./references/pipeline.md` — type map, enricher routing, artifacts paths.
 - `./references/azure-ingest.md` — Azure URL/id ingest: work item, attachments, description refs.
 - `./references/output-formats.md` — per-type output contracts (points to enrichers).
 - `./references/canonical/` — **read-only shape contracts** (`canonical-epic.md`,
@@ -40,11 +40,11 @@ References (start at `./references/pipeline.md`):
   output against the matching template before presenting.
 - `./references/enrichers/` — **authoritative** prose rules:
   - `epic-enricher.prompt.md`, `feature-enricher.prompt.md`, `work-item-enricher.prompt.md`
-- `./references/blueprints/` — spec forms for optional analysis ledger in `<vault>/Specs/`.
+- `./references/blueprints/` — spec forms for optional analysis artifacts path in `<artifacts>/Specs/`.
 - `./references/examples/` — illustrative dummy outputs (content reference only; shape contract is
   `./references/canonical/`).
 - `../../references/decomposition-rules.md` — hierarchy, story-point heuristic.
-- `../../references/ticket-structure.md` — vault hook constraints.
+- `../../references/ticket-structure.md` — draft file constraints.
 - `../../references/azure-mechanics.md` — create/update MCP calls + gotchas.
 - `../generate-plain-language-documentation/references/integration-notes.md` — prose polish sub-pass
   (PHASE 4).
@@ -59,7 +59,7 @@ Gather inputs **one at a time** via the host UI. Each step: brief purpose, requi
 
 | Input | Required | Purpose |
 | --- | --- | --- |
-| `source` | yes | `url` \| vault `path` \| pasted `text` — the material to enrich |
+| `source` | yes | `url` \| local `path` \| pasted `text` — the material to enrich |
 | `work_item_type` | yes | `epic` \| `feature` \| `user-story` |
 | `parent` | when type ≠ epic | Parent id or Azure URL for hierarchy context |
 | `attachment` | no | Extra doc URL or path |
@@ -68,7 +68,9 @@ Accept `/enrich-work-item` flags or conversational inference (see Examples).
 
 Normalize type → enricher + Azure `workItemType` per `pipeline.md`.
 
-Resolve vault from `.claude/codex-workflow.config.json` `codex.folder`, else glob `AI_Codex*/`.
+Resolve the artifacts path with `bin/agile-workflow config --show`, which reads
+`.agile-workflow/config.json` and falls back to older locations. See
+`../../references/project-config.md`.
 
 ---
 
@@ -81,7 +83,7 @@ Read `./references/azure-ingest.md` when `source` is an Azure DevOps URL or nume
      enumerate `AttachedFile` relations, parse description for linked docs/URLs/paths, fetch attachment
      and referenced content into `supplementary_context`. Set **Descrição Original** from
      `System.Description` verbatim.
-   - **path** — read vault or filesystem markdown; capture body verbatim.
+   - **path** — read local markdown; capture body verbatim.
    - **url** (non-Azure) — fetch external doc; capture description verbatim.
    - **text** — treat pasted content as the description to enrich.
 2. If `parent` provided: `wit_get_work_item` — capture parent chain for context and filename prefix.
@@ -102,7 +104,7 @@ Read `./references/output-formats.md` and the matching enricher:
 | `feature` | `enrichers/feature-enricher.prompt.md` |
 | `user-story` | `enrichers/work-item-enricher.prompt.md` |
 
-Load enricher prompts from `./references/enrichers/` — bundled with the skill; no vault override.
+Load enricher prompts from `./references/enrichers/` — bundled with the skill; no local override.
 
 Follow enricher **Contexto Obrigatório** when host monorepo docs exist; skip gracefully when absent.
 
@@ -110,10 +112,10 @@ For user-story sources, classify Bug vs User Story per enricher §1 keywords whe
 
 ---
 
-## PHASE 3 — WRITE SPEC (optional ledger)
+## PHASE 3 — WRITE SPEC (optional artifacts path)
 
-When the user will persist to the Codex ledger, fill the matching `./references/blueprints/spec-*.md`
-into `<vault>/Specs/[<parent-id>-]<kebab-slug>-spec.md`. Skip when destination is chat-only.
+When the user will persist to the Codex artifacts path, fill the matching `./references/blueprints/spec-*.md`
+into `<artifacts>/Specs/[<parent-id>-]<kebab-slug>-spec.md`. Skip when destination is chat-only.
 
 ---
 
@@ -145,15 +147,15 @@ requires it (work-item enricher).
 Then ask **where to persist** (if not already chosen):
 
 1. **Azure DevOps** — create or update work item with enriched body as Description (Markdown).
-2. **Codex Workflow AI Ledger** — write/update vault draft under `Tickets/Ready/` (or host path).
+2. **Local artifacts** — write/update local draft under `Tickets/Ready/` (or host path).
 3. **Chat only** — formatted markdown ready to copy.
 
-If no destination was named and the user wants chat-only, skip vault/Azure unless they approve ledger
+If no destination was named and the user wants chat-only, skip local/Azure unless they approve artifacts path
 save.
 
 ---
 
-## PHASE 6 — PERSIST (Azure / ledger)
+## PHASE 6 — PERSIST (Azure / artifacts path)
 
 **Azure** — per `azure-mechanics.md`:
 
@@ -161,18 +163,18 @@ save.
   `type: "parent"` when parent required.
 - **Update** when source was an Azure id or draft with `azure_id`: `wit_update_work_item`.
 
-**Ledger** — frontmatter per `ticket-structure.md`; hook-valid filename; enriched body verbatim.
+**Artifacts** — frontmatter per `ticket-structure.md`; hook-valid filename; enriched body verbatim.
 
 ---
 
 ## PHASE 7 — VERIFY
 
-When Azure was used: read-back parent link and description fidelity. Update vault `azure_id` and
+When Azure was used: read-back parent link and description fidelity. Update the draft's `azure_id` and
 rename file when creating new items.
 
 On failure: STOP and report.
 
-Append checkpoint to open `Agent_Sessions/` record when the host keeps a session ledger.
+Append checkpoint to open `Agent_Sessions/` record when the host keeps a session artifacts path.
 
 ---
 

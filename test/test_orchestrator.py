@@ -9,12 +9,12 @@ from orchestrator_core.artifact_validator import (
     validate_artifact,
 )
 from orchestrator_core.engine import OrchestratorEngine
-from orchestrator_core.ingest import ingest_from_text, ingest_vault_file
+from orchestrator_core.ingest import ingest_from_text, ingest_file
 from orchestrator_core.reflection import ReflectionState, advance_reflection, evaluate_reflection
 
 
 FIXTURE = Path(__file__).resolve().parent.parent / (
-    "AI_Codex_AgileWorkflowMarketplace/Tickets/Ready/6869-login-form-validation.md"
+    "test/fixtures/6869-login-form-validation.md"
 )
 
 RAW_GENERATE_STORY = """\
@@ -78,7 +78,7 @@ Fictional story for login validation.
 
 class TestArtifactValidator(unittest.TestCase):
     def test_good_story_passes(self) -> None:
-        record = ingest_vault_file(FIXTURE)
+        record = ingest_file(FIXTURE)
         results = validate_artifact(record)
         self.assertEqual(outcome_from_results(results), "PASS")
 
@@ -90,7 +90,7 @@ class TestArtifactValidator(unittest.TestCase):
         self.assertNotIn("body-section-missing: 🎯 O quê", names)
 
     def test_missing_type_fails(self) -> None:
-        record = ingest_vault_file(FIXTURE)
+        record = ingest_file(FIXTURE)
         bad = replace(record, frontmatter={})
         results = validate_artifact(bad)
         self.assertEqual(outcome_from_results(results), "FAIL")
@@ -98,7 +98,7 @@ class TestArtifactValidator(unittest.TestCase):
         self.assertIn("frontmatter-type-present", names)
 
     def test_pt_br_story_defaults_when_language_key_absent(self) -> None:
-        record = ingest_vault_file(FIXTURE)
+        record = ingest_file(FIXTURE)
         self.assertNotIn("language", record.frontmatter)
         results = validate_artifact(record)
         self.assertEqual(outcome_from_results(results), "PASS")
@@ -126,13 +126,13 @@ class TestArtifactValidator(unittest.TestCase):
         self.assertEqual(outcome_from_results(results), "PASS")
 
     def test_pt_br_story_fails_when_declared_language_is_en(self) -> None:
-        record = ingest_vault_file(FIXTURE)
+        record = ingest_file(FIXTURE)
         mislabeled = replace(record, frontmatter={**record.frontmatter, "language": "en"})
         results = validate_artifact(mislabeled)
         self.assertEqual(outcome_from_results(results), "FAIL")
 
     def test_warn_only_outcome_is_pass(self) -> None:
-        record = ingest_vault_file(FIXTURE)
+        record = ingest_file(FIXTURE)
         warned = replace(record, body=f"{record.body}\nRef: /home/user/projects/repo\n")
         results = validate_artifact(warned)
         self.assertEqual(outcome_from_results(results), "PASS")
@@ -144,12 +144,12 @@ class TestOrchestratorEngine(unittest.TestCase):
         skills_dir = Path(__file__).resolve().parent.parent / "agile-workflow" / "skills"
         with tempfile.TemporaryDirectory() as tmp:
             project_root = Path(tmp)
-            vault_dir = project_root / "vault"
-            vault_dir.mkdir()
+            state_dir = project_root / ".agile-workflow"
+            state_dir.mkdir()
             engine = OrchestratorEngine(
                 skills_dir=skills_dir,
                 project_root=project_root,
-                vault_dir=vault_dir,
+                state_dir=state_dir,
                 quiet=True,
             )
             result = engine.run_tool_call(
@@ -162,12 +162,12 @@ class TestOrchestratorEngine(unittest.TestCase):
         skills_dir = Path(__file__).resolve().parent.parent / "agile-workflow" / "skills"
         with tempfile.TemporaryDirectory() as tmp:
             project_root = Path(tmp)
-            vault_dir = project_root / "vault"
-            vault_dir.mkdir()
+            state_dir = project_root / ".agile-workflow"
+            state_dir.mkdir()
             engine = OrchestratorEngine(
                 skills_dir=skills_dir,
                 project_root=project_root,
-                vault_dir=vault_dir,
+                state_dir=state_dir,
                 quiet=True,
             )
             ok, _report = engine.evaluate_file(FIXTURE)

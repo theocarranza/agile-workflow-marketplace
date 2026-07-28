@@ -1,8 +1,8 @@
 # User Story Spec Blueprint
 
-Blank form for specs written to **`<vault>/Specs/`** before the User Story ticket.
+Blank form for specs written to **`<artifacts>/Specs/`** before the User Story ticket.
 
-## Vault filename
+## Artifacts filename
 
 `<parent-feature-id>-<kebab-slug>-spec.md`
 

@@ -1,0 +1,64 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    name: pytest (python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.12 is the declared floor. Add newer versions here to catch forward
+        # incompatibility; the runtime is stdlib-only so there is little to break.
+        python-version: ["3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Run tests
+        # The runtime is stdlib-only, so pytest is the single dependency and is used
+        # purely as a runner -- every test is a stdlib unittest.TestCase.
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest
+          PYTHONPATH=agile-workflow python -m pytest test/ -q
+
+  skills:
+    name: skill manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate skill manifests
+        run: scripts/validate-skills.sh
+
+  cli:
+    name: cli smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Exercise the orchestrator CLI
+        # Guards the exit-code contract these commands are relied on for:
+        # validate returns 1 on any FAIL, capacity returns 1 when overcommitted.
+        run: |
+          bin/agile-workflow estimate --points 5
+          bin/agile-workflow validate \
+            --file test/fixtures/6869-login-form-validation.md

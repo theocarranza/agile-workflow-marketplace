@@ -1,8 +1,8 @@
 # Feature Spec Blueprint
 
-Blank form for specs written to **`<vault>/Specs/`** before the Feature ticket.
+Blank form for specs written to **`<artifacts>/Specs/`** before the Feature ticket.
 
-## Vault filename
+## Artifacts filename
 
 `<parent-epic-id>-<kebab-slug>-spec.md`
 

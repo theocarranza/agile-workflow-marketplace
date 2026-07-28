@@ -51,10 +51,15 @@ def persist_report(
     record: ArtifactRecord,
     terminal_output: str,
     *,
-    vault_dir: Path,
+    state_dir: Path,
     skill: str | None = None,
 ) -> Path:
-    reports_dir = vault_dir / "Agent_Reports"
+    """Write a validation report under the plugin's own state directory.
+
+    Reports are plugin output, so they live in `.agile-workflow/reports/` rather than in
+    any user-owned location. Nothing is created outside that directory.
+    """
+    reports_dir = state_dir / "reports"
     reports_dir.mkdir(parents=True, exist_ok=True)
     slug = artifact_slug(record)
     today = date.today().isoformat()

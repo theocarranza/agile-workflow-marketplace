@@ -107,7 +107,7 @@ Replace the old block with:
 ```
 References (in `../../references/`):
 - `decomposition-rules.md` — hierarchy, sizing (1 Story = 1 sprint = 1 PR), story-point heuristic, DoR.
-- `ticket-structure.md` — draft format + vault hook constraints (frontmatter, filename regex).
+- `ticket-structure.md` — draft format + artifacts path hook constraints (frontmatter, filename regex).
 - `azure-mechanics.md` — create/link MCP calls + the two linking gotchas + rendering rules.
 - `audit-checklist.md` — fidelity / coverage / DoR postflight.
 ```
@@ -157,7 +157,7 @@ Each check emits: `{ name, result: PASS|FAIL|WARN, detail }`.
 
 ## a) STRUCTURAL
 
-### Vault draft only
+### Local draft only
 
 | Check | Condition | Result |
 |---|---|---|
@@ -182,7 +182,7 @@ Required sections (detect by emoji + label heading):
 
 ## b) HIERARCHY
 
-Requires Azure MCP (`wit_get_work_item`). If `azure_id` is null and source is vault, emit
+Requires Azure MCP (`wit_get_work_item`). If `azure_id` is null and source is artifacts path, emit
 `WARN hierarchy-skipped-no-azure-id` and skip the entire category.
 
 Failures are logged and validation continues to the next check.
@@ -241,7 +241,7 @@ git commit -m "feat: add validate-artifact validation-checks reference"
 
 ### Task 4: Create report-format.md
 
-Write the output templates for the terminal report and the vault note.
+Write the output templates for the terminal report and the report.
 
 **Files:**
 - Create: `agile-workflow/skills/validate-artifact/references/report-format.md`
@@ -259,13 +259,13 @@ Create `agile-workflow/skills/validate-artifact/references/report-format.md` wit
 ## Terminal output template
 
 ```
-Validating <type> — "<title>" [<source: vault|azure>]
+Validating <type> — "<title>" [<source: artifacts path|azure>]
 ============================================================
 
 STRUCTURAL
   [PASS]  frontmatter-type-present
   [FAIL]  frontmatter-status-absent — `status: active` found in frontmatter
-  [SKIP]  filename-regex — source is Azure, not a vault draft
+  [SKIP]  filename-regex — source is Azure, not a local draft
 
 HIERARCHY
   [PASS]  hierarchy-story-parent-is-feature — parent #6868 is Feature "Payment Flow"
@@ -294,22 +294,22 @@ Rules:
 - Detail field: omit for PASS unless the detail adds value (e.g., confirming a parent id).
 - Separator line: 60 `=` characters (header) and 60 `-` characters (before summary).
 
-## Vault note frontmatter
+## Report frontmatter
 
 ```yaml
 ---
 date: <YYYY-MM-DD>
 type: report
-artifact: <azure-id or vault-filename>
+artifact: <azure-id or artifacts path-filename>
 artifact_type: <Epic|Feature|User Story>
-source: <vault|azure>
+source: <artifacts path|azure>
 outcome: <pass|fail>
 ---
 ```
 
-Do NOT include `status:` — the vault hook forbids it in `Agent_Reports/`.
+Do NOT include `status:` — the artifacts path hook forbids it in `Agent_Reports/`.
 
-## Vault note body
+## Report body
 
 Reproduce the terminal output from the Report phase verbatim as a fenced code block:
 
@@ -358,9 +358,9 @@ name: validate-artifact
 description: >
   Validate a single agile artifact (Epic, Feature, or User Story) against the agile-workflow
   rule set. Use when the user asks to "validate this story/feature/epic", "check this ticket",
-  "is this artifact ready?", or provides a vault draft path or Azure work item ID and wants a
-  quality report. Accepts a vault draft (file path) or a live Azure DevOps work item (ID). Runs
-  all checks non-blocking and emits a terminal report + persisted vault note. One artifact per
+  "is this artifact ready?", or provides a local draft path or Azure work item ID and wants a
+  quality report. Accepts a local draft (file path) or a live Azure DevOps work item (ID). Runs
+  all checks non-blocking and emits a terminal report + persisted report. One artifact per
   invocation.
 allowed-tools: >
   Read Write Edit Glob Grep Bash
@@ -381,17 +381,17 @@ References (shared, in `../../references/`):
 
 References (skill-specific, in `./references/`):
 - `validation-checks.md` — full check catalog per artifact type + category.
-- `report-format.md` — terminal output template + vault note template.
+- `report-format.md` — terminal output template + report template.
 
 ---
 
 ## PHASE 1 — INGEST
 
-**Input:** one of — a vault draft file path OR an Azure work item ID.
+**Input:** one of — a local draft file path OR an Azure work item ID.
 
 Determine source from the argument:
 
-**If vault draft (file path argument):**
+**If local draft (file path argument):**
 1. Read the markdown file. Parse frontmatter: extract `work_item_type`, `parent_feature`,
    `azure_id`, `story_points`. Parse body: identify sections by emoji + label headings.
 2. Derive artifact type from `work_item_type` frontmatter value.
@@ -411,15 +411,15 @@ Normalize into a unified artifact record:
   body:         string  (full description / body text)
   story_points: number | null
   parent_id:    number | null
-  source:       "vault" | "azure"
-  filename:     string | null   (vault only — basename without path)
+  source:       "artifacts path" | "azure"
+  filename:     string | null   (artifacts path only — basename without path)
   azure_id:     number | null
   raw:          original parsed content
 }
 ```
 
 If artifact type cannot be determined: STOP and report —
-`"Cannot detect artifact type — check work_item_type frontmatter (vault) or System.WorkItemType (Azure)."`
+`"Cannot detect artifact type — check work_item_type frontmatter (artifacts path) or System.WorkItemType (Azure)."`
 
 If given multiple IDs or paths: process only the first and warn —
 `"validate-artifact processes one artifact per invocation."`
@@ -436,7 +436,7 @@ No check halts sibling or subsequent checks on failure. Collect all findings.
 
 ### a) STRUCTURAL
 
-**Vault draft only:**
+**Local draft only:**
 - `frontmatter-type-present` — FAIL if `type:` key absent from frontmatter.
 - `frontmatter-status-absent` — FAIL if `status:` key present in frontmatter.
 - `filename-regex` — FAIL if filename does not match `^(\d+|tech-debt|bug|task|spike)-[a-z0-9-]+`.
@@ -449,7 +449,7 @@ No check halts sibling or subsequent checks on failure. Collect all findings.
 
 ### b) HIERARCHY
 
-If `azure_id` is null and source is vault: emit `WARN hierarchy-skipped-no-azure-id` and skip
+If `azure_id` is null and source is artifacts path: emit `WARN hierarchy-skipped-no-azure-id` and skip
 this entire category.
 
 **User Story:**
@@ -510,22 +510,22 @@ Print to terminal:
 
 ## PHASE 4 — PERSIST
 
-Read `./references/report-format.md` for the vault note frontmatter template.
+Read `./references/report-format.md` for the report frontmatter template.
 
-Path: `AI_Codex_AgileWorkflowMarketplace/Agent_Reports/`
+Path: `<artifacts>/Agent_Reports/`
 
 Filename: `<YYYY-MM-DD>-validate-<id-or-slug>.md`
 - Use `azure_id` if available.
-- Otherwise: derive slug from vault filename (strip extension) or from title (lowercase, spaces → hyphens, max 40 chars).
+- Otherwise: derive slug from local filename (strip extension) or from title (lowercase, spaces → hyphens, max 40 chars).
 
 Frontmatter:
 ```yaml
 ---
 date: <YYYY-MM-DD>
 type: report
-artifact: <azure-id or vault-filename>
+artifact: <azure-id or artifacts path-filename>
 artifact_type: <Epic|Feature|User Story>
-source: <vault|azure>
+source: <artifacts path|azure>
 outcome: <pass|fail>
 ---
 ```

@@ -6,7 +6,7 @@ Entry point for the skill reference library.
 COLLECT → INGEST → RESEARCH (Context7) → WRITE SPEC (blueprint) → GENERATE DRAFT → GATE → PERSIST
          │                              │                        │
          │                              ▼                        ▼
-         │                       <vault>/Specs/           <vault>/Tickets/Ready/
+         │                       <artifacts>/Specs/           <artifacts>/Tickets/Ready/
          └─ parent + attachment context
 ```
 
@@ -23,11 +23,11 @@ Enrichment (emoji sections, drivers, host team format) is **`enrich-work-item`**
 Prose polish for requirement bullets: **`generate-plain-language-documentation`** sub-pass in PHASE 4
 (see `../generate-plain-language-documentation/references/integration-notes.md`).
 
-## Vault output paths
+## Artifacts output paths
 
-**Spec** (PHASE 3): `<vault>/Specs/[<parent-id>-]<kebab-slug>-spec.md`
+**Spec** (PHASE 3): `<artifacts>/Specs/[<parent-id>-]<kebab-slug>-spec.md`
 
-**Ticket draft** (PHASE 4): `<vault>/Tickets/Ready/<prefix>-<kebab-slug>.md`
+**Ticket draft** (PHASE 4): `<artifacts>/Tickets/Ready/<prefix>-<kebab-slug>.md`
 
 Shared spec frontmatter:
 
@@ -54,5 +54,5 @@ source: [context7, <urls>]
 ## Shared plugin references
 
 - `../../references/decomposition-rules.md` — hierarchy, sizing heuristic
-- `../../references/ticket-structure.md` — vault hook constraints
+- `../../references/ticket-structure.md` — draft file constraints
 - `../../references/azure-mechanics.md` — Azure MCP calls + gotchas

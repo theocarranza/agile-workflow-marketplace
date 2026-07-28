@@ -40,7 +40,7 @@ Responsibilities:
 - **marketplace.json** — lists the one plugin; entry point for `/plugin marketplace add`.
 - **plugin.json** — plugin identity + version.
 - **decomposition-rules.md** — hierarchy, DoR, 1-Story=1-sprint=1-PR sizing, story-point heuristic.
-- **ticket-structure.md** — vault draft section format + hook constraints (frontmatter, filename regex).
+- **ticket-structure.md** — local draft section format + hook constraints (frontmatter, filename regex).
 - **azure-mechanics.md** — create/link MCP calls, the two linking gotchas, ASCII-vs-Markdown rendering.
 - **audit-checklist.md** — fidelity / coverage / DoR postflight checks.
 - **SKILL.md** — the 7-phase conductor with two approval gates; loads the references.
@@ -322,12 +322,12 @@ Create `agile-workflow/skills/decompose-backlog/references/ticket-structure.md`:
 ````markdown
 # Ticket Structure & Draft Constraints
 
-How each Story draft is written so it (a) passes the host vault's hooks and (b) carries the
+How each Story draft is written so it (a) passes the host artifacts path's hooks and (b) carries the
 enriched body that becomes the exact Azure work-item description.
 
 ## Draft location (configurable seam)
 
-Default: `Tickets/Ready/` in the host vault. If the host organizes drafts elsewhere, adapt — this
+Default: `Tickets/Ready/` in the host artifacts path. If the host organizes drafts elsewhere, adapt — this
 is a default, not a hard requirement.
 
 ## Frontmatter (hook-validated)
@@ -345,7 +345,7 @@ tags: [ticket, user-story, ...]
 ```
 ````
 
-**Hard constraint:** do NOT include a `status:` key — the originating vault's hook forbids `status`
+**Hard constraint:** do NOT include a `status:` key — the originating artifacts path's hook forbids `status`
 in `Tickets/`. Lifecycle lives in Azure, not in frontmatter.
 
 ## Filename (hook-validated)
@@ -549,7 +549,7 @@ description: >
   Use when the user asks to "break down this Feature", "decompose Epic/Feature N into stories",
   "create the user stories for <feature>", "groom this backlog item", or provides a Feature/Epic id
   and wants Stories drafted and created in Azure DevOps. Drives 7 phases: ingest the parent, split
-  into right-sized Stories (1 Story = 1 sprint = 1 PR), draft them in the vault, enrich to the team
+  into right-sized Stories (1 Story = 1 sprint = 1 PR), draft them in the artifacts path, enrich to the team
   format, create them in Azure DevOps parented to the FEATURE, verify the hierarchy, and audit that
   every parent requirement has a home. Self-contained rules; two approval gates before any write.
 disable-model-invocation: true
@@ -573,7 +573,7 @@ textbook.
 References (in `references/`):
 
 - `decomposition-rules.md` — hierarchy, sizing (1 Story = 1 sprint = 1 PR), story-point heuristic, DoR.
-- `ticket-structure.md` — draft format + vault hook constraints (frontmatter, filename regex).
+- `ticket-structure.md` — draft format + artifacts path hook constraints (frontmatter, filename regex).
 - `azure-mechanics.md` — create/link MCP calls + the two linking gotchas + rendering rules.
 - `audit-checklist.md` — fidelity / coverage / DoR postflight.
 
@@ -599,7 +599,7 @@ of Story stubs (title + one-line scope + dependencies), each tracing to a verbat
 
 ### 3. DRAFT
 
-Per approved stub, write a vault draft per `ticket-structure.md` — hook-valid frontmatter (`type`, no
+Per approved stub, write a local draft per `ticket-structure.md` — hook-valid frontmatter (`type`, no
 `status`), filename regex with the Feature-id prefix, the 7 body sections. Content hygiene applies.
 
 ### 4. ENRICH
@@ -616,7 +616,7 @@ Per `azure-mechanics.md`: `wit_create_work_item` with **Markdown** description; 
 ### 6. VERIFY (structural)
 
 Read each created item back; assert `System.Parent == <feature id>` and the Epic→Feature→Story chain.
-Reconcile vault frontmatter with the Azure-assigned id (rename file, set `azure_id`). A failed
+Reconcile artifacts path frontmatter with the Azure-assigned id (rename file, set `azure_id`). A failed
 assertion STOPS the run.
 
 ### 7. AUDIT (content + coverage)
@@ -627,10 +627,10 @@ report. Any gap STOPS and reports — no silent patching.
 
 ## Operating rules
 
-- Two hard gates (after DECOMPOSE, after ENRICH). Never write to the vault or Azure without the
+- Two hard gates (after DECOMPOSE, after ENRICH). Never write to the artifacts path or Azure without the
   matching approval.
 - Every Azure-mutating step is followed by a read-back assertion.
-- If the host repo keeps a session ledger, write a checkpoint after CREATE and after AUDIT.
+- If the host repo keeps a session artifacts, write a checkpoint after CREATE and after AUDIT.
 ```
 
 - [ ] **Step 2: Validate frontmatter parses as YAML**
@@ -724,7 +724,7 @@ audited child Stories in Azure DevOps:
 
 1. **Ingest** the parent (verbatim text, acceptance criteria, parent chain).
 2. **Decompose** into right-sized Stories (1 Story = 1 sprint = 1 PR). — *approval gate*
-3. **Draft** each Story in the vault (hook-valid).
+3. **Draft** each Story in the artifacts path (hook-valid).
 4. **Enrich** to the team format (ASCII diagrams, de-duped, story points). — *approval gate*
 5. **Create** in Azure DevOps, parented to the **Feature** (explicit link type).
 6. **Verify** the Epic→Feature→Story hierarchy structurally.

@@ -10,7 +10,7 @@ description: >
   polished requirement bullets or narrative sections. Not for dense agent-facing prompts, cheat
   sheets, or SKILL.md bodies — those may stay compressed.
 license: MIT
-compatibility: Bundled tech glossary supports pt-BR translation and technical-term verification without a host vault.
+compatibility: Bundled tech glossary supports pt-BR translation and technical-term verification without a artifacts path.
 metadata:
   plugin: agile-workflow
   version: "0.7.1"
@@ -27,7 +27,7 @@ score, not the textbook.
 
 References (start at `./references/pipeline.md`):
 
-- `./references/pipeline.md` — phase map, vault paths, sibling-skill hooks.
+- `./references/pipeline.md` — phase map, artifacts paths, sibling-skill hooks.
 - `./references/plain-language-principles.md` — hard rules, default structure, quality gate.
 - `./references/glossary-usage.md` — **required** when `language` is `pt-br` or when verifying
   technical terms in any locale.
@@ -37,8 +37,8 @@ References (start at `./references/pipeline.md`):
 
 Glossary path: `./references/assets/tech-glossary-en-pt-br.json` (bundled with the skill).
 
-Resolve vault from `.claude/codex-workflow.config.json` `codex.folder`, else glob `AI_Codex*/` when
-persisting output to the ledger — not for loading skill assets.
+Resolve the artifacts path with `bin/agile-workflow config --show` when persisting output. If it is
+unset, ask the user where to write — never assume a location. Not needed for loading skill assets.
 
 **Not in scope:** creating Azure work items, enricher emoji layouts, or backlog hierarchy — use the
 sibling skills for those; call this skill for the **prose** inside their outputs.
@@ -51,7 +51,7 @@ Gather inputs **one at a time** via the host UI. Each step: brief purpose, requi
 
 | Input | Required | Purpose |
 | --- | --- | --- |
-| `source` | yes | `text` \| vault `path` \| `url` — material to rewrite or expand |
+| `source` | yes | `text` \| local `path` \| `url` — material to rewrite or expand |
 | `audience` | no | Least technical reader; default: feature owner unfamiliar with the stack |
 | `language` | no | `en` (default) \| `pt-br` — drives glossary pass |
 | `document_type` | no | `general` \| `report` \| `guide` \| `work-item-prose` — picks output contract |
@@ -63,7 +63,7 @@ Accept `/generate-plain-language-documentation` flags or conversational inferenc
 ## PHASE 1 — INGEST & COMPLETENESS CONTRACT
 
 1. Load `source`:
-   - **path** — read vault or filesystem markdown; capture body.
+   - **path** — read local markdown; capture body.
    - **url** — fetch external doc; capture content.
    - **text** — treat pasted content as the source.
 2. Read `./references/plain-language-principles.md` § Completeness contract.
@@ -125,7 +125,7 @@ Silence is not approval.
 
 Then ask **where to persist** (if not already chosen):
 
-1. **Vault** — write to `<vault>/Knowledge/` or a path the user names.
+1. **Local file** — write to the configured artifacts path, or a path the user names.
 2. **Chat only** — formatted markdown ready to copy (default when invoked as a sub-pass).
 
 When invoked **inline** from a sibling skill (`integration-notes.md`), skip this gate unless the

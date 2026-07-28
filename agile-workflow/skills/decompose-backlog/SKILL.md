@@ -5,13 +5,13 @@ description: >
   Use when the user asks to "break down this Feature", "decompose Epic/Feature N into stories",
   "create the user stories for <feature>", "groom this backlog item", or provides a Feature/Epic id
   and wants Stories drafted and created in Azure DevOps. Drives 7 phases: ingest the parent, split
-  into right-sized Stories (1 Story = 1 sprint = 1 PR), draft them in the vault, enrich to the team
+  into right-sized Stories (1 Story = 1 sprint = 1 PR), draft them in the artifacts path, enrich to the team
   format, create them in Azure DevOps parented to the FEATURE, verify the hierarchy, and audit that
   every parent requirement has a home. Self-contained rules; two approval gates before any write.
   For plain-language scope lines and story narrative, delegates sub-passes to
   generate-plain-language-documentation in DRAFT and ENRICH phases.
 license: MIT
-compatibility: Requires Azure DevOps MCP and an AI Codex vault. Designed for Claude Code and Cursor.
+compatibility: Requires Azure DevOps MCP; a configured artifacts path for local writes. Designed for Claude Code and Cursor.
 metadata:
   plugin: agile-workflow
   version: "0.5.0"
@@ -36,7 +36,7 @@ textbook.
 References (in `../../references/`):
 
 - `decomposition-rules.md` — hierarchy, sizing (1 Story = 1 sprint = 1 PR), story-point heuristic, DoR.
-- `ticket-structure.md` — draft format + vault hook constraints (frontmatter, filename regex).
+- `ticket-structure.md` — draft format + draft file constraints (frontmatter, filename regex).
 - `azure-mechanics.md` — create/link MCP calls + the two linking gotchas + rendering rules.
 - `audit-checklist.md` — fidelity / coverage / DoR postflight.
 
@@ -76,7 +76,7 @@ of Story stubs (title + one-line scope + dependencies), each tracing to a verbat
 
 ### 3. DRAFT
 
-Per approved stub, write a vault draft per `ticket-structure.md` and the canonical template matching
+Per approved stub, write a local draft per `ticket-structure.md` and the canonical template matching
 the run's `language` (`./references/canonical/canonical-user-story.md` for pt-BR,
 `canonical-user-story.en.md` for en) — hook-valid frontmatter (`type`, no `status`, `language:` set
 to the chosen value), filename regex with the Feature-id prefix, the 7 body sections in canonical
@@ -108,7 +108,7 @@ Per `azure-mechanics.md`: `wit_create_work_item` with **Markdown** description; 
 ### 6. VERIFY (structural)
 
 Read each created item back; assert `System.Parent == <feature id>` and the Epic→Feature→Story chain.
-Reconcile vault frontmatter with the Azure-assigned id (rename file, set `azure_id`). A failed
+Reconcile frontmatter with the Azure-assigned id (rename file, set `azure_id`). A failed
 assertion STOPS the run.
 
 ### 7. AUDIT (content + coverage)
@@ -119,7 +119,7 @@ report. Any gap STOPS and reports — no silent patching.
 
 ## Operating rules
 
-- Two hard gates (after DECOMPOSE, after ENRICH). Never write to the vault or Azure without the
+- Two hard gates (after DECOMPOSE, after ENRICH). Never write to the artifacts path or Azure without the
   matching approval.
 - Every Azure-mutating step is followed by a read-back assertion.
-- If the host repo keeps a session ledger, write a checkpoint after CREATE and after AUDIT.
+- If the host repo keeps a session artifacts path, write a checkpoint after CREATE and after AUDIT.

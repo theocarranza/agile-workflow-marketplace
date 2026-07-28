@@ -5,7 +5,7 @@
 A **standalone quality gate** that checks a single agile artifact (Epic, Feature, or User Story)
 against the full rule set embedded in the `agile-workflow` plugin. It can be invoked at any point
 in the artifact lifecycle — before creation, after enrichment, or as an ad-hoc audit — from either
-a vault draft or a live Azure DevOps work item.
+a local draft or a live Azure DevOps work item.
 
 It is complementary to `decompose-backlog`: where that skill runs an audit only as its final phase
 and only on newly created Stories, `validate-artifact` is type-agnostic, source-agnostic, and
@@ -15,10 +15,10 @@ invocable at any time.
 
 **In:**
 
-- Validating vault drafts (by file path) and live Azure work items (by ID)
+- Validating local drafts (by file path) and live Azure work items (by ID)
 - All three artifact types: Epic, Feature, User Story
 - Four check categories: structural, hierarchy, content quality, Definition of Ready
-- Terminal report + persisted vault note
+- Terminal report + persisted report
 
 **Out:**
 
@@ -39,7 +39,7 @@ emitted.
 
 ```text
 1. INGEST     Determine source type from the invocation argument:
-                vault draft  → read the markdown file; parse frontmatter + body sections.
+                local draft  → read the markdown file; parse frontmatter + body sections.
                 Azure ID     → fetch work item via wit_get_work_item MCP call.
               Detect artifact type from work_item_type (frontmatter) or Azure System.WorkItemType.
               Normalize into a unified artifact record:
@@ -50,7 +50,7 @@ emitted.
               Results: PASS | FAIL | WARN. Failures do not halt sibling or subsequent checks.
 
               a) STRUCTURAL
-                 Vault draft only:
+                 Local draft only:
                    - Frontmatter contains `type:` key                          (FAIL if absent)
                    - Frontmatter does NOT contain `status:` key                (FAIL if present)
                    - Filename matches regex ^(\d+|tech-debt|bug|task|spike)-[a-z0-9-]+
@@ -89,8 +89,8 @@ emitted.
                 Footer:  Summary — X passed, Y failed, Z warnings
                          Overall outcome: PASS (zero failures) | FAIL (≥1 failure)
 
-4. PERSIST    Write report as a vault note:
-                Path:      AI_Codex_AgileWorkflowMarketplace/Agent_Reports/
+4. PERSIST    Write report as a report:
+                Path:      <artifacts>/Agent_Reports/
                 Filename:  YYYY-MM-DD-validate-<artifact-id-or-slug>.md
                 Frontmatter:
                   ---
@@ -98,7 +98,7 @@ emitted.
                   type: report
                   artifact: <id or filename>
                   artifact_type: <Epic|Feature|User Story>
-                  source: <vault|azure>
+                  source: <artifacts path|azure>
                   outcome: <pass|fail>
                   ---
                 Body: the same report printed in step 3, as markdown.
@@ -123,7 +123,7 @@ agile-workflow/
         ├── SKILL.md                    ← references ../../references/ + ./references/
         └── references/
             ├── validation-checks.md    ← full check catalog per artifact type + category
-            └── report-format.md        ← terminal output template + vault note template
+            └── report-format.md        ← terminal output template + report template
 ```
 
 **Portability:** when extracting a skill for standalone distribution, a packaging step copies the
@@ -134,13 +134,13 @@ change.
 
 **Inputs**
 
-- Required: one of — a vault draft file path OR an Azure work item ID
-- Implicit context: Azure project + repo; vault `Agent_Reports/` location
+- Required: one of — a local draft file path OR an Azure work item ID
+- Implicit context: Azure project + repo; artifacts path `Agent_Reports/` location
 
 **Outputs**
 
 1. Terminal report — findings grouped by category, overall outcome line
-2. Vault note — `Agent_Reports/YYYY-MM-DD-validate-<id>.md`, frontmatter-valid
+2. Report — `Agent_Reports/YYYY-MM-DD-validate-<id>.md`, frontmatter-valid
 
 ## Relationship to `decompose-backlog`
 
@@ -148,7 +148,7 @@ change.
 |--------------------|---------------------------------------|---------------------------------|
 | Artifact types     | User Story only                       | Epic, Feature, User Story       |
 | When it runs       | Phase 7, after Azure creation         | Any time, any lifecycle stage   |
-| Source             | Azure (reads back created items)      | Vault draft or Azure ID         |
+| Source             | Azure (reads back created items)      | Local draft or Azure ID         |
 | Mutations          | Creates + links work items            | None — report only              |
 | Hierarchy check    | Asserts Story → Feature post-create   | Validates all three levels      |
 

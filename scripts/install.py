@@ -7,6 +7,7 @@ import argparse
 import json
 import re
 import shutil
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -14,7 +15,6 @@ from pathlib import Path
 INSTALL_DIR = Path.home() / ".agile-workflow-marketplace"
 PLUGIN_NAME = "agile-workflow"
 MARKETPLACE_NAME = "agile-workflow-marketplace"
-DEFAULT_VAULT = "AI_Codex_AgileWorkflowMarketplace"
 PLUGIN_BUNDLE_DIRS = ("skills", "references", "orchestrator_core")
 ALL_TARGETS = ("claude", "cursor", "codex", "antigravity")
 
@@ -56,15 +56,6 @@ def _yes_no(text: str, default: bool = True) -> bool:
     if not value:
         return default
     return value in {"y", "yes"}
-
-
-def detect_vault_folder(project_dir: Path) -> str | None:
-    if not project_dir.is_dir():
-        return None
-    for path in sorted(project_dir.iterdir()):
-        if path.is_dir() and path.name.startswith("AI_Codex"):
-            return path.name
-    return None
 
 
 def detect_hosts() -> list[str]:
@@ -446,8 +437,72 @@ def resolve_tool_paths(*names: str) -> dict[str, str]:
     return resolved
 
 
-def write_cursor_azure_wrapper(project_dir: Path, *, azure_org: str, npx_path: str) -> Path:
-    """Project-local wrapper so Cursor stdio MCP gets a sane PATH (no bare `npx`)."""
+AZURE_MCP_PACKAGE = "@azure-devops/mcp@2.7.0"
+AZURE_MCP_HOME = Path.home() / ".local" / "share" / "azure-devops-mcp"
+AZURE_MCP_ENTRYPOINT = AZURE_MCP_HOME / "node_modules" / "@azure-devops" / "mcp" / "dist" / "index.js"
+
+
+def azure_mcp_entrypoint() -> Path | None:
+    """The pinned MCP entrypoint, when it has been installed."""
+    return AZURE_MCP_ENTRYPOINT if AZURE_MCP_ENTRYPOINT.is_file() else None
+
+
+def ensure_azure_mcp_installed(*, npm_path: str | None, quiet: bool = False) -> Path | None:
+    """Install the Azure DevOps MCP server to a fixed location, best effort.
+
+    Launching a pinned `node <path>` beats `npx` twice over: npx re-resolves the package on
+    every start, and it is the piece that breaks when a host leaks a truncated PATH into
+    stdio servers. Failure here is not fatal -- the caller falls back to npx.
+    """
+    existing = azure_mcp_entrypoint()
+    if existing:
+        return existing
+    if not npm_path:
+        return None
+
+    AZURE_MCP_HOME.mkdir(parents=True, exist_ok=True)
+    try:
+        subprocess.run(
+            [npm_path, "install", "--prefix", str(AZURE_MCP_HOME), AZURE_MCP_PACKAGE],
+            check=True,
+            capture_output=True,
+            timeout=300,
+        )
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError) as exc:
+        if not quiet:
+            print(f"    ! could not pre-install {AZURE_MCP_PACKAGE} ({exc.__class__.__name__}); using npx")
+        return None
+    return azure_mcp_entrypoint()
+
+
+def azure_mcp_launch(
+    *,
+    azure_org: str,
+    node_path: str | None,
+    npx_path: str,
+    entrypoint: Path | None,
+) -> tuple[str, list[str]]:
+    """Command and args for launching the Azure DevOps MCP server.
+
+    Prefers the pinned entrypoint; falls back to npx when it is unavailable.
+    """
+    if entrypoint and node_path:
+        return node_path, [str(entrypoint), azure_org]
+    return npx_path, ["-y", AZURE_MCP_PACKAGE, azure_org]
+
+
+def write_cursor_azure_wrapper(
+    project_dir: Path,
+    *,
+    azure_org: str,
+    npx_path: str,
+    node_path: str | None = None,
+    entrypoint: Path | None = None,
+) -> Path:
+    """Project-local wrapper so Cursor stdio MCP gets a sane PATH (no bare `npx`).
+
+    Uses the pinned entrypoint when one exists, for the same reason the Claude wiring does.
+    """
     bin_dir = project_dir / ".cursor" / "bin"
     bin_dir.mkdir(parents=True, exist_ok=True)
     script = bin_dir / "azure-devops-mcp.sh"
@@ -457,11 +512,15 @@ def write_cursor_azure_wrapper(project_dir: Path, *, azure_org: str, npx_path: s
         if env_script.is_file()
         else "unset ELECTRON_RUN_AS_NODE\n"
     )
+    command, args = azure_mcp_launch(
+        azure_org=azure_org, node_path=node_path, npx_path=npx_path, entrypoint=entrypoint
+    )
+    quoted = " ".join(f'"{arg}"' for arg in args)
     script.write_text(
         "#!/usr/bin/env bash\n"
         "set -euo pipefail\n"
         f"{env_block}"
-        f'exec "{npx_path}" -y "@azure-devops/mcp@2.7.0" "{azure_org}" "$@"\n',
+        f'exec "{command}" {quoted} "$@"\n',
         encoding="utf-8",
     )
     script.chmod(0o755)
@@ -473,21 +532,26 @@ def _mcp_server_payloads(
     proot: Path,
     project_dir: Path,
     azure_org: str,
-    vault_folder: str,
     tool_paths: dict[str, str],
     cursor_azure_wrapper: Path | None = None,
 ) -> tuple[dict[str, dict], dict[str, dict]]:
     python3 = tool_paths["python3"]
     npx = tool_paths["npx"]
+    node_path = tool_paths.get("node") or shutil.which("node")
+    entrypoint = azure_mcp_entrypoint()
+    azure_cmd, azure_cmd_args = azure_mcp_launch(
+        azure_org=azure_org, node_path=node_path, npx_path=npx, entrypoint=entrypoint
+    )
+    # No artifacts location here: the plugin resolves that from .agile-workflow/config.json
+    # at runtime, and has no default to inject.
     orchestrator_env = {
         "PYTHONPATH": str(proot),
-        "CODEX_VAULT_FOLDER": vault_folder,
         "CODEX_PROJECT_ROOT": str(project_dir.resolve()),
     }
     claude_servers = {
         "azure-devops": {
-            "command": npx,
-            "args": ["-y", "@azure-devops/mcp@2.7.0", azure_org],
+            "command": azure_cmd,
+            "args": azure_cmd_args,
         },
         "agile-workflow-orchestrator": {
             "command": python3,
@@ -495,8 +559,8 @@ def _mcp_server_payloads(
             "env": orchestrator_env,
         },
     }
-    azure_command = str(cursor_azure_wrapper) if cursor_azure_wrapper else npx
-    azure_args: list[str] = [] if cursor_azure_wrapper else ["-y", "@azure-devops/mcp@2.7.0", azure_org]
+    azure_command = str(cursor_azure_wrapper) if cursor_azure_wrapper else azure_cmd
+    azure_args: list[str] = [] if cursor_azure_wrapper else list(azure_cmd_args)
     cursor_servers = {
         "azure-devops": {
             "type": "stdio",
@@ -519,23 +583,27 @@ def wire_project_mcp(
     *,
     install_dir: Path,
     azure_org: str,
-    vault_folder: str,
     targets: list[str],
 ) -> None:
     proot = plugin_root(install_dir).resolve()
     tool_paths = resolve_tool_paths("python3", "npx")
+    node_path = shutil.which("node")
+    entrypoint = ensure_azure_mcp_installed(npm_path=shutil.which("npm"))
+    if entrypoint:
+        print(f"    ✓ Azure DevOps MCP pinned at {entrypoint}")
     cursor_wrapper: Path | None = None
     if "cursor" in targets:
         cursor_wrapper = write_cursor_azure_wrapper(
             project_dir,
             azure_org=azure_org,
             npx_path=tool_paths["npx"],
+            node_path=node_path,
+            entrypoint=entrypoint,
         )
     claude_servers, cursor_servers = _mcp_server_payloads(
         proot=proot,
         project_dir=project_dir,
         azure_org=azure_org,
-        vault_folder=vault_folder,
         tool_paths=tool_paths,
         cursor_azure_wrapper=cursor_wrapper,
     )
@@ -566,14 +634,18 @@ exec {python3!r} -m orchestrator_core "$@"
     return target
 
 
-def scaffold_project(project_dir: Path, vault_folder: str) -> None:
+def scaffold_project(project_dir: Path) -> None:
+    """Create only what the plugin owns.
+
+    The installer never creates a directory structure for the user's artifacts. Where those
+    go is the user's decision, captured as `artifacts_path` and asked for on first use.
+    """
     mailbox = project_dir / ".agentic" / "workflow_prompts"
     mailbox.mkdir(parents=True, exist_ok=True)
     gitkeep = mailbox / ".gitkeep"
     if not gitkeep.exists():
         gitkeep.write_text("", encoding="utf-8")
-    mistakes = project_dir / vault_folder / "_mistakes"
-    mistakes.mkdir(parents=True, exist_ok=True)
+    (project_dir / ".agile-workflow").mkdir(parents=True, exist_ok=True)
 
 
 def write_install_manifest(
@@ -581,7 +653,6 @@ def write_install_manifest(
     *,
     install_dir: Path,
     azure_org: str,
-    vault_folder: str,
     version: str,
     hosts: list[str],
 ) -> Path:
@@ -592,11 +663,49 @@ def write_install_manifest(
         "version": version,
         "install_dir": str(install_dir.resolve()),
         "azure_devops_org": azure_org,
-        "vault_folder": vault_folder,
         "hosts": hosts,
         "installed_at": _now_iso(),
     }
     path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    return path
+
+
+def write_project_config(
+    project_dir: Path,
+    *,
+    azure_org: str,
+    azure_project: str | None,
+    azure_team: str | None,
+    azure_process: str | None,
+    artifacts_path: str | None = None,
+) -> Path:
+    """Write `.agile-workflow/config.json`, the runtime config skills and the CLI read.
+
+    Only the org is required here. Project, team, and process may be filled in later by the
+    skill that first needs them -- see `orchestrator_core/project_config.py`.
+    """
+    path = project_dir / ".agile-workflow" / "config.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    existing: dict = {}
+    if path.is_file():
+        try:
+            loaded = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(loaded, dict):
+                existing = loaded
+        except (OSError, json.JSONDecodeError):
+            existing = {}
+
+    azure = existing.get("azure") if isinstance(existing.get("azure"), dict) else {}
+    azure["org"] = azure_org
+    for key, value in (("project", azure_project), ("team", azure_team), ("process", azure_process)):
+        if value:
+            azure[key] = value
+
+    if artifacts_path:
+        existing["artifacts_path"] = artifacts_path
+    existing["azure"] = azure
+    path.write_text(json.dumps(existing, indent=2) + "\n", encoding="utf-8")
     return path
 
 
@@ -613,8 +722,11 @@ def run_install(
     install_dir: Path,
     project_dir: Path,
     azure_org: str,
-    vault_folder: str,
     targets: list[str],
+    artifacts_path: str | None = None,
+    azure_project: str | None = None,
+    azure_team: str | None = None,
+    azure_process: str | None = None,
     skip_copy: bool = False,
 ) -> int:
     print(f"\n[*] Installing marketplace → {install_dir}")
@@ -632,7 +744,6 @@ def run_install(
         project_dir,
         install_dir=install_dir,
         azure_org=azure_org,
-        vault_folder=vault_folder,
         targets=hosts,
     )
 
@@ -640,19 +751,30 @@ def run_install(
     print(f"[*] CLI installed → {cli_path}")
 
     print("[*] Scaffolding project workspace …")
-    scaffold_project(project_dir, vault_folder)
+    scaffold_project(project_dir)
     print("    ✓ .agentic/workflow_prompts/")
-    print(f"    ✓ {vault_folder}/_mistakes/")
+    print("    ✓ .agile-workflow/")
 
     manifest = write_install_manifest(
         project_dir,
         install_dir=install_dir,
         azure_org=azure_org,
-        vault_folder=vault_folder,
         version=version,
         hosts=hosts,
     )
     print(f"[*] Install manifest → {manifest}")
+
+    config = write_project_config(
+        project_dir,
+        azure_org=azure_org,
+        azure_project=azure_project,
+        azure_team=azure_team,
+        azure_process=azure_process,
+        artifacts_path=artifacts_path,
+    )
+    print(f"[*] Project config → {config}")
+    if not azure_project:
+        print("    (project/team unset — the first skill that needs them will ask and save)")
 
     print("\n========================================")
     print(" Installation complete")
@@ -660,12 +782,12 @@ def run_install(
     print(f"  Marketplace : {install_dir}")
     print(f"  Project     : {project_dir}")
     print(f"  Azure org   : {azure_org}")
-    print(f"  Vault       : {vault_folder}")
+    print(f"  Artifacts   : {artifacts_path or '(unset — asked on first use)'}")
     print(f"  Hosts       : {', '.join(hosts) if hosts else '(none)'}")
     print(f"  CLI         : agile-workflow")
     print("\nNext steps:")
     print("  1. Restart your agent host(s) to load skills and MCP servers.")
-    print("  2. Run: agile-workflow validate --file <vault-draft.md>")
+    print("  2. Run: agile-workflow config --show")
     if "codex" in hosts:
         print("  3. Codex: codex plugin add agile-workflow@personal  (if not already installed)")
     return 0
@@ -682,7 +804,24 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--project-dir", help="Project directory to wire (default: prompt or cwd)")
     parser.add_argument("--azure-org", help="Azure DevOps organization slug")
-    parser.add_argument("--vault-folder", help=f"Vault folder name (default: {DEFAULT_VAULT})")
+    parser.add_argument(
+        "--azure-project",
+        help="Azure DevOps project name. Optional -- skills discover and save it on first use.",
+    )
+    parser.add_argument(
+        "--azure-team",
+        help="Azure DevOps team name, needed for sprint capacity. Optional; discovered on first use.",
+    )
+    parser.add_argument(
+        "--azure-process",
+        choices=("agile", "scrum", "cmmi"),
+        help="Azure process template. Decides whether Original Estimate exists. Optional.",
+    )
+    parser.add_argument(
+        "--artifacts-path",
+        help="Where local artifacts should be written. Optional; asked for on first use. "
+        "The installer never creates this directory.",
+    )
     parser.add_argument(
         "--target",
         default="all-agents",
@@ -724,14 +863,11 @@ def main(argv: list[str] | None = None) -> int:
     if not default_org:
         default_org = read_azure_org_from_mcp(source_root / ".mcp.json")
 
-    default_vault = detect_vault_folder(project_dir) or DEFAULT_VAULT
-
     if args.yes:
         if not args.azure_org:
             print("error: --azure-org is required with -y", file=sys.stderr)
             return 1
         azure_org = validate_azure_org(args.azure_org)
-        vault_folder = args.vault_folder or default_vault
     else:
         detected = detect_hosts()
         if detected:
@@ -752,7 +888,6 @@ def main(argv: list[str] | None = None) -> int:
         azure_org = validate_azure_org(
             args.azure_org or _prompt("Azure DevOps organization slug", default_org or "")
         )
-        vault_folder = args.vault_folder or _prompt("Vault folder name", default_vault)
         if not args.from_source and install_dir.resolve() != source_root.resolve():
             if not _yes_no(f"Install marketplace copy to {install_dir}?", default=True):
                 install_dir = source_root
@@ -760,11 +895,14 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         return run_install(
+            azure_project=args.azure_project,
+            azure_team=args.azure_team,
+            azure_process=args.azure_process,
             source_root=source_root,
             install_dir=install_dir,
             project_dir=project_dir,
             azure_org=azure_org,
-            vault_folder=vault_folder,
+            artifacts_path=args.artifacts_path,
             targets=targets,
             skip_copy=args.from_source or install_dir.resolve() == source_root.resolve(),
         )

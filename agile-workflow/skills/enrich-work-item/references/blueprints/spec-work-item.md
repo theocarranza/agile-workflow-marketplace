@@ -1,10 +1,10 @@
 # Work Item Spec Blueprint
 
-Blank form for specs written to **`<vault>/Specs/`** before User Story, Bug, or Task tickets.
+Blank form for specs written to **`<artifacts>/Specs/`** before User Story, Bug, or Task tickets.
 
 Source enricher: `../enrichers/work-item-enricher.prompt.md`
 
-## Vault filename
+## Artifacts filename
 
 `<parent-feature-id>-<kebab-slug>-spec.md` (or `task-<slug>-spec.md` for orphan tasks)
 

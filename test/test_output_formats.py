@@ -140,7 +140,7 @@ Precisamos cache distribuído mas não sabemos qual tecnologia usar.
 
 COMPLIANT_REPORT = _read_canonical("validate-artifact", "canonical-validation-report.md").replace(
     "{{ARTIFACT_TYPE}}", "User Story"
-).replace("{{TITLE}}", "Login field validation").replace("{{SOURCE}}", "vault").replace(
+).replace("{{TITLE}}", "Login field validation").replace("{{SOURCE}}", "file").replace(
     "{{PASSED}}", "12"
 ).replace("{{FAILED}}", "0").replace("{{WARNINGS}}", "0").replace("{{OUTCOME}}", "PASS")
 

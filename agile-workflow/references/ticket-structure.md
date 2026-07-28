@@ -1,11 +1,11 @@
 # Ticket Structure & Draft Constraints
 
-How each Story draft is written so it (a) passes the host vault's hooks and (b) carries the
+How each Story draft is written so it (a) passes the host's draft contract and (b) carries the
 enriched body that becomes the exact Azure work-item description.
 
 ## Draft location (configurable seam)
 
-Default: `Tickets/Ready/` in the host vault. If the host organizes drafts elsewhere, adapt — this
+Default: `Tickets/Ready/` under the configured artifacts path. If the host organizes drafts elsewhere, adapt — this
 is a default, not a hard requirement.
 
 ## Frontmatter (hook-validated)
@@ -18,13 +18,21 @@ work_item_type: User Story
 parent_feature: <feature-id>
 parent_epic: <epic-id>
 azure_id: <assigned-after-creation>
+story_points: <number>  # REQUIRED for User Story — the validator fails a draft without it
+effort_hours: <number>  # optional — estimated duration; omit when nobody has estimated it
+activity: Development   # optional — capacity activity bucket (Azure `Microsoft.VSTS.Common.Activity`)
+iteration: <sprint-ref> # optional — used by capacity planning to scope a sprint
 language: pt-BR         # optional — en | pt-BR, default pt-BR; selects which section-label set
                          # the validator checks the body against (see Body sections below)
 tags: [ticket, user-story, ...]
 ---
 ```
 
-**Hard constraint:** do NOT include a `status:` key — the originating vault's hook forbids `status`
+**On `effort_hours`:** for a Task this is derived from the parent Story's points and kept current
+automatically — see `estimation.md`. Written by hand it is equally valid; either way an absent
+value is an honest state and the validator treats it as `SKIP`.
+
+**Hard constraint:** do NOT include a `status:` key — the draft contract forbids `status`
 in `Tickets/`. Lifecycle lives in Azure, not in frontmatter.
 
 ## Filename (hook-validated)

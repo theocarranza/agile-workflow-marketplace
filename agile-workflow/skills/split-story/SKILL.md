@@ -4,10 +4,10 @@ description: >
   Lateral story-sizing skill. Takes a single User Story and determines if it should be split,
   how many sub-stories to create, and what split pattern to use — then drafts sub-stories and
   hands them off. Use when the user asks "split this story", "is this story too big?",
-  "analyze this story for sizing", or provides a vault path / Azure ID / file path / raw text
+  "analyze this story for sizing", or provides a artifacts path / Azure ID / file path / raw text
   and wants a split recommendation. One story per invocation.
 license: MIT
-compatibility: Requires Azure DevOps MCP and an AI Codex vault for draft handoff.
+compatibility: Requires Azure DevOps MCP; a configured artifacts path for draft handoff.
 metadata:
   plugin: agile-workflow
   version: "0.5.0"
@@ -41,13 +41,13 @@ References (skill-specific, in `./references/`):
 
 ## PHASE 1 — INGEST
 
-**Input:** one of — vault draft path, Azure work item ID, arbitrary file system path, or raw
+**Input:** one of — local draft path, Azure work item ID, arbitrary file system path, or raw
 text pasted inline.
 
 Determine source from the argument:
 
-**If vault draft path** (path under the vault, recognized by vault folder prefix or `.md`
-extension inside the vault tree):
+**If local draft path** (path under the artifacts path, recognized by artifacts path prefix or `.md`
+extension inside the artifacts tree):
 1. Read the markdown file. Parse frontmatter: extract `work_item_type`, `story_points`,
    `parent_feature`, `azure_id`. Parse body: identify sections by emoji + label headings.
 
@@ -56,7 +56,7 @@ extension inside the vault tree):
 2. Extract: `System.Title`, `System.Description`,
    `Microsoft.VSTS.Scheduling.StoryPoints`, `System.Parent`.
 
-**If file system path** (non-vault path to a `.md` or `.txt` file):
+**If file system path** (non-artifacts path to a `.md` or `.txt` file):
 1. Read the file from disk. Parse as markdown. Extract any frontmatter if present; treat body
    as the full description.
 
@@ -75,7 +75,7 @@ Normalize into a unified artifact record:
                                          empty array if the section is absent)
   parent_feature:       string | number | null
   azure_id:             number | null
-  source:               "vault" | "azure" | "filesystem" | "raw"
+  source:               "artifacts path" | "azure" | "filesystem" | "raw"
 }
 ```
 
@@ -120,7 +120,7 @@ If `active_points ≤ ceiling` (default 5, or override from invocation argument)
 
 1. Print: `Story is right-sized at <active_points> pts (ceiling: <ceiling>).`
 2. Print the driver breakdown (all six driver scores).
-3. STOP. No vault files written. No further phases execute.
+3. STOP. No files written. No further phases execute.
 
 **Branch B — Spike recommended:**
 
@@ -165,8 +165,8 @@ before writing any files.
 
 **Spike mode** (Branch B confirmed):
 
-1. Draft one vault file at:
-   `AI_Codex_AgileWorkflowMarketplace/Tickets/Ready/<parent_feature_id>-spike-<slug>.md`
+1. Draft one local file at:
+   `<artifacts>/Tickets/Ready/<parent_feature_id>-spike-<slug>.md`
 2. Fill all 7 body sections using the Spike stub format from `./references/scoring-guide.md`.
 3. Fill each `[placeholder]` with content derived from the original story.
 
@@ -175,7 +175,7 @@ before writing any files.
 For each approved sub-story:
 
 1. Filename: `<parent_feature_id>-<n>-<kebab-slug>.md` — e.g., `6868-1-register-flow.md`.
-2. Path: `AI_Codex_AgileWorkflowMarketplace/Tickets/Ready/<filename>`.
+2. Path: `<artifacts>/Tickets/Ready/<filename>`.
 3. Frontmatter (hook-valid — no `status:`, no `azure_id:` yet):
 
 ```yaml
@@ -215,7 +215,7 @@ story_points: <estimated-points>
 ## PHASE 5 — HANDOFF
 
 Present a summary:
-- List each sub-story: title + point estimate + vault file path.
+- List each sub-story: title + point estimate + file path.
 - Coverage confirmation: "All <N> original ACs covered."
 
 Show options:
@@ -223,15 +223,15 @@ Show options:
 ```text
 Sub-stories drafted. What would you like to do?
 
-1. Keep as vault drafts — done; continue manually or via decompose-backlog.
+1. Keep as local drafts — done; continue manually or via decompose-backlog.
 2. Create in Azure and link to parent Feature — creates items and links hierarchy.
-3. Discard drafts — delete vault files and stop.
+3. Discard drafts — delete files and stop.
 ```
 
 Wait for user choice.
 
 **Option 1 — Keep:**
-Report vault file paths and stop. No further action.
+Report file paths and stop. No further action.
 
 **Option 2 — Azure:**
 Read `../../references/azure-mechanics.md` before making any MCP calls.
@@ -250,13 +250,13 @@ For each sub-story draft (in order):
    If either assertion fails: STOP and report
    `LINK ASSERTION FAILED for <title>: expected parent <parent_feature_id>, got <actual>`
    or `STRAY RELATED LINKS for <title>: <links found>`.
-5. Update vault draft frontmatter: set `azure_id: <new_id>`. Rename file to
+5. Update local draft frontmatter: set `azure_id: <new_id>`. Rename file to
    `<new_id>-<slug>.md`.
 
 After all items: report each — title, Azure ID, parent link status.
 
 **Option 3 — Discard:**
-Delete each vault draft file written in PHASE 4. Report `Drafts discarded.` and stop.
+Delete each local draft file written in PHASE 4. Report `Drafts discarded.` and stop.
 
 ---
 
