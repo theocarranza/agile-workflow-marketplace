@@ -12,7 +12,7 @@ from ...capacity.model import EstimableItem, IterationCapacity
 from ..base import ProviderResult, WriteOp
 from . import fields as f
 from .client import AzureCapacityClient
-from .mapping import map_iteration, map_work_items
+from .mapping import map_capacities, map_iteration, map_work_items, reported_daily_total
 
 __all__ = [
     "AzureCapacityClient",
@@ -48,13 +48,15 @@ class AzureDevOpsProvider:
 
     def fetch_iteration(self, iteration_ref: str) -> ProviderResult:
         if self.payloads:
+            capacities = self.payloads.get("capacities")
             return ProviderResult.success(
                 map_iteration(
                     iteration_ref,
                     iteration=self.payloads.get("iteration"),
-                    capacities=self.payloads.get("capacities"),
+                    capacities=capacities,
                     team_settings=self.payloads.get("team_settings"),
-                )
+                ),
+                warnings=_capacity_cross_check(capacities),
             )
 
         if self.client is None:
@@ -72,6 +74,7 @@ class AzureDevOpsProvider:
         if settings_error:
             warnings.append(f"team settings unavailable: {settings_error}")
 
+        warnings.extend(_capacity_cross_check(capacities))
         return ProviderResult.success(
             map_iteration(
                 iteration_ref,
@@ -149,6 +152,24 @@ class AzureDevOpsProvider:
                 )
             )
         return ops
+
+
+def _capacity_cross_check(capacities: Any) -> tuple[str, ...]:
+    """Compare the mapped per-member sum against Azure's own reported daily total.
+
+    Free verification: a disagreement means the mapping dropped or misread somebody, which
+    would otherwise show up only as a quietly understated sprint.
+    """
+    reported = reported_daily_total(capacities)
+    if reported is None:
+        return ()
+    mapped = round(sum(m.daily_hours for m in map_capacities(capacities)), 2)
+    if abs(mapped - reported) < 0.01:
+        return ()
+    return (
+        f"capacity mismatch: mapped {mapped:g}h/day but Azure reports {reported:g}h/day — "
+        "some members or activities could not be read, so availability is understated",
+    )
 
 
 def _extract_ids(payload: Any) -> list[str]:

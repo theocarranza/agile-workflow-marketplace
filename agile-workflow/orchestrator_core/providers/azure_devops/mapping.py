@@ -117,14 +117,19 @@ def map_capacities(payload: Any) -> tuple[MemberCapacity, ...]:
     members: list[MemberCapacity] = []
     for entry in _unwrap(payload):
         team_member = entry.get("teamMember") if isinstance(entry.get("teamMember"), dict) else {}
-        activities = tuple(
-            ActivityCapacity(
-                name=str(activity.get("name", "") or ""),
-                capacity_per_day=_as_float(activity.get("capacityPerDay")) or 0.0,
+        activities = []
+        for activity in entry.get("activities", []):
+            if not isinstance(activity, dict):
+                continue
+            per_day = _as_float(activity.get("capacityPerDay"))
+            if per_day is None:
+                # Unreadable is not zero. Skipping keeps it out of the sum, and the
+                # totalCapacityPerDay cross-check below will catch the shortfall.
+                continue
+            activities.append(
+                ActivityCapacity(name=str(activity.get("name", "") or ""), capacity_per_day=per_day)
             )
-            for activity in entry.get("activities", [])
-            if isinstance(activity, dict)
-        )
+        activities = tuple(activities)
         members.append(
             MemberCapacity(
                 member_id=str(team_member.get("id", "") or ""),
@@ -149,11 +154,17 @@ def current_iteration(payload: Any) -> dict[str, Any] | None:
     entries = _unwrap(payload)
     if not entries:
         return None
+    unmarked = []
     for entry in entries:
         attributes = entry.get("attributes") if isinstance(entry.get("attributes"), dict) else {}
-        if attributes.get("timeFrame") == TIMEFRAME_CURRENT:
+        marker = attributes.get("timeFrame")
+        if marker == TIMEFRAME_CURRENT:
             return entry
-    return entries[0] if len(entries) == 1 else None
+        if marker is None:
+            unmarked.append(entry)
+    # A `$timeframe=current` query returns only the active sprint, so a single unmarked
+    # entry is it. An entry marked past or future is never treated as current.
+    return unmarked[0] if len(unmarked) == 1 and len(entries) == 1 else None
 
 
 def reported_daily_total(payload: Any) -> float | None:
@@ -167,20 +178,24 @@ def reported_daily_total(payload: Any) -> float | None:
     return _as_float(payload.get("totalCapacityPerDay"))
 
 
-def map_weekend_days(team_settings: Any) -> tuple[int, ...]:
+def map_weekend_days(team_settings: Any) -> tuple[int, ...] | None:
     """Derive weekend days from a team's configured workingDays.
 
-    Azure states which days are worked; the model wants the complement. An empty or absent
-    setting leaves the default weekend in place rather than declaring every day a weekend.
+    Azure states which days are worked; the model wants the complement.
+
+    Returns None for "not stated" -- absent settings, or entries none of which could be read
+    -- so the caller keeps its default. An empty tuple is a real answer: a team that works
+    all seven days has no weekend, and collapsing that into "unknown" would silently delete
+    two days of their capacity.
     """
     if not isinstance(team_settings, dict):
-        return ()
+        return None
     working = team_settings.get("workingDays")
     if not isinstance(working, list) or not working:
-        return ()
+        return None
     worked = {index for index in (_weekday_index(d) for d in working) if index is not None}
     if not worked:
-        return ()
+        return None
     return tuple(sorted(set(range(7)) - worked))
 
 
@@ -210,7 +225,7 @@ def map_iteration(
         "members": map_capacities(capacities),
         "team_days_off": team_days_off,
     }
-    if weekend:
+    if weekend is not None:
         kwargs["weekend_days"] = weekend
     return IterationCapacity(**kwargs)
 

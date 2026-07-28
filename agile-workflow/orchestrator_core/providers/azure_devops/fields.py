@@ -83,13 +83,18 @@ def activity_field(process: str | None = None) -> str:
 def supports_original_estimate(process: str | None = None) -> bool:
     """Scrum ships only Remaining Work; Agile and CMMI ship all three scheduling fields.
 
-    Writing Original Estimate to a Scrum project fails or silently drops the value, so this
-    guard is not optional.
+    Writing Original Estimate to a Scrum project fails or silently drops the value, so an
+    unstated process is treated as unsupported. Guessing wrong here is silent, and Remaining
+    Work -- which every process has -- is enough on its own.
     """
+    if not (process or "").strip():
+        return False
     return normalize_process(process) != PROCESS_SCRUM
 
 
 def supports_completed_work(process: str | None = None) -> bool:
+    if not (process or "").strip():
+        return False
     return normalize_process(process) != PROCESS_SCRUM
 
 

@@ -34,6 +34,15 @@ def _as_float(value: Any) -> float | None:
     return None
 
 
+def _first_present(entry: dict, *names: str) -> float | None:
+    """First key actually present. Not an `or` chain: a legitimate 0 is falsy."""
+    for name in names:
+        value = _as_float(entry.get(name))
+        if value is not None:
+            return value
+    return None
+
+
 def _ranges_from(raw: Any) -> tuple[DateRange, ...]:
     if not isinstance(raw, list):
         return ()
@@ -80,13 +89,17 @@ class FilesystemProvider:
         if not self.configured:
             return ProviderResult.failure(self.NO_PATH)
         path = self.artifacts_dir / CAPACITY_FILENAME.format(iteration=iteration_ref)
-        try:
-            data = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
+        if not path.is_file():
             return ProviderResult.success(
                 IterationCapacity(iteration_ref=iteration_ref),
                 warnings=(f"no capacity file at {path}; iteration has no team or dates",),
             )
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, ValueError) as exc:
+            # A file that exists but cannot be read is a fixable misconfiguration, not the
+            # normal absence above. Saying "no such file" would send someone the wrong way.
+            return ProviderResult.failure(f"capacity file unreadable: {path}: {exc}")
         if not isinstance(data, dict):
             return ProviderResult.failure(f"capacity file is not an object: {path}")
 
@@ -97,7 +110,7 @@ class FilesystemProvider:
             activities = tuple(
                 ActivityCapacity(
                     name=str(a.get("name", "")),
-                    capacity_per_day=_as_float(a.get("capacityPerDay") or a.get("capacity_per_day")) or 0.0,
+                    capacity_per_day=_first_present(a, "capacityPerDay", "capacity_per_day") or 0.0,
                 )
                 for a in entry.get("activities", [])
                 if isinstance(a, dict)
@@ -145,8 +158,8 @@ class FilesystemProvider:
                 seen.add(resolved)
                 try:
                     raw = path.read_text(encoding="utf-8")
-                except OSError:
-                    warnings.append(f"unreadable: {path}")
+                except (OSError, UnicodeDecodeError) as exc:
+                    warnings.append(f"unreadable: {path}: {exc}")
                     continue
                 frontmatter, _ = parse_frontmatter(raw)
                 item_iteration = frontmatter.get("iteration")

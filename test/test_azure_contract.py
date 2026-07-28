@@ -129,22 +129,25 @@ class TestDaysOffDegradation(unittest.TestCase):
 class TestWeekendDegradation(unittest.TestCase):
     """Working-days configuration varies per team and per locale."""
 
-    def test_unknown_day_names_are_ignored(self):
-        """A day name the mapper does not recognise is skipped, not fatal."""
-        self.assertEqual(map_weekend_days({"workingDays": ["segunda", "terça"]}), ())
+    def test_unreadable_day_names_report_not_stated(self):
+        """Entries none of which parse are 'not stated', so the caller keeps its default."""
+        self.assertIsNone(map_weekend_days({"workingDays": ["segunda", "terça"]}))
 
     def test_case_and_whitespace_tolerated(self):
         """Day names arrive in mixed case in practice."""
         self.assertEqual(map_weekend_days({"workingDays": [" Monday ", "TUESDAY"]}), (2, 3, 4, 5, 6))
 
     def test_all_seven_days_worked_means_no_weekend(self):
-        """A team working every day has no weekend."""
+        """An empty tuple is a real answer, distinct from None: this team has no weekend.
+
+        Collapsing it into 'unknown' silently deleted two days of their capacity.
+        """
         every = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
         self.assertEqual(map_weekend_days({"workingDays": every}), ())
 
     def test_empty_working_days_does_not_declare_every_day_a_weekend(self):
         """The dangerous case: an absent setting must not zero out capacity."""
-        self.assertEqual(map_weekend_days({"workingDays": []}), ())
+        self.assertIsNone(map_weekend_days({"workingDays": []}))
         iteration = map_iteration(
             "it1",
             iteration={"attributes": {"startDate": "2026-08-03", "finishDate": "2026-08-14"}},
@@ -343,11 +346,11 @@ class TestMcpServerShapes(unittest.TestCase):
 
     def test_out_of_range_day_numbers_are_ignored(self):
         """A nonsense index must not silently shift the week."""
-        self.assertEqual(map_weekend_days({"workingDays": [9, 42]}), ())
+        self.assertIsNone(map_weekend_days({"workingDays": [9, 42]}))
 
     def test_booleans_are_not_treated_as_day_numbers(self):
         """True is 1 in Python; it must not be read as Monday."""
-        self.assertEqual(map_weekend_days({"workingDays": [True]}), ())
+        self.assertIsNone(map_weekend_days({"workingDays": [True]}))
 
     def test_end_to_end_against_captured_sprint(self):
         """The whole pipeline on real shapes: 8h/day, 10 working days, one day off at 3h."""

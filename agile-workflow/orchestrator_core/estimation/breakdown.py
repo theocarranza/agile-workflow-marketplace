@@ -96,7 +96,8 @@ class TaskEstimate:
 
     @property
     def changed(self) -> bool:
-        return self.previous_hours is None or abs(self.previous_hours - self.hours) >= 0.01
+        previous = self.previous_hours if self.previous_hours is not None else 0.0
+        return abs(previous - self.hours) >= 0.01
 
     @property
     def is_new(self) -> bool:
@@ -179,7 +180,7 @@ class BreakdownEstimate:
                 f"({a.working_days} working days)"
             )
         else:
-            lines.append("  capacity : unknown — assignee not matched to a team member")
+            lines.append("  capacity : unknown — not checked (see warnings)")
 
         lines.append("")
         for task in self.tasks:

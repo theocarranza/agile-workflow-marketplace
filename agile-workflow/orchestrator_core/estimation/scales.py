@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 
@@ -34,10 +35,14 @@ class PointScale:
         return points > self.ceiling
 
     def split_count(self, points: float) -> int:
-        """Number of sub-stories needed to bring `points` under the ceiling."""
+        """Number of sub-stories needed to bring `points` under the ceiling.
+
+        Works in floats: truncating first would report "no split needed" for a 5.5-point
+        story against a ceiling of 5, and a fractional ceiling would divide by zero.
+        """
         if self.ceiling <= 0 or not self.exceeds_ceiling(points):
             return 1
-        return -(-int(points) // int(self.ceiling))  # ceil division
+        return math.ceil(points / self.ceiling)
 
 
 FIBONACCI = PointScale(name="fibonacci", values=(1.0, 2.0, 3.0, 5.0, 8.0, 13.0, 21.0), ceiling=5.0)

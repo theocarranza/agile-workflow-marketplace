@@ -120,7 +120,7 @@ def main(argv: list[str] | None = None) -> int:
             hierarchy = True
         elif args.hierarchy_parent_is_feature == "false":
             hierarchy = False
-        results = validate_artifact(record, hierarchy_parent_is_feature=hierarchy)
+        results = validate_artifact(record, hierarchy_parent_is_feature=hierarchy, state_dir=state_dir)
         report = format_terminal_report(record, results)
         print(report)
         if args.persist:

@@ -27,6 +27,7 @@ from orchestrator_core.estimation.scales import (
     DRIVER_MAX,
     DRIVERS,
     FIBONACCI,
+    PointScale,
     dominant_drivers,
     story_points_from_drivers,
 )
@@ -58,6 +59,11 @@ class TestPointScale(unittest.TestCase):
         self.assertEqual(FIBONACCI.split_count(5.0), 1)
         self.assertEqual(FIBONACCI.split_count(8.0), 2)
         self.assertEqual(FIBONACCI.split_count(13.0), 3)
+
+    def test_split_count_handles_fractional_values(self):
+        """Fractional points and ceilings are not truncated before ceiling division."""
+        fractional = PointScale("fractional", FIBONACCI.values, 2.5)
+        self.assertEqual(fractional.split_count(5.5), 3)
 
 
 class TestDriverMax(unittest.TestCase):
@@ -126,6 +132,13 @@ class TestEstimationConfig(unittest.TestCase):
         config = parse_config({"bands": "not-a-mapping"})
         self.assertEqual(config.bands, SEED_BANDS)
         self.assertEqual(config.source, "seed-default")
+
+    def test_partially_malformed_bands_reject_the_whole_custom_table(self):
+        """A partial custom table must not be presented as the team's configuration."""
+        config = parse_config({"bands": {"3": [4, 6], "five": "invalid"}})
+        self.assertEqual(config.bands, SEED_BANDS)
+        self.assertEqual(config.source, "seed-default")
+        self.assertEqual(config.rejected_bands, ("five",))
 
     def test_ceiling_override_applies_to_scale(self):
         """A configured ceiling overrides the scale's own."""
@@ -313,14 +326,25 @@ class TestDistributeHours(unittest.TestCase):
         """A task weighted double gets double the hours."""
         self.assertEqual(distribute_hours(9.0, [1, 2]), [3.0, 6.0])
 
-    def test_zero_weights_fall_back_to_equal_split(self):
-        """All-zero weights split evenly rather than producing zeros."""
-        self.assertEqual(distribute_hours(8.0, [0, 0]), [4.0, 4.0])
+    def test_all_zero_weights_yield_zeros_not_an_equal_split(self):
+        """Zero is a decision, not missing information.
+
+        Falling back to an equal split here handed a Story's whole duration to whatever
+        tasks had been deliberately weighted out -- e.g. a lone Breakdown marker.
+        """
+        self.assertEqual(distribute_hours(8.0, [0, 0]), [0.0, 0.0])
+
+    def test_absent_weights_fall_back_to_an_equal_split(self):
+        """None means 'no information', which is what an equal share is for."""
+        self.assertEqual(distribute_hours(8.0, [None, None]), [4.0, 4.0])
 
     def test_empty_inputs_return_empty(self):
-        """No tasks or no hours yields nothing."""
+        """No tasks yields nothing; no hours yields a zero per task, not a short list.
+
+        A shorter list than the tasks it describes gets silently zipped away by callers.
+        """
         self.assertEqual(distribute_hours(10.0, []), [])
-        self.assertEqual(distribute_hours(0, [1, 2]), [])
+        self.assertEqual(distribute_hours(0, [1, 2]), [0.0, 0.0])
 
 
 if __name__ == "__main__":

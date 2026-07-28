@@ -373,10 +373,26 @@ class TestEstimateBreakdownHandler(unittest.TestCase):
         paths = {f for op in result["write_ops"] for f in op["fields"]}
         self.assertIn("/fields/Microsoft.VSTS.Scheduling.RemainingWork", paths)
 
-    def test_zero_hour_tasks_are_not_written(self):
-        """The Breakdown marker gets no field write at all."""
-        result = self._run(dict(self.BASE))
+    def test_new_zero_hour_task_is_not_written(self):
+        """A Breakdown marker that never had hours needs no write."""
+        base = dict(self.BASE)
+        base["tasks"] = [{"id": "101", "title": "Wire it"}, {"id": "102", "title": "Breakdown"}]
+        result = self._run(base)
         self.assertNotIn("102", {op["item_id"] for op in result["write_ops"]})
+
+    def test_task_dropping_to_zero_is_written(self):
+        """Clearing stale hours is the whole point: leaving 6h on a marker misleads the burndown."""
+        base = dict(self.BASE)
+        base["tasks"] = [
+            {"id": "101", "title": "Wire it"},
+            {"id": "102", "title": "Breakdown", "current_hours": 6.0},
+        ]
+        result = self._run(base)
+        ops = {op["item_id"]: op["fields"] for op in result["write_ops"]}
+        self.assertIn("102", ops)
+        self.assertEqual(
+            ops["102"]["/fields/Microsoft.VSTS.Scheduling.RemainingWork"], 0.0
+        )
 
     def test_original_estimate_omitted_on_scrum(self):
         """The process guard applies to the handler's write ops too."""
@@ -406,6 +422,27 @@ class TestEstimateBreakdownHandler(unittest.TestCase):
         self.assertTrue(result["blocked"])
         self.assertEqual(result["write_ops"], [])
         self.assertTrue(result["resolution_options"])
+
+    def test_capacity_cross_check_warning_reaches_the_handler(self):
+        """A mismatch with Azure's reported total must not disappear at the provider seam."""
+        payloads = {
+            "iteration": {
+                "attributes": {"startDate": "2026-08-03", "finishDate": "2026-08-14"}
+            },
+            "team_settings": {"workingDays": [1, 2, 3, 4, 5]},
+            "capacities": {
+                "teamMembers": [
+                    {
+                        "teamMember": {"id": "u1", "displayName": "Ana"},
+                        "activities": [{"capacityPerDay": 6, "name": ""}],
+                    }
+                ],
+                "totalCapacityPerDay": 8,
+            },
+            "work_items": {"value": []},
+        }
+        result = self._run(dict(self.BASE, assignee="Ana", payloads=payloads))
+        self.assertTrue(any("capacity mismatch" in warning for warning in result["warnings"]))
 
     def test_missing_inputs_error_cleanly(self):
         """Bad arguments are an error message, not an exception."""

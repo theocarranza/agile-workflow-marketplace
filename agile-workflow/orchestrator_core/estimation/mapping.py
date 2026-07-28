@@ -111,20 +111,29 @@ def _interpolate_band(points: float, config: EstimationConfig) -> tuple[float, f
     return round(low * factor, 2), round(high * factor, 2)
 
 
-def distribute_hours(total_hours: float, weights: list[float]) -> list[float]:
+def distribute_hours(total_hours: float, weights: list[float | None]) -> list[float]:
     """Split a story's hours across its tasks, preserving the total.
 
     A zero weight means zero hours, and stays zero: a marker task that carries no work must
     not pick up rounding drift. Drift lands on the largest share instead, where it is
-    proportionally smallest. Equal weights when none are usable.
+    proportionally smallest.
+
+    `None` means "no information" and falls back to an equal share. That is deliberately
+    distinct from `0`, which is a decision -- a list of nothing but zero weights yields all
+    zeros rather than silently handing a marker task the whole story.
     """
     if not weights or total_hours <= 0:
-        return []
-    positive = [w if w > 0 else 0.0 for w in weights]
+        return [0.0] * len(weights) if weights else []
+
+    if all(w is None for w in weights):
+        positive = [1.0] * len(weights)
+    else:
+        positive = [max(0.0, w) if w is not None else 1.0 for w in weights]
+
     total_weight = sum(positive)
     if total_weight <= 0:
-        positive = [1.0] * len(weights)
-        total_weight = float(len(weights))
+        # Every supplied weight was zero: an explicit decision, so honour it.
+        return [0.0] * len(weights)
 
     out = [round(total_hours * w / total_weight, 2) for w in positive]
     drift = round(total_hours - sum(out), 2)

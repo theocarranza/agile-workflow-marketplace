@@ -47,6 +47,9 @@ class EstimationConfig:
     source: str = "seed-default"
     """Where the bands came from: "seed-default" or the config path that supplied them."""
 
+    rejected_bands: tuple[str, ...] = ()
+    """Band keys the config file declared but that could not be read. Never silently ignored."""
+
     def band_for(self, points: float) -> tuple[float, float] | None:
         return self.bands.get(points)
 
@@ -69,19 +72,36 @@ def _coerce_band(value: Any) -> tuple[float, float] | None:
     return low_f, high_f
 
 
-def _parse_bands(raw: Any) -> dict[float, tuple[float, float]] | None:
+def _parse_bands(raw: Any) -> tuple[dict[float, tuple[float, float]] | None, list[str]]:
+    """Parse the band table, reporting entries that could not be read.
+
+    A partial parse must not be presented as the team's configuration: an entry nobody could
+    read is a misconfiguration the team should hear about, not a gap to quietly interpolate.
+    """
     if not isinstance(raw, dict) or not raw:
-        return None
+        return None, []
     bands: dict[float, tuple[float, float]] = {}
+    rejected: list[str] = []
     for key, value in raw.items():
         try:
             points = float(key)
         except (TypeError, ValueError):
+            rejected.append(str(key))
             continue
         band = _coerce_band(value)
-        if band is not None:
-            bands[points] = band
-    return bands or None
+        if band is None:
+            rejected.append(str(key))
+            continue
+        bands[points] = band
+    return ((bands or None) if not rejected else None), rejected
+
+
+def config_diagnostics(config: EstimationConfig) -> tuple[str, ...]:
+    """Return actionable diagnostics for estimation configuration that was rejected."""
+    if not config.rejected_bands:
+        return ()
+    keys = ", ".join(config.rejected_bands)
+    return (f"invalid estimation bands ignored ({keys}); using seed defaults",)
 
 
 def _parse_calibration(raw: Any) -> CalibrationSettings:
@@ -112,7 +132,7 @@ def parse_config(data: dict[str, Any], *, source: str = "config") -> EstimationC
     if isinstance(ceiling, (int, float)) and ceiling > 0:
         scale = PointScale(name=scale.name, values=scale.values, ceiling=float(ceiling))
 
-    bands = _parse_bands(data.get("bands"))
+    bands, rejected = _parse_bands(data.get("bands"))
     hours_per_day = data.get("hours_per_day")
     try:
         hours_per_day_f = float(hours_per_day) if hours_per_day is not None else 6.0
@@ -125,6 +145,7 @@ def parse_config(data: dict[str, Any], *, source: str = "config") -> EstimationC
         calibration=_parse_calibration(data.get("calibration")),
         hours_per_day=hours_per_day_f if hours_per_day_f > 0 else 6.0,
         source=source if bands is not None else "seed-default",
+        rejected_bands=tuple(rejected),
     )
 
 

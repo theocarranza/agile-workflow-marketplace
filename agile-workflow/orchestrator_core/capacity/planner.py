@@ -34,24 +34,35 @@ def _normalise(value: str | None) -> str:
     return (value or "").strip().casefold()
 
 
+def _identities(member: MemberCapacity) -> set[str]:
+    """Every form this person may be referred to by, normalised.
+
+    Azure identifies people by GUID in capacity data and by display or unique name on work
+    items, so the two sides routinely disagree. Comparing whole identity sets keeps a person
+    recognisable whichever form each payload happened to use.
+    """
+    forms = {_normalise(member.member_id), _normalise(member.display_name)}
+    for value in (member.member_id, member.display_name):
+        local = _normalise(value).split("@", 1)[0]
+        if local:
+            forms.add(local)
+    forms.discard("")
+    return forms
+
+
 def find_member(iteration: IterationCapacity, reference: str | None) -> MemberCapacity | None:
     """Match a work-item assignee to a team member.
 
-    Azure identifies an assignee by display name or unique name depending on the payload, and
-    by id in capacity data, so all three are tried. Returns None rather than guessing when
-    nothing matches -- an unmatched assignee must be reported, not silently attributed.
+    Tries the id, the display name, and the local part of an email-style unique name.
+    Returns None rather than guessing when nothing matches -- an unmatched assignee must be
+    reported, not silently attributed.
     """
     wanted = _normalise(reference)
     if not wanted:
         return None
-    for attribute in ("member_id", "display_name"):
-        for member in iteration.members:
-            if _normalise(getattr(member, attribute)) == wanted:
-                return member
-    # Fall back to the local part of an email-style unique name.
-    local = wanted.split("@", 1)[0]
+    candidates = {wanted, wanted.split("@", 1)[0]}
     for member in iteration.members:
-        if _normalise(member.display_name).split("@", 1)[0] == local:
+        if _identities(member) & candidates:
             return member
     return None
 
@@ -72,9 +83,13 @@ def availability_for(
         return None
 
     present_days = iteration.working_days_for(member)
+
+    # Match each item back to a member rather than comparing raw strings: the item may name
+    # the person differently from the capacity payload, and treating that as "someone else"
+    # would report their whole existing load as free capacity.
     committed = 0.0
     for item in items or []:
-        if _normalise(item.assigned_to) != _normalise(reference):
+        if find_member(iteration, item.assigned_to) is not member:
             continue
         hours = item.planned_hours
         if hours:

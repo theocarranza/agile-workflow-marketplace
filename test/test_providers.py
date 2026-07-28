@@ -166,10 +166,10 @@ class TestAzureMapping(unittest.TestCase):
         self.assertEqual(map_weekend_days(TEAM_SETTINGS_PAYLOAD), (5, 6))
 
     def test_map_weekend_days_absent_setting_keeps_default(self):
-        """An empty setting must not declare every day a weekend."""
-        self.assertEqual(map_weekend_days({}), ())
-        self.assertEqual(map_weekend_days({"workingDays": []}), ())
-        self.assertEqual(map_weekend_days(None), ())
+        """Absent settings report None, so map_iteration keeps its default weekend."""
+        self.assertIsNone(map_weekend_days({}))
+        self.assertIsNone(map_weekend_days({"workingDays": []}))
+        self.assertIsNone(map_weekend_days(None))
 
     def test_map_weekend_days_six_day_week(self):
         """A team working Saturdays leaves only Sunday as weekend."""

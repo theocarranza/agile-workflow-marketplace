@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Iterable, Literal
 
 from .ingest import FILENAME_RE, ArtifactRecord
@@ -118,14 +119,18 @@ def _detect_body_format(body: str) -> BodyFormat:
     return "unknown"
 
 
-def _effort_hours_check(record: ArtifactRecord) -> CheckResult:
+def _effort_hours_check(record: ArtifactRecord, state_dir: Path | None = None) -> CheckResult:
     """Compare a declared duration against the band for its point value.
 
     Advisory only. An unestimated item SKIPs rather than FAILs: leaving the field empty is
     an honest state, and a made-up number would be worse than none. This check exists to
     catch a figure that contradicts its own story points, not to demand one.
     """
-    from .estimation import EstimationConfig, estimate_hours
+    from .estimation import EstimationConfig, estimate_hours, load_config
+
+    # Honour the team's own bands when they have written any: warning a team against the
+    # very table they replaced would make the check worse than useless.
+    config = load_config(state_dir) if state_dir else EstimationConfig()
 
     hours = record.effort_hours
     if hours is None:
@@ -135,7 +140,7 @@ def _effort_hours_check(record: ArtifactRecord) -> CheckResult:
             "content-effort-hours-plausible", "WARN", f"effort_hours is {hours:g}; expected a positive number", "CONTENT"
         )
 
-    expected = estimate_hours(record.story_points, config=EstimationConfig())
+    expected = estimate_hours(record.story_points, config=config)
     if expected is None:
         return CheckResult(
             "content-effort-hours-plausible", "PASS", f"{hours:g}h (no story points to compare against)", "CONTENT"
@@ -149,6 +154,20 @@ def _effort_hours_check(record: ArtifactRecord) -> CheckResult:
         "WARN",
         f"{hours:g}h sits outside the {expected.low:g}-{expected.high:g}h reference band "
         f"for {record.story_points:g} points; confirm the estimate or the points",
+        "CONTENT",
+    )
+
+
+def _estimation_config_check(state_dir: Path | None = None) -> CheckResult:
+    """Report malformed custom bands before validation falls back to seed defaults."""
+    from .estimation import EstimationConfig, config_diagnostics, load_config
+
+    config = load_config(state_dir) if state_dir else EstimationConfig()
+    diagnostics = config_diagnostics(config)
+    return CheckResult(
+        "config-estimation-bands-valid",
+        "WARN" if diagnostics else "PASS",
+        "; ".join(diagnostics),
         "CONTENT",
     )
 
@@ -170,6 +189,7 @@ def validate_artifact(
     record: ArtifactRecord,
     *,
     hierarchy_parent_is_feature: bool | None = None,
+    state_dir: Path | None = None,
 ) -> list[CheckResult]:
     """Rule-based validation mirroring validation-checks.md."""
     results: list[CheckResult] = []
@@ -408,7 +428,8 @@ def validate_artifact(
             "CONTENT",
         )
     )
-    results.append(_effort_hours_check(record))
+    results.append(_estimation_config_check(state_dir))
+    results.append(_effort_hours_check(record, state_dir))
 
     title_words = _word_count(record.title)
     results.append(

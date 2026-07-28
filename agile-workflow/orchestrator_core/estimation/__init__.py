@@ -28,7 +28,7 @@ from .calibration import (
     compare_to_halstead,
     halstead_hours,
 )
-from .config import EstimationConfig, load_config, parse_config
+from .config import EstimationConfig, config_diagnostics, load_config, parse_config
 from .mapping import HourEstimate, distribute_hours, estimate_hours
 from .scales import (
     DEFAULT_SCALE,
@@ -56,6 +56,7 @@ __all__ = [
     "TaskInput",
     "calibrate",
     "compare_to_halstead",
+    "config_diagnostics",
     "distribute_hours",
     "dominant_drivers",
     "estimate_breakdown",

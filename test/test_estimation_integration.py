@@ -109,6 +109,32 @@ class TestEffortHoursCheck(unittest.TestCase):
         ):
             self.assertNotEqual(_effort_check(body).result, "FAIL")
 
+    def test_validator_uses_team_estimation_bands(self):
+        """Validation compares hours with the configured team band, not seed defaults."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            state_dir = Path(tmpdir)
+            (state_dir / "estimation.json").write_text(
+                json.dumps({"bands": {"3": [30, 50]}}), encoding="utf-8"
+            )
+            record = ingest_from_text(
+                "---\nstory_points: 3\neffort_hours: 40\n---\n\n# X\n"
+            )
+            checks = validate_artifact(record, state_dir=state_dir)
+            effort = next(c for c in checks if c.name == "content-effort-hours-plausible")
+            self.assertEqual(effort.result, "PASS")
+
+    def test_validator_reports_rejected_estimation_bands(self):
+        """Invalid custom bands fall back safely and remain visible as a diagnostic."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            state_dir = Path(tmpdir)
+            (state_dir / "estimation.json").write_text(
+                json.dumps({"bands": {"3": [4, 6], "five": "invalid"}}), encoding="utf-8"
+            )
+            checks = validate_artifact(ingest_from_text("# X\n"), state_dir=state_dir)
+            diagnostic = next(c for c in checks if c.name == "config-estimation-bands-valid")
+            self.assertEqual(diagnostic.result, "WARN")
+            self.assertIn("five", diagnostic.detail)
+
 
 class TestPlanCapacityHandler(unittest.TestCase):
     """Tests for the orchestrator handler."""
