@@ -14,6 +14,7 @@ metadata:
 allowed-tools: >
   Read Write Edit Glob Grep Bash
   mcp__azure-devops__wit_get_work_item
+  mcp__azure-devops__wit_get_work_item_attachment
   mcp__azure-devops__wit_get_work_items_batch_by_ids
   mcp__azure-devops__wit_update_work_item
   mcp__azure-devops__wit_add_child_work_items

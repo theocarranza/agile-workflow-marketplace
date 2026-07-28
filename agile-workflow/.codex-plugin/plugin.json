@@ -13,6 +13,6 @@
     "developerName": "Th\u00e9o Carranza",
     "category": "Productivity",
     "capabilities": ["skills", "mcp", "orchestrator"],
-    "defaultPrompt": "Use the Agile Workflow skills to safely manage and validate Azure DevOps work items."
+    "defaultPrompt": ["Use the Agile Workflow skills to safely manage and validate Azure DevOps work items."]
   }
 }
