@@ -7,8 +7,8 @@
     {
       "name": "agile-workflow",
       "source": "./agile-workflow",
-      "description": "Agile backlog workflow skills for Azure DevOps. Skills: decompose-backlog, validate-artifact, auto-fix-artifact, split-story, generate-work-item, enrich-work-item, generate-plain-language-documentation, generate-breakdown-work-items, amend-workitems. Deterministic Python orchestrator for quality gates (v0.9.0). Shared rules + Azure linking guardrails.",
-      "version": "0.9.0"
+      "description": "Agile backlog workflow skills for Azure DevOps. Skills: decompose-backlog, validate-artifact, auto-fix-artifact, split-story, generate-work-item, enrich-work-item, generate-plain-language-documentation, generate-breakdown-work-items, amend-workitems. Bundles the deterministic Python orchestrator as an MCP server for quality gates. Shared rules + Azure linking guardrails.",
+      "version": "0.11.0"
     }
   ]
 }
