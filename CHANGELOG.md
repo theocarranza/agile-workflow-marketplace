@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-05
+
+### Added
+
+- **The plugin bundles the orchestrator as an MCP server.** `agile-workflow/.mcp.json` declares an
+  `orchestrator` server whose `PYTHONPATH` is `${CLAUDE_PLUGIN_ROOT}`, so installing the plugin in
+  Claude Code is now sufficient on its own — no `install.sh` copy on the side, and no per-project
+  `.mcp.json` entry pointing at an absolute path in the user's home directory. The project root
+  still resolves without configuration: `CODEX_PROJECT_ROOT` already falls back to
+  `CLAUDE_PROJECT_DIR`, which Claude Code sets for every session.
+
+  Tools from this server are scoped as `mcp__plugin_agile-workflow_orchestrator__<tool>`, not the
+  `mcp__agile-workflow-orchestrator__<tool>` names the installer's wiring produces. Hook matchers
+  and permission rules written against the installer names do not match the plugin's.
+
+  The installer is unchanged and remains the path for Cursor and Codex, which have no equivalent
+  mechanism. Claude Code users should pick one channel: running both wires the same orchestrator
+  twice under two different names.
+
+### Fixed
+
+- **`plugin.json` and `marketplace.json` both reported `0.9.0` at the `v0.10.0` tag**, so an install
+  of v0.10.0 landed in a cache directory named `0.9.0` and `claude plugin list` reported a version
+  the code had not been for a release. The manifests now carry the release version, and the
+  hardcoded `(v0.9.0)` inside the plugin description — a second copy of the same number, drifting
+  independently — is gone.
+
+## [0.10.0] - 2026-07-28
+
 ### Removed
 
 - **The plugin no longer creates, detects, or depends on a knowledge artifacts path anywhere.** It previously
