@@ -15,11 +15,28 @@
 
 A standalone multi-host plugin marketplace for Agile backlog workflows against **Azure DevOps**.
 
-Nine [Agent Skills](https://agentskills.io/specification)-compliant conductors plus a deterministic **Python orchestrator** for quality gates. Ships Claude Code, Cursor, Codex, and Antigravity (IDE and CLI) plugin manifests, and MCP wiring. Current plugin release: **v0.9.0**.
+Nine [Agent Skills](https://agentskills.io/specification)-compliant conductors plus a deterministic **Python orchestrator** for quality gates. Ships Claude Code, Cursor, Codex, and Antigravity (IDE and CLI) plugin manifests, and MCP wiring. For the current release see [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Install
 
-### Full plugin (MCP + orchestrator)
+### Claude Code: the plugin alone (skills + MCP)
+
+The plugin bundles the orchestrator's MCP server and resolves its own path, so this is the whole
+setup — no clone, no installer, no per-project `.mcp.json` entry:
+
+```text
+/plugin marketplace add https://github.com/theocarranza/agile-workflow-marketplace
+/plugin install agile-workflow
+```
+
+Restart Claude Code afterwards. Orchestrator tools arrive as
+`mcp__plugin_agile-workflow_orchestrator__<tool>`.
+
+This channel does not install the `agile-workflow` CLI or the Azure DevOps MCP server. If you want
+those, or you use Cursor, Codex, or Antigravity, use the installer below instead — but use **one or
+the other**, since running both wires the orchestrator twice under two different names.
+
+### Full stack, all hosts (MCP + orchestrator + CLI)
 
 One command wires the plugin, orchestrator CLI, MCP servers, and project mailbox.
 You only provide your Azure DevOps organization. Everything else is discovered on first use, and
@@ -59,13 +76,6 @@ Limit to specific hosts:
 ./install.sh --target cursor,codex -y --azure-org <org> --project-dir .
 ```
 
-Manual / Claude-only alternative:
-
-```text
-/plugin marketplace add <path-or-git-url-to-this-repo>
-/plugin install agile-workflow
-```
-
 ### Skills only (registry install)
 
 Root `skills/` symlinks expose the nine skills for [skills.sh](https://skills.sh/) and [openskills.cc](https://openskills.cc/skills) discovery:
@@ -83,7 +93,7 @@ npx openskills sync -y
 
 Skills-only install copies `SKILL.md` folders — it does **not** wire MCP or the orchestrator. Use `./install.sh` for the full stack.
 
-## Orchestrator (v0.4.0+)
+## Orchestrator
 
 Quality-gate skills use a **rule-based Python critic** — not LLM self-judgment. The orchestrator
 implements the Actor-Critic pattern with circuit breaker and filesystem mailbox IPC.

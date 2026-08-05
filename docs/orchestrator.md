@@ -1,4 +1,4 @@
-# Orchestrator — deterministic skill runtime (v0.4.0)
+# Orchestrator — deterministic skill runtime
 
 The `agile-workflow` plugin includes a Python orchestrator that enforces **Actor-Critic**
 discipline for quality-gate skills. The LLM drafts artifacts; Python judges them with
@@ -8,7 +8,7 @@ rule-based checks — no LLM self-judgment on pass/fail.
 
 ```
 bin/agile-workflow CLI ──┐
-MCP (agile-workflow-orchestrator) ──┤
+MCP (plugin: orchestrator / installer: agile-workflow-orchestrator) ──┤
                                     ▼
                           OrchestratorEngine
                                     │
@@ -55,13 +55,42 @@ Or scaffold only the mailbox in an already-wired project:
 
 Environment:
 
-- `CODEX_PROJECT_ROOT` / `CURSOR_PROJECT_DIR` — project root (default: cwd)
-- `CODEX_VAULT_FOLDER` — artifacts path name (default: `<artifacts>_AgileWorkflowMarketplace`)
+- `CODEX_PROJECT_ROOT` / `CURSOR_PROJECT_DIR` / `CLAUDE_PROJECT_DIR` — project root, in that
+  precedence (default: cwd). Claude Code sets the third one itself, so a plugin install needs none
+  of them configured.
 - `ORCHESTRATOR_INTERACTIVE=1` — prompt for `IMPLEMENTATION APPROVED` on circuit breaker
 
 ## MCP setup
 
-Add to your project's `.mcp.json` (local file — not committed if globally ignored):
+There are two channels. **Pick one** — running both wires the same orchestrator twice, under two
+different tool namespaces.
+
+### Claude Code: the plugin brings its own server
+
+Nothing to configure. `agile-workflow/.mcp.json` ships with the plugin and resolves its own path:
+
+```json
+{
+  "mcpServers": {
+    "orchestrator": {
+      "command": "python3",
+      "args": ["-m", "orchestrator_core", "mcp"],
+      "env": {
+        "PYTHONPATH": "${CLAUDE_PLUGIN_ROOT}"
+      }
+    }
+  }
+}
+```
+
+`claude plugin install agile-workflow@agile-workflow-marketplace` is the whole setup. Tools arrive
+as `mcp__plugin_agile-workflow_orchestrator__<tool>`; hook matchers and permission rules must use
+that scoped form, and `mcp_tool` hooks take `plugin:agile-workflow:orchestrator` as `server`.
+
+### Cursor, Codex, or a manual install: wire it per project
+
+The installer writes the entry for you (`./install.sh`). To do it by hand, add to the project's
+`.mcp.json` — a local file, not committed if globally ignored:
 
 ```json
 {
@@ -70,15 +99,16 @@ Add to your project's `.mcp.json` (local file — not committed if globally igno
       "command": "python3",
       "args": ["-m", "orchestrator_core", "mcp"],
       "env": {
-        "PYTHONPATH": "agile-workflow",
-        "CODEX_VAULT_FOLDER": "<artifacts>_AgileWorkflowMarketplace"
+        "PYTHONPATH": "/absolute/path/to/agile-workflow",
+        "CODEX_PROJECT_ROOT": "/absolute/path/to/your/project"
       }
     }
   }
 }
 ```
 
-Run from the marketplace repo root (or set `PYTHONPATH` to the installed plugin path).
+`PYTHONPATH` points at the directory containing `orchestrator_core/`. Tools arrive unscoped, as
+`mcp__agile-workflow-orchestrator__<tool>`.
 
 ## Wired skills
 
