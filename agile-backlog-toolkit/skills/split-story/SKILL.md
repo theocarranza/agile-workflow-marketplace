@@ -32,7 +32,7 @@ References (skill-specific, in `./references/`):
 - `split-patterns.md` — split pattern catalog with detection signals and auto-selection rules.
 - `scoring-guide.md` — 6-driver scoring table, ceiling logic, spike detection rule, discrepancy
   handling.
-- `../../common/contracts/split-story/canonical-user-story.md` — **read-only shape contract** for split sub-story drafts
+- `../../common/templates/canonical-user-story.md` — **read-only shape contract** for split sub-story drafts
   (seven emoji sections). Do not edit; validate output against this template.
 - `../../common/contracts/split-story/canonical-spike.md` — **read-only shape contract** for spike stubs.
   Do not edit; validate spike output against this template.

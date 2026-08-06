@@ -16,7 +16,7 @@ from pathlib import Path
 INSTALL_DIR = Path.home() / ".agile-backlog-toolkit"
 PLUGIN_NAME = "agile-backlog-toolkit"
 MARKETPLACE_NAME = "agile-backlog-toolkit"
-PLUGIN_SOURCE_DIR = "agile-workflow"
+PLUGIN_SOURCE_DIR = "agile-backlog-toolkit"
 PLUGIN_BUNDLE_DIRS = ("common", "skills", "references", "orchestrator_core")
 ALL_TARGETS = ("claude", "cursor", "codex", "antigravity")
 LINEAR_MCP_URL = "https://mcp.linear.app/mcp"

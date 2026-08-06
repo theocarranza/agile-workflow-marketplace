@@ -35,8 +35,8 @@ textbook.
 References (start at `../../common/workflows/generate-work-item.md`):
 
 - `../../common/workflows/generate-work-item.md` — type map, artifacts paths, Context7 protocol.
-- `../../common/contracts/generate-work-item/output-formats.md` — **uniform ticket body**.
-- `../../common/contracts/generate-work-item/` — **read-only shape contracts**. Validate every draft
+- `../../common/templates/output-formats.md` — **uniform ticket body**.
+- `../../common/templates/` — **read-only shape contracts**. Validate every draft
   against the matching template before presenting.
 - `../../common/specs/generate-work-item/` — spec forms written to `<artifacts>/Specs/`:
   - `spec-epic.md`, `spec-feature.md`, `spec-work-item.md`
@@ -126,7 +126,7 @@ Write to `<artifacts>/Specs/<prefix>-<kebab-slug>-spec.md`. Populate all section
 
 ## PHASE 4 — GENERATE DRAFT
 
-**Read `../../common/contracts/generate-work-item/output-formats.md` and the matching canonical contract
+**Read `../../common/templates/output-formats.md` and the matching canonical contract
 first.** Every draft uses the **same** body shape (canonical templates are immutable — conform, do
 not modify):
 

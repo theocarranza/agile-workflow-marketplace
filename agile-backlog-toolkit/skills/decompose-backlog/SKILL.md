@@ -42,7 +42,7 @@ References (in `../../references/`):
 
 References (skill-specific, in `./references/`):
 
-- `../../common/contracts/decompose-backlog/canonical-user-story.md` — **read-only shape contract** for enriched Story drafts (seven
+- `../../common/templates/canonical-user-story.md` — **read-only shape contract** for enriched Story drafts (seven
   emoji sections per `ticket-structure.md`, pt-BR labels). Do not edit; validate every draft against
   this template when `language` is `pt-BR`.
 - `../../common/contracts/decompose-backlog/canonical-user-story.en.md` — same shape contract with English section labels. Use when
@@ -77,7 +77,7 @@ of Story stubs (title + one-line scope + dependencies), each tracing to a verbat
 ### 3. DRAFT
 
 Per approved stub, write a local draft per `ticket-structure.md` and the canonical template matching
-the run's `language` (`../../common/contracts/decompose-backlog/canonical-user-story.md` for pt-BR,
+the run's `language` (`../../common/templates/canonical-user-story.md` for pt-BR,
 `canonical-user-story.en.md` for en) — hook-valid frontmatter (`type`, no `status`, `language:` set
 to the chosen value), filename regex with the Feature-id prefix, the 7 body sections in canonical
 order using that language's labels. Content hygiene applies.

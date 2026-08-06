@@ -47,7 +47,7 @@ class TestInstallHelpers(unittest.TestCase):
             root = Path(tmp)
             mock_home.return_value = root / "home"
             install = root / "install"
-            plugin = install / "agile-workflow"
+            plugin = install / "agile-backlog-toolkit"
             (plugin / ".codex-plugin").mkdir(parents=True)
             (plugin / ".codex-plugin" / "plugin.json").write_text(
                 json.dumps({"name": "agile-backlog-toolkit", "version": "0.11.0", "description": "test"}),
@@ -137,7 +137,7 @@ class TestInstallHelpers(unittest.TestCase):
             project = Path(tmp) / "app"
             project.mkdir()
             install = Path(tmp) / "install"
-            (install / "agile-workflow" / "orchestrator_core").mkdir(parents=True)
+            (install / "agile-backlog-toolkit" / "orchestrator_core").mkdir(parents=True)
             wire_project_mcp(
                 project,
                 install_dir=install,
@@ -159,7 +159,7 @@ class TestInstallHelpers(unittest.TestCase):
             project = Path(tmp) / "app"
             project.mkdir()
             install = Path(tmp) / "install"
-            (install / "agile-workflow" / "orchestrator_core").mkdir(parents=True)
+            (install / "agile-backlog-toolkit" / "orchestrator_core").mkdir(parents=True)
             global_mcp = home / ".cursor" / "mcp.json"
             global_mcp.parent.mkdir(parents=True)
             global_mcp.write_text(

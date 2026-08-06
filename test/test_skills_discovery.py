@@ -3,7 +3,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SKILLS_ROOT = ROOT / "skills"
-PLUGIN_SKILLS = ROOT / "agile-workflow" / "skills"
+PLUGIN_SKILLS = ROOT / "agile-backlog-toolkit" / "skills"
 EXPECTED = (
     "decompose-backlog",
     "validate-artifact",

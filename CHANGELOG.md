@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **The plugin bundles the orchestrator as an MCP server.** `agile-workflow/.mcp.json` declares an
+- **The plugin bundles the orchestrator as an MCP server.** `agile-backlog-toolkit/.mcp.json` declares an
   `orchestrator` server whose `PYTHONPATH` is `${CLAUDE_PLUGIN_ROOT}`, so installing the plugin in
   Claude Code is now sufficient on its own — no `install.sh` copy on the side, and no per-project
   `.mcp.json` entry pointing at an absolute path in the user's home directory. The project root
@@ -51,16 +51,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Where artifacts go is now the user's answer, not the plugin's assumption.** `artifacts_path` in
-  `.agile-workflow/config.json` is user-supplied and has **no default**. When unset, local output is
+  `.agile-backlog-toolkit/config.json` is user-supplied and has **no default**. When unset, local output is
   unavailable and skills must ask — the filesystem provider returns an explanatory refusal rather
   than writing somewhere nobody chose. What lives at that path is not the plugin's concern.
-- **Plugin-owned state moved to `.agile-workflow/`**, cleanly separated from user artifacts:
+- **Plugin-owned state moved to `.agile-backlog-toolkit/`**, cleanly separated from user artifacts:
   validation reports to `reports/` (was `<artifacts path>/Agent_Reports/`), the retry-loop mistakes artifacts to
   `mistakes.json` (was `<artifacts path>/_mistakes/`), and estimation bands to `estimation.json` (was
   `<artifacts path>/Meta/`). `artifacts path_dir` is `state_dir` throughout the runtime.
 - `ArtifactsProvider` is now `FilesystemProvider`, reading whatever directory the user nominated.
 - `agile-workflow init` and the installer create only `.agentic/workflow_prompts/` and
-  `.agile-workflow/`. Nothing else, ever.
+  `.agile-backlog-toolkit/`. Nothing else, ever.
 - Older installs that recorded a path under `artifacts path_folder` still resolve: the value is read as
   `artifacts_path`, treated as nothing more than a path a user once supplied.
 
@@ -93,7 +93,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   identity objects, unknown fields, numbers as strings, nulls, and malformed dates.
 - **First CI workflow** (`.github/workflows/test.yml`): pytest on Python 3.12, skill manifest
   validation, and a CLI exit-code smoke test. The suite previously had nothing running it.
-- **Project configuration** (`.agile-workflow/config.json`, `orchestrator_core/project_config.py`):
+- **Project configuration** (`.agile-backlog-toolkit/config.json`, `orchestrator_core/project_config.py`):
   one runtime source of truth for the artifacts path and the Azure organisation, project, team, and
   process. Resolves through a fallback chain — environment, then the canonical file, then the
   install receipt, then the org parsed out of MCP wiring — so
@@ -177,7 +177,7 @@ produced a plausible-looking but wrong capacity report rather than an error.
 - **`generate-breakdown-work-items` skill**: Intake UX, Implementation Plan generation to the
   artifacts, atomic Task decomposition (Staging / Review / Breakdown), and Feature/Epic fan-out.
   Registered in `skills.sh.json`, plugin/marketplace descriptions, and root `skills/` symlink.
-- Skill package under `agile-workflow/skills/generate-breakdown-work-items/` with
+- Skill package under `agile-backlog-toolkit/skills/generate-breakdown-work-items/` with
   `intake-ux.md`, `plan-generation.md`, `atomic-tasks.md`, and `fan-out.md` references.
 - Artifacts feature, child Stories, and Implementation Plan under
   `<artifacts>/`.
@@ -229,7 +229,7 @@ produced a plausible-looking but wrong capacity report rather than an error.
   narrative polishing to the plain-language skill per `integration-notes.md`.
 - Unit tests: `test/test_generate_plain_language_documentation.py`,
   `test/test_plain_language_skill_integration.py`, and `test/plain_language_helpers.py` (76 tests in
-  `test/` with `PYTHONPATH=agile-workflow`).
+  `test/` with `PYTHONPATH=agile-backlog-toolkit`).
 - Artifacts feature note: `Features/generate-plain-language-documentation.md`.
 
 ### Changed
@@ -275,9 +275,9 @@ produced a plausible-looking but wrong capacity report rather than an error.
   DevOps MCP, orchestrator MCP, global CLI, project mailbox, and artifacts path mistakes repo.
   Auto-detects agent hosts; non-interactive mode via `-y --azure-org --project-dir`.
 - **Agent Skills registry layout**: MIT `LICENSE`, root `skills/` symlinks to
-  `agile-workflow/skills/`, and `skills.sh.json` for [skills.sh](https://skills.sh/) discovery.
+  `agile-backlog-toolkit/skills/`, and `skills.sh.json` for [skills.sh](https://skills.sh/) discovery.
 - **`scripts/validate-skills.sh`**: batch `skills-ref validate` across all five skills.
-- **Codex plugin manifests** (`.codex-plugin/`, `agile-workflow/.codex-plugin/`).
+- **Codex plugin manifests** (`.codex-plugin/`, `agile-backlog-toolkit/.codex-plugin/`).
 - Unit tests: `test/test_install.py`, `test/test_validate_skills.py`, `test/test_skills_discovery.py`.
 
 ### Changed
@@ -293,7 +293,7 @@ produced a plausible-looking but wrong capacity report rather than an error.
 
 ### Added
 
-- **Deterministic orchestrator** (`agile-workflow/orchestrator_core/`): event-sourced runtime
+- **Deterministic orchestrator** (`agile-backlog-toolkit/orchestrator_core/`): event-sourced runtime
   with rule-based Actor-Critic validation, circuit breaker (3 retries), and
   `IMPLEMENTATION APPROVED` recovery gate. See [docs/orchestrator.md](docs/orchestrator.md).
 - **`bin/agile-workflow` CLI**: `init`, `validate`, `evaluate`, `compile`, `resume`, `mcp`.
@@ -331,7 +331,7 @@ produced a plausible-looking but wrong capacity report rather than an error.
 
 ### Changed
 
-- Promoted shared references from `decompose-backlog/references/` to `agile-workflow/references/`
+- Promoted shared references from `decompose-backlog/references/` to `agile-backlog-toolkit/references/`
   so all skills share one copy of `decomposition-rules.md`, `ticket-structure.md`,
   `azure-mechanics.md`, and `audit-checklist.md`.
 - Updated `decompose-backlog/SKILL.md` reference paths from `./references/` to `../../references/`

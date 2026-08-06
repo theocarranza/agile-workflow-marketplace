@@ -14,10 +14,10 @@ COLLECT → INGEST → RESEARCH (Context7) → WRITE SPEC (blueprint) → GENERA
 
 | `work_item_type` | Spec blueprint | Ticket body |
 | --- | --- | --- |
-| `epic` | `../specs/generate-work-item/spec-epic.md` | `../contracts/generate-work-item/canonical-epic.md` |
-| `feature` | `../specs/generate-work-item/spec-feature.md` | `../contracts/generate-work-item/canonical-feature.md` |
-| `user-story` | `../specs/generate-work-item/spec-work-item.md` | `../contracts/generate-work-item/canonical-user-story.md` |
-| `task` | `../specs/generate-work-item/spec-work-item.md` | `../contracts/generate-work-item/canonical-task.md` |
+| `epic` | `../specs/generate-work-item/spec-epic.md` | `../templates/canonical-epic.md` |
+| `feature` | `../specs/generate-work-item/spec-feature.md` | `../templates/canonical-feature.md` |
+| `user-story` | `../specs/generate-work-item/spec-work-item.md` | `../templates/canonical-user-story.md` |
+| `task` | `../specs/generate-work-item/spec-work-item.md` | `../templates/canonical-task.md` |
 
 Enrichment (emoji sections, drivers, host team format) is **`enrich-work-item`**, not this skill.
 

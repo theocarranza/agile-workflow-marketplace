@@ -6,7 +6,7 @@
 [![Agent Skills](https://img.shields.io/badge/spec-agentskills.io-5C2D91)](https://agentskills.io/specification)
 [![skills.sh](https://img.shields.io/badge/listed-skills.sh-000000)](https://skills.sh/)
 
-[![Python](https://img.shields.io/badge/python-3.12+-3776AB?logo=python&logoColor=white)](agile-workflow/orchestrator_core/)
+[![Python](https://img.shields.io/badge/python-3.12+-3776AB?logo=python&logoColor=white)](agile-backlog-toolkit/orchestrator_core/)
 [![Bash](https://img.shields.io/badge/bash-install.sh-4EAA25?logo=gnubash&logoColor=white)](install.sh)
 [![Markdown](https://img.shields.io/badge/format-SKILL.md-000000?logo=markdown)](https://agentskills.io/specification)
 [![Azure DevOps](https://img.shields.io/badge/Azure%20DevOps-MCP-0078D4?logo=azuredevops&logoColor=white)](.mcp.json)
@@ -207,7 +207,7 @@ remaining hours, the run stops and asks — split, reschedule, reassign, or redu
 are never scaled down to fit, because that would misrepresent how long the work takes. Your team's
 capacity settings themselves are read to do the arithmetic and never modified.
 
-Full reference: [agile-workflow/references/estimation.md](agile-workflow/references/estimation.md).
+Full reference: [agile-backlog-toolkit/references/estimation.md](agile-backlog-toolkit/references/estimation.md).
 
 ## Configuration
 
@@ -232,7 +232,7 @@ exits non-zero when something required is missing, so it also works as a precond
 work and creates no directory structure in your project. The only directory it owns is
 `.agile-backlog-toolkit/` — its own config, reports, and memory.
 
-Full reference: [agile-workflow/references/project-config.md](agile-workflow/references/project-config.md).
+Full reference: [agile-backlog-toolkit/references/project-config.md](agile-backlog-toolkit/references/project-config.md).
 
 ## Plugin: `agile-workflow`
 
@@ -378,7 +378,7 @@ the host's native skills directory.
 Each skill may ship `references/canonical/` templates (read-only shape
 contracts) alongside skill-specific blueprints and pipelines.
 
-Each skill follows the [Agent Skills open standard](https://agentskills.io/specification): root `skills/<name>/SKILL.md` (symlinked to `agile-workflow/skills/`) with `name`, `description`, `license`, optional `references/`, and progressive disclosure. Repo page grouping: `skills.sh.json`. Licensed under [MIT](LICENSE).
+Each skill follows the [Agent Skills open standard](https://agentskills.io/specification): root `skills/<name>/SKILL.md` (symlinked to `agile-backlog-toolkit/skills/`) with `name`, `description`, `license`, optional `references/`, and progressive disclosure. Repo page grouping: `skills.sh.json`. Licensed under [MIT](LICENSE).
 
 Validate all skills:
 
@@ -388,7 +388,7 @@ Validate all skills:
 
 ## Shared references
 
-All skills share a common reference library at `agile-workflow/references/`:
+All skills share a common reference library at `agile-backlog-toolkit/references/`:
 
 | File | Purpose |
 | --- | --- |
@@ -405,13 +405,13 @@ All skills share a common reference library at `agile-workflow/references/`:
 | --- | --- |
 | [docs/design.md](docs/design.md) | `decompose-backlog` skill design |
 | [docs/orchestrator.md](docs/orchestrator.md) | Deterministic orchestrator runtime (v0.4.0+) |
-| [agile-workflow/references/estimation.md](agile-workflow/references/estimation.md) | Estimation and sprint capacity |
-| [agile-workflow/references/project-config.md](agile-workflow/references/project-config.md) | Per-project configuration |
+| [agile-backlog-toolkit/references/estimation.md](agile-backlog-toolkit/references/estimation.md) | Estimation and sprint capacity |
+| [agile-backlog-toolkit/references/project-config.md](agile-backlog-toolkit/references/project-config.md) | Per-project configuration |
 | [CHANGELOG.md](CHANGELOG.md) | Release history |
 
 ## Development
 
 ```bash
-PYTHONPATH=agile-workflow python3.12 -m pytest test/ -v
+PYTHONPATH=agile-backlog-toolkit python3.12 -m pytest test/ -v
 ./scripts/validate-skills.sh
 ```

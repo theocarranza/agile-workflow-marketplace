@@ -3,16 +3,19 @@
 Each work-item type uses the **enricher** as the authoritative output contract. This file routes to
 the right enricher section — do not invent alternate layouts.
 
+`generate-work-item` delegates requirement and acceptance-criteria prose to
+`generate-plain-language-documentation` using the `work-item-prose` format before it presents a draft.
+
 ## Canonical templates (read-only)
 
-Shape contracts live in `./canonical/` — **do not edit** these files:
+Shape contracts are the sibling files in this directory — **do not edit** them:
 
 | Type | Template |
 | --- | --- |
-| `epic` | `canonical/canonical-epic.md` |
-| `feature` | `canonical/canonical-feature.md` |
-| `user-story` | `canonical/canonical-user-story.md` |
-| `task` | `canonical/canonical-task.md` |
+| `epic` | `canonical-epic.md` |
+| `feature` | `canonical-feature.md` |
+| `user-story` | `canonical-user-story.md` |
+| `task` | `canonical-task.md` |
 
 Validate enriched output against the matching template before presenting.
 
@@ -61,7 +64,7 @@ Illustrative dummy outputs (content patterns only — **not** the shape contract
 - `examples/example-feature.md`
 - `examples/example-user-story.md`
 
-Shape contracts: `canonical/canonical-*.md` (read-only; see above).
+Shape contracts: `canonical-*.md` (read-only; see above).
 
 ## Provider description
 

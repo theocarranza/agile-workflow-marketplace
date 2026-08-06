@@ -12,7 +12,7 @@ from plain_language_helpers import (
 )
 
 ROOT = Path(__file__).resolve().parent.parent
-COMMON = ROOT / "agile-workflow" / "common"
+COMMON = ROOT / "agile-backlog-toolkit" / "common"
 
 
 class TestIntegrationNotesContract(unittest.TestCase):
@@ -79,7 +79,7 @@ class TestGenerateWorkItemIntegration(unittest.TestCase):
     def setUp(self) -> None:
         self.skill_md = read_skill_text("generate-work-item", "SKILL.md")
         self.pipeline = (COMMON / "workflows" / "generate-work-item.md").read_text(encoding="utf-8")
-        self.output_formats = (COMMON / "contracts" / "generate-work-item" / "output-formats.md").read_text(encoding="utf-8")
+        self.output_formats = (COMMON / "templates" / "output-formats.md").read_text(encoding="utf-8")
 
     def test_skill_references_integration_notes(self) -> None:
         self.assertIn(INTEGRATION_NOTES_REL, self.skill_md)

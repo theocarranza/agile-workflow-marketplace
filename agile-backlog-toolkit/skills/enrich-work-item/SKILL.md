@@ -34,8 +34,8 @@ References (start at `../../common/workflows/enrich-work-item.md`):
 
 - `../../common/workflows/enrich-work-item.md` — type map, enricher routing, artifacts paths.
 - `./references/azure-ingest.md` — Azure URL/id ingest: work item, attachments, description refs.
-- `../../common/contracts/enrich-work-item/output-formats.md` — per-type output contracts.
-- `../../common/contracts/enrich-work-item/` — **read-only shape contracts**. Validate enriched
+- `../../common/templates/output-formats.md` — per-type output contracts.
+- `../../common/templates/` — **read-only shape contracts**. Validate enriched
   output against the matching template before presenting.
 - `../../common/workflows/enrichers/` — **authoritative** prose rules:
   - `epic-enricher.prompt.md`, `feature-enricher.prompt.md`, `work-item-enricher.prompt.md`
@@ -132,7 +132,7 @@ when locale is pt-BR.
 
 Run the enricher **Checklist de Auto-Revisão** before presenting.
 
-Compare shape against `../../common/contracts/enrich-work-item/canonical-<type>.md` (read-only contract; do not
+Compare shape against `../../common/templates/canonical-<type>.md` (read-only contract; do not
 edit). Use `./references/examples/example-<type>.md` only for illustrative content patterns.
 
 Present the enriched markdown in chat. Suggest a title outside the markdown block when the enricher
