@@ -4,7 +4,7 @@
 #   curl -fsSL …/install.sh | bash -s -- -y --azure-org <org> --project-dir <path>
 set -euo pipefail
 
-REPO_URL="${AGILE_BACKLOG_TOOLKIT_REPO:-https://github.com/theocarranza/agile-backlog-toolkit.git}"
+REPO_URL="${AGILE_BACKLOG_TOOLKIT_REPO:-https://github.com/theocarranza/agile-workflow-marketplace.git}"
 REPO_REF="${AGILE_BACKLOG_TOOLKIT_REF:-main}"
 
 resolve_local_root() {

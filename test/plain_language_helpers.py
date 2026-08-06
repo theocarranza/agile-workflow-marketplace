@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
-PLUGIN_SKILLS = ROOT / "agile-workflow" / "skills"
+PLUGIN_SKILLS = ROOT / "agile-backlog-toolkit" / "skills"
 PLAIN_LANGUAGE_SKILL = PLUGIN_SKILLS / "generate-plain-language-documentation"
 GLOSSARY_PATH = (
     PLAIN_LANGUAGE_SKILL / "references" / "assets" / "tech-glossary-en-pt-br.json"

@@ -8,13 +8,18 @@ from unittest.mock import patch
 
 from scripts.install import (
     _MCP_JSON_HOSTS,
+    _mcp_server_payloads,
+    assemble_host_tree,
     detect_hosts,
     link_cli_skills,
+    main,
+    managed_state,
     merge_json_mcp,
     parse_targets,
     read_azure_org_from_mcp,
     register_antigravity_plugin,
     resolve_tool_paths,
+    remove_managed_state,
     validate_azure_org,
     wire_project_mcp,
 )
@@ -24,6 +29,174 @@ INSTALL_SH = ROOT / "install.sh"
 
 
 class TestInstallHelpers(unittest.TestCase):
+    def test_assembled_host_tree_is_a_physical_complete_copy(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "source"
+            for dirname in ("common", "skills", "references", "orchestrator_core"):
+                (source / dirname).mkdir(parents=True)
+                (source / dirname / "marker.txt").write_text(dirname, encoding="utf-8")
+            (source / ".claude-plugin").mkdir()
+            (source / ".claude-plugin" / "plugin.json").write_text("{}", encoding="utf-8")
+            (source / ".codex-plugin").mkdir()
+            (source / ".codex-plugin" / "plugin.json").write_text("{}", encoding="utf-8")
+            (source / ".mcp.json").write_text("{}", encoding="utf-8")
+
+            destination = assemble_host_tree(source, root / "cursor", "cursor")
+
+            self.assertEqual(destination, root / "cursor")
+            for dirname in ("common", "skills", "references", "orchestrator_core"):
+                self.assertTrue((destination / dirname / "marker.txt").is_file())
+                self.assertFalse((destination / dirname).is_symlink())
+            self.assertTrue((destination / ".claude-plugin" / "plugin.json").is_file())
+            self.assertFalse((destination / ".codex-plugin").exists())
+
+    def test_mcp_matrix_only_includes_selected_provider_servers(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            kwargs = {
+                "proot": root / "plugin",
+                "project_dir": root / "project",
+                "azure_org": "org",
+                "tool_paths": {"python3": "/usr/bin/python3", "npx": "/usr/bin/npx"},
+            }
+            matrix = {
+                "local": (False, False, set()),
+                "azure": (True, False, {"azure-devops"}),
+                "linear": (False, True, {"linear"}),
+                "both": (True, True, {"azure-devops", "linear"}),
+            }
+            for mode, (azure, linear, expected) in matrix.items():
+                with self.subTest(mode=mode):
+                    claude, cursor = _mcp_server_payloads(
+                        **kwargs,
+                        enable_azure=azure,
+                        enable_linear=linear,
+                    )
+                    self.assertEqual(
+                        set(claude).intersection({"azure-devops", "linear"}),
+                        expected,
+                    )
+                    self.assertEqual(
+                        set(cursor).intersection({"azure-devops", "linear"}),
+                        expected,
+                    )
+
+    def test_every_required_host_gets_an_independent_complete_tree(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "source"
+            for dirname in ("common", "skills", "references", "orchestrator_core"):
+                (source / dirname).mkdir(parents=True)
+                (source / dirname / "resource.txt").write_text(dirname, encoding="utf-8")
+            for manifest in (".claude-plugin", ".codex-plugin"):
+                (source / manifest).mkdir()
+                (source / manifest / "plugin.json").write_text("{}", encoding="utf-8")
+            (source / ".mcp.json").write_text("{}", encoding="utf-8")
+
+            for host in ("claude", "codex", "cursor"):
+                with self.subTest(host=host):
+                    tree = assemble_host_tree(source, root / host, host)
+                    self.assertTrue((tree / ".mcp.json").is_file())
+                    self.assertTrue((tree / "orchestrator_core" / "resource.txt").is_file())
+                    self.assertFalse(any(path.is_symlink() for path in tree.rglob("*")))
+
+    def test_provider_host_matrix_materializes_complete_bundles_and_selected_mcp(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "source"
+            for dirname in ("common", "skills", "references", "orchestrator_core"):
+                (source / dirname).mkdir(parents=True)
+                (source / dirname / "resource.txt").write_text(dirname, encoding="utf-8")
+            for manifest in (".claude-plugin", ".codex-plugin"):
+                (source / manifest).mkdir()
+                (source / manifest / "plugin.json").write_text("{}", encoding="utf-8")
+            (source / ".mcp.json").write_text("{}", encoding="utf-8")
+            modes = {
+                "local": (False, False, set()),
+                "azure": (True, False, {"azure-devops"}),
+                "linear": (False, True, {"linear"}),
+                "both": (True, True, {"azure-devops", "linear"}),
+            }
+            for mode, (azure, linear, expected_servers) in modes.items():
+                for host in ("claude", "codex", "cursor"):
+                    with self.subTest(mode=mode, host=host):
+                        tree = assemble_host_tree(source, root / mode / host, host)
+                        claude, cursor = _mcp_server_payloads(
+                            proot=tree,
+                            project_dir=root / mode / "project",
+                            azure_org="org",
+                            tool_paths={"python3": "/usr/bin/python3", "npx": "/usr/bin/npx"},
+                            enable_azure=azure,
+                            enable_linear=linear,
+                        )
+                        self.assertTrue((tree / "common" / "resource.txt").is_file())
+                        self.assertEqual(
+                            set((cursor if host == "cursor" else claude)).intersection(
+                                {"azure-devops", "linear"}
+                            ),
+                            expected_servers,
+                        )
+
+    @patch("scripts.install.Path.home")
+    def test_non_interactive_replacement_aborts_without_mutation(self, mock_home) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            home = root / "home"
+            project = root / "project"
+            managed = project / ".claude" / "plugins" / "agile-backlog-toolkit"
+            managed.mkdir(parents=True)
+            sentinel = managed / "keep.txt"
+            sentinel.write_text("old", encoding="utf-8")
+            mock_home.return_value = home
+
+            status = main(["-y", "--from-source", "--project-dir", str(project), "--target", "claude"])
+
+            self.assertEqual(status, 1)
+            self.assertEqual(sentinel.read_text(encoding="utf-8"), "old")
+
+    @patch("scripts.install.Path.home")
+    def test_clean_replacement_removes_only_managed_state(self, mock_home) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            home = root / "home"
+            project = root / "project"
+            managed = project / ".cursor" / "plugins" / "agile-backlog-toolkit"
+            user_file = project / "docs" / "keep.md"
+            managed.mkdir(parents=True)
+            user_file.parent.mkdir(parents=True)
+            user_file.write_text("user-owned", encoding="utf-8")
+            mock_home.return_value = home
+
+            self.assertTrue(managed_state(project, root / "install", root / "source"))
+            remove_managed_state(project, root / "install", root / "source")
+
+            self.assertFalse(managed.exists())
+            self.assertEqual(user_file.read_text(encoding="utf-8"), "user-owned")
+
+    @patch("scripts.install.run_install", side_effect=OSError("simulated install failure"))
+    @patch("scripts.install.replacement_choice", return_value=True)
+    @patch("scripts.install.Path.home")
+    def test_failed_fresh_replacement_removes_partial_state_without_restoring_old(
+        self, mock_home, _choice, _install
+    ) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            home = root / "home"
+            project = root / "project"
+            managed = project / ".claude" / "plugins" / "agile-backlog-toolkit"
+            user_file = project / "notes" / "keep.md"
+            managed.mkdir(parents=True)
+            user_file.parent.mkdir(parents=True)
+            user_file.write_text("user-owned", encoding="utf-8")
+            mock_home.return_value = home
+
+            status = main(["--from-source", "--provider", "local", "--project-dir", str(project), "--target", "claude"])
+
+            self.assertEqual(status, 1)
+            self.assertFalse(managed.exists())
+            self.assertEqual(user_file.read_text(encoding="utf-8"), "user-owned")
+
     def test_link_cli_skills_links_only_missing_entries(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -47,7 +220,7 @@ class TestInstallHelpers(unittest.TestCase):
             root = Path(tmp)
             mock_home.return_value = root / "home"
             install = root / "install"
-            plugin = install / "agile-workflow"
+            plugin = install / "agile-backlog-toolkit"
             (plugin / ".codex-plugin").mkdir(parents=True)
             (plugin / ".codex-plugin" / "plugin.json").write_text(
                 json.dumps({"name": "agile-backlog-toolkit", "version": "0.11.0", "description": "test"}),
@@ -137,7 +310,7 @@ class TestInstallHelpers(unittest.TestCase):
             project = Path(tmp) / "app"
             project.mkdir()
             install = Path(tmp) / "install"
-            (install / "agile-workflow" / "orchestrator_core").mkdir(parents=True)
+            (install / "agile-backlog-toolkit" / "orchestrator_core").mkdir(parents=True)
             wire_project_mcp(
                 project,
                 install_dir=install,
@@ -159,7 +332,7 @@ class TestInstallHelpers(unittest.TestCase):
             project = Path(tmp) / "app"
             project.mkdir()
             install = Path(tmp) / "install"
-            (install / "agile-workflow" / "orchestrator_core").mkdir(parents=True)
+            (install / "agile-backlog-toolkit" / "orchestrator_core").mkdir(parents=True)
             global_mcp = home / ".cursor" / "mcp.json"
             global_mcp.parent.mkdir(parents=True)
             global_mcp.write_text(

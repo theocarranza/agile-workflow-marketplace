@@ -13,7 +13,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-PLUGIN_ROOT = ROOT / "agile-workflow"
+PLUGIN_ROOT = ROOT / "agile-backlog-toolkit"
 PLUGIN_MANIFEST = PLUGIN_ROOT / ".claude-plugin" / "plugin.json"
 MARKETPLACE_MANIFEST = ROOT / ".claude-plugin" / "marketplace.json"
 PLUGIN_MCP = PLUGIN_ROOT / ".mcp.json"

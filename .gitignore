@@ -8,9 +8,9 @@ __pycache__/
 *.pyc
 .agentic/workflow_prompts/*.prompt.md
 .agentic/workflow_prompts/*.error.log
-.agile-workflow/
+.agile-backlog-toolkit/
 
 # The plugin ships its own MCP server declaration. Contributors commonly ignore
 # `.mcp.json` globally, since it is a per-project file everywhere else -- that
 # would drop this one from commits without ever saying so.
-!agile-workflow/.mcp.json
+!agile-backlog-toolkit/.mcp.json

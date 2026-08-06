@@ -5,6 +5,7 @@ from datetime import date
 from pathlib import Path
 
 from orchestrator_core.capacity import plan_iteration
+from orchestrator_core.ingest import ArtifactRecord
 from orchestrator_core.providers import PROVIDERS, get_provider
 from orchestrator_core.providers.azure_devops import AzureDevOpsProvider
 from orchestrator_core.providers.azure_devops import fields as f
@@ -19,6 +20,7 @@ from orchestrator_core.providers.azure_devops.mapping import (
 )
 from orchestrator_core.providers.base import CapacityProvider, WorkItemWriter, WriteOp
 from orchestrator_core.providers.filesystem import FilesystemProvider
+from orchestrator_core.providers.linear import LinearProvider
 
 # Shaped after the responses documented for the Azure DevOps work/capacities API.
 CAPACITIES_PAYLOAD = {
@@ -82,6 +84,7 @@ class TestProviderRegistry(unittest.TestCase):
         """Both shipped adapters are discoverable by name."""
         self.assertIn("azure-devops", PROVIDERS)
         self.assertIn("filesystem", PROVIDERS)
+        self.assertIn("linear", PROVIDERS)
 
     def test_unknown_provider_returns_none(self):
         """An unknown name degrades to None rather than raising."""
@@ -99,6 +102,50 @@ class TestProviderRegistry(unittest.TestCase):
             for provider in (FilesystemProvider(Path(tmpdir)), AzureDevOpsProvider()):
                 self.assertIsInstance(provider, CapacityProvider)
                 self.assertIsInstance(provider, WorkItemWriter)
+
+
+class TestLinearWorkItemHierarchy(unittest.TestCase):
+    def test_create_and_read_preserves_four_level_parent_chain_and_labels(self):
+        provider = LinearProvider(team="team-1")
+        chain = (
+            ("Epic", "epic-1", None),
+            ("Feature", "feature-1", "epic-1"),
+            ("User Story", "story-1", "feature-1"),
+            ("Task", "task-1", "story-1"),
+        )
+        for item_type, provider_id, parent_id in chain:
+            with self.subTest(item_type=item_type):
+                artifact = ArtifactRecord(
+                    type=item_type,
+                    title=f"{item_type} title",
+                    body=f"{item_type} body",
+                    story_points=None,
+                    parent_id=parent_id,
+                    provider="linear",
+                    provider_id=None,
+                    source="test",
+                    filename=None,
+                )
+                create = provider.create_request(artifact)
+                self.assertTrue(create.ok, create.error)
+                self.assertEqual(create.data.payload["labels"], [f"agile:{item_type.lower().replace(' ', '-')}"])
+                self.assertNotIn("project", create.data.payload, "Linear Projects are not Agile Epics")
+                self.assertEqual(create.data.payload.get("parentId"), parent_id)
+
+                read = provider.read_result(
+                    {
+                        "id": provider_id,
+                        "title": artifact.title,
+                        "description": artifact.body,
+                        "labels": create.data.payload["labels"],
+                        "parentId": parent_id,
+                    }
+                )
+                self.assertTrue(read.ok, read.error)
+                self.assertEqual(
+                    (read.data.type, read.data.provider, read.data.provider_id, read.data.parent_id),
+                    (item_type, "linear", provider_id, parent_id),
+                )
 
 
 class TestAzureFields(unittest.TestCase):

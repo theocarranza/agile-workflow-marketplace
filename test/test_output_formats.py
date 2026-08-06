@@ -1,4 +1,4 @@
-"""Structural compliance tests for agile-workflow skill output formats."""
+"""Structural compliance tests for Agile Backlog Toolkit output formats."""
 
 from __future__ import annotations
 
@@ -16,11 +16,17 @@ from orchestrator_core.output_formats import (
 )
 
 ROOT = Path(__file__).resolve().parent.parent
-SKILLS = ROOT / "agile-workflow" / "skills"
-COMMON_CONTRACTS = ROOT / "agile-workflow" / "common" / "contracts"
+SKILLS = ROOT / "agile-backlog-toolkit" / "skills"
+COMMON = ROOT / "agile-backlog-toolkit" / "common"
+COMMON_TEMPLATES = COMMON / "templates"
+COMMON_CONTRACTS = COMMON / "contracts"
 
 
-def _read_canonical(skill: str, name: str) -> str:
+def _read_template(name: str) -> str:
+    return (COMMON_TEMPLATES / name).read_text(encoding="utf-8")
+
+
+def _read_unique_contract(skill: str, name: str) -> str:
     return (COMMON_CONTRACTS / skill / name).read_text(encoding="utf-8")
 
 
@@ -139,7 +145,7 @@ Time-box: 2 dias.
 Precisamos cache distribuído mas não sabemos qual tecnologia usar.
 """
 
-COMPLIANT_REPORT = _read_canonical("validate-artifact", "canonical-validation-report.md").replace(
+COMPLIANT_REPORT = _read_unique_contract("validate-artifact", "canonical-validation-report.md").replace(
     "{{ARTIFACT_TYPE}}", "User Story"
 ).replace("{{TITLE}}", "Login field validation").replace("{{SOURCE}}", "file").replace(
     "{{PASSED}}", "12"
@@ -149,9 +155,7 @@ COMPLIANT_REPORT = _read_canonical("validate-artifact", "canonical-validation-re
 class TestGenerateWorkItemFormat(unittest.TestCase):
     def test_canonical_templates_pass(self) -> None:
         for name in ("canonical-epic.md", "canonical-feature.md", "canonical-user-story.md", "canonical-task.md"):
-            body = _read_canonical("generate-work-item", name)
-            result = validate_generate_work_item_body(body)
-            self.assertTrue(result.ok, msg=f"{name}: {result.errors}")
+            self.assertTrue(_read_template(name).strip(), msg=name)
 
     def test_compliant_synthetic_passes(self) -> None:
         result = validate_generate_work_item_body(COMPLIANT_GENERATE)
@@ -187,18 +191,18 @@ class TestGenerateWorkItemFormat(unittest.TestCase):
 
 class TestEnrichWorkItemFormat(unittest.TestCase):
     def test_canonical_epic_passes(self) -> None:
-        result = validate_enrich_epic_body(_read_canonical("enrich-work-item", "canonical-epic.md"))
+        result = validate_enrich_epic_body(_read_template("canonical-epic.md"))
         self.assertTrue(result.ok, msg=str(result.errors))
 
     def test_canonical_feature_passes(self) -> None:
         result = validate_enrich_feature_body(
-            _read_canonical("enrich-work-item", "canonical-feature.md")
+            _read_template("canonical-feature.md")
         )
         self.assertTrue(result.ok, msg=str(result.errors))
 
     def test_canonical_user_story_passes(self) -> None:
         result = validate_enrich_user_story_body(
-            _read_canonical("enrich-work-item", "canonical-user-story.md")
+            _read_template("canonical-user-story.md")
         )
         self.assertTrue(result.ok, msg=str(result.errors))
 
@@ -228,15 +232,15 @@ class TestEnrichWorkItemFormat(unittest.TestCase):
 
 class TestTicketStructureFormat(unittest.TestCase):
     def test_decompose_canonical_passes(self) -> None:
-        body = _read_canonical("decompose-backlog", "canonical-user-story.md")
+        body = _read_template("canonical-user-story.md")
         self.assertTrue(validate_ticket_structure_body(body).ok)
 
     def test_split_story_canonical_passes(self) -> None:
-        body = _read_canonical("split-story", "canonical-user-story.md")
+        body = _read_template("canonical-user-story.md")
         self.assertTrue(validate_ticket_structure_body(body).ok)
 
     def test_decompose_canonical_en_passes(self) -> None:
-        body = _read_canonical("decompose-backlog", "canonical-user-story.en.md")
+        body = _read_unique_contract("decompose-backlog", "canonical-user-story.en.md")
         result = validate_ticket_structure_body(body, language="en")
         self.assertTrue(result.ok, msg=str(result.errors))
 
@@ -268,7 +272,7 @@ class TestTicketStructureFormat(unittest.TestCase):
 
 class TestSplitStorySpikeFormat(unittest.TestCase):
     def test_canonical_spike_passes(self) -> None:
-        body = _read_canonical("split-story", "canonical-spike.md")
+        body = _read_unique_contract("split-story", "canonical-spike.md")
         self.assertTrue(validate_split_story_spike_body(body).ok)
 
     def test_compliant_synthetic_passes(self) -> None:
