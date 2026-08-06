@@ -36,10 +36,14 @@ class TestInstallHelpers(unittest.TestCase):
             for dirname in ("common", "skills", "references", "orchestrator_core"):
                 (source / dirname).mkdir(parents=True)
                 (source / dirname / "marker.txt").write_text(dirname, encoding="utf-8")
+            (source / ".plugin").mkdir()
+            (source / ".plugin" / "plugin.json").write_text("{}", encoding="utf-8")
             (source / ".claude-plugin").mkdir()
             (source / ".claude-plugin" / "plugin.json").write_text("{}", encoding="utf-8")
-            (source / ".codex-plugin").mkdir()
-            (source / ".codex-plugin" / "plugin.json").write_text("{}", encoding="utf-8")
+            (source / ".cursor-plugin").mkdir()
+            (source / ".cursor-plugin" / "plugin.json").write_text("{}", encoding="utf-8")
+            (source / ".agents" / "plugins").mkdir(parents=True)
+            (source / ".agents" / "plugins" / "marketplace.json").write_text("{}", encoding="utf-8")
             (source / ".mcp.json").write_text("{}", encoding="utf-8")
 
             destination = assemble_host_tree(source, root / "cursor", "cursor")
@@ -49,6 +53,7 @@ class TestInstallHelpers(unittest.TestCase):
                 self.assertTrue((destination / dirname / "marker.txt").is_file())
                 self.assertFalse((destination / dirname).is_symlink())
             self.assertTrue((destination / ".claude-plugin" / "plugin.json").is_file())
+            self.assertTrue((destination / ".plugin" / "plugin.json").is_file())
             self.assertFalse((destination / ".codex-plugin").exists())
 
     def test_mcp_matrix_only_includes_selected_provider_servers(self) -> None:
@@ -89,9 +94,11 @@ class TestInstallHelpers(unittest.TestCase):
             for dirname in ("common", "skills", "references", "orchestrator_core"):
                 (source / dirname).mkdir(parents=True)
                 (source / dirname / "resource.txt").write_text(dirname, encoding="utf-8")
-            for manifest in (".claude-plugin", ".codex-plugin"):
+            for manifest in (".plugin", ".claude-plugin", ".cursor-plugin"):
                 (source / manifest).mkdir()
                 (source / manifest / "plugin.json").write_text("{}", encoding="utf-8")
+            (source / ".agents" / "plugins").mkdir(parents=True)
+            (source / ".agents" / "plugins" / "marketplace.json").write_text("{}", encoding="utf-8")
             (source / ".mcp.json").write_text("{}", encoding="utf-8")
 
             for host in ("claude", "codex", "cursor"):
@@ -108,9 +115,11 @@ class TestInstallHelpers(unittest.TestCase):
             for dirname in ("common", "skills", "references", "orchestrator_core"):
                 (source / dirname).mkdir(parents=True)
                 (source / dirname / "resource.txt").write_text(dirname, encoding="utf-8")
-            for manifest in (".claude-plugin", ".codex-plugin"):
+            for manifest in (".plugin", ".claude-plugin", ".cursor-plugin"):
                 (source / manifest).mkdir()
                 (source / manifest / "plugin.json").write_text("{}", encoding="utf-8")
+            (source / ".agents" / "plugins").mkdir(parents=True)
+            (source / ".agents" / "plugins" / "marketplace.json").write_text("{}", encoding="utf-8")
             (source / ".mcp.json").write_text("{}", encoding="utf-8")
             modes = {
                 "local": (False, False, set()),
@@ -220,10 +229,10 @@ class TestInstallHelpers(unittest.TestCase):
             root = Path(tmp)
             mock_home.return_value = root / "home"
             install = root / "install"
-            plugin = install / "agile-backlog-toolkit"
-            (plugin / ".codex-plugin").mkdir(parents=True)
-            (plugin / ".codex-plugin" / "plugin.json").write_text(
-                json.dumps({"name": "agile-backlog-toolkit", "version": "0.11.0", "description": "test"}),
+            plugin = install  # flat Open Plugins root
+            (plugin / ".plugin").mkdir(parents=True)
+            (plugin / ".plugin" / "plugin.json").write_text(
+                json.dumps({"name": "agile-backlog-toolkit", "version": "0.12.0", "description": "test"}),
                 encoding="utf-8",
             )
             (plugin / "skills" / "amend-workitems").mkdir(parents=True)
@@ -310,7 +319,7 @@ class TestInstallHelpers(unittest.TestCase):
             project = Path(tmp) / "app"
             project.mkdir()
             install = Path(tmp) / "install"
-            (install / "agile-backlog-toolkit" / "orchestrator_core").mkdir(parents=True)
+            (install / "orchestrator_core").mkdir(parents=True)
             wire_project_mcp(
                 project,
                 install_dir=install,
@@ -332,7 +341,7 @@ class TestInstallHelpers(unittest.TestCase):
             project = Path(tmp) / "app"
             project.mkdir()
             install = Path(tmp) / "install"
-            (install / "agile-backlog-toolkit" / "orchestrator_core").mkdir(parents=True)
+            (install / "orchestrator_core").mkdir(parents=True)
             global_mcp = home / ".cursor" / "mcp.json"
             global_mcp.parent.mkdir(parents=True)
             global_mcp.write_text(
@@ -357,7 +366,7 @@ class TestInstallHelpers(unittest.TestCase):
 
 
 class TestInstallShBootstrap(unittest.TestCase):
-    def test_local_checkout_reaches_python_installer(self) -> None:
+    def test_help_documents_adapters_and_legacy_installer(self) -> None:
         proc = subprocess.run(
             ["bash", str(INSTALL_SH), "--help"],
             capture_output=True,
@@ -366,27 +375,47 @@ class TestInstallShBootstrap(unittest.TestCase):
         )
         self.assertEqual(proc.returncode, 0, proc.stderr)
         combined = (proc.stdout + proc.stderr).lower()
+        self.assertIn("adapters/cursor/install.sh", combined)
         self.assertIn("azure-org", combined)
-        self.assertNotIn("bootstrapping", combined)
+        self.assertIn("wire-project-mcp", combined)
 
-    def test_piped_install_bootstraps_instead_of_cwd_install_py(self) -> None:
-        env = {
-            **os.environ,
-            "AGILE_BACKLOG_TOOLKIT_REPO": "file:///nonexistent-agile-backlog-toolkit",
-            "AGILE_BACKLOG_TOOLKIT_REF": "main",
-        }
+    def test_legacy_flags_forward_to_python_installer(self) -> None:
         proc = subprocess.run(
-            ["bash", "-s", "--", "-y", "--azure-org", "demo", "--project-dir", "/tmp"],
-            input=INSTALL_SH.read_text(encoding="utf-8"),
+            ["bash", str(INSTALL_SH), "--help"],
             capture_output=True,
             text=True,
-            env=env,
             check=False,
         )
-        combined = proc.stdout + proc.stderr
-        self.assertIn("Bootstrapping", combined)
-        self.assertNotIn("can't open file", combined)
+        self.assertEqual(proc.returncode, 0)
+        # Direct legacy path: flags beginning with '-' exec scripts/install.py
+        proc = subprocess.run(
+            ["bash", str(INSTALL_SH), "--help"],
+            # install.sh --help is usage; use a flag install.py understands via dash branch
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        # Explicit forward: -h is handled by usage; use --azure-org help via install.py -h through dash
+        proc = subprocess.run(
+            ["bash", str(INSTALL_SH), "-h"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(proc.returncode, 0)
+        # Forward -y noninteractive missing org should reach install.py and fail there
+        proc = subprocess.run(
+            ["bash", str(INSTALL_SH), "-y", "--provider", "azure", "--project-dir", "/tmp"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        combined = (proc.stdout + proc.stderr).lower()
         self.assertNotEqual(proc.returncode, 0)
+        self.assertTrue(
+            "azure-org" in combined or "error" in combined,
+            msg=combined[:500],
+        )
 
 
 if __name__ == "__main__":

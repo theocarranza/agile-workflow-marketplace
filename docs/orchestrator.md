@@ -67,7 +67,7 @@ different tool namespaces.
 
 ### Claude Code: the plugin brings its own server
 
-Nothing to configure. `agile-backlog-toolkit/.mcp.json` ships with the plugin and resolves its own path:
+Nothing to configure. `.mcp.json` ships with the plugin and resolves its own path:
 
 ```json
 {
@@ -126,10 +126,10 @@ to `_mistakes/mistakes.json`.
 ## Tests
 
 ```bash
-PYTHONPATH=agile-backlog-toolkit python3 -m unittest discover -s test -v
+PYTHONPATH=. python3 -m unittest discover -s test -v
 ```
 
 ## Related
 
 - [orchestrator-core feature note](../<artifacts>/Features/orchestrator-core.md)
-- [validation-checks.md](../agile-backlog-toolkit/skills/validate-artifact/references/validation-checks.md)
+- [validation-checks.md](../skills/validate-artifact/references/validation-checks.md)

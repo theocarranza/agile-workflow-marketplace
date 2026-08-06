@@ -16,7 +16,7 @@ from pathlib import Path
 INSTALL_DIR = Path.home() / ".agile-backlog-toolkit"
 PLUGIN_NAME = "agile-backlog-toolkit"
 MARKETPLACE_NAME = "agile-backlog-toolkit"
-PLUGIN_SOURCE_DIR = "agile-backlog-toolkit"
+PLUGIN_SOURCE_DIR = "."
 PLUGIN_BUNDLE_DIRS = ("common", "skills", "references", "orchestrator_core")
 ALL_TARGETS = ("claude", "cursor", "codex", "antigravity")
 LINEAR_MCP_URL = "https://mcp.linear.app/mcp"
@@ -121,29 +121,34 @@ def read_azure_org_from_mcp(mcp_path: Path) -> str | None:
 
 def validate_source_package(source_root: Path) -> tuple[str, ...]:
     """Validate a staged package before any installed state is removed."""
-    proot = source_root / PLUGIN_SOURCE_DIR
+    proot = plugin_root(source_root)
     required = (
+        proot / ".plugin" / "plugin.json",
         proot / ".claude-plugin" / "plugin.json",
-        proot / ".codex-plugin" / "plugin.json",
+        proot / ".cursor-plugin" / "plugin.json",
+        proot / ".agents" / "plugins" / "marketplace.json",
         proot / ".mcp.json",
         proot / "common" / "artifact-schema.json",
         proot / "skills",
         proot / "orchestrator_core" / "__init__.py",
     )
     errors = tuple(f"missing package resource: {path}" for path in required if not path.exists())
+    if (proot / ".codex-plugin").exists():
+        errors = errors + (".codex-plugin is retired; use .agents/plugins/marketplace.json",)
     if errors:
         return errors
     try:
         manifests = (
+            json.loads((proot / ".plugin" / "plugin.json").read_text(encoding="utf-8")),
             json.loads((proot / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8")),
-            json.loads((proot / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8")),
+            json.loads((proot / ".cursor-plugin" / "plugin.json").read_text(encoding="utf-8")),
         )
         schema = json.loads((proot / "common" / "artifact-schema.json").read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         return (f"invalid staged package JSON: {exc}",)
     identities = {(manifest.get("name"), manifest.get("version")) for manifest in manifests}
     if len(identities) != 1 or next(iter(identities))[0] != PLUGIN_NAME:
-        return ("Claude and Codex manifests must share the agile-backlog-toolkit identity and version",)
+        return ("Open Plugins host manifests must share the agile-backlog-toolkit identity and version",)
     if schema.get("title") is None:
         return ("artifact schema has no title",)
     return ()
@@ -262,14 +267,19 @@ def install_marketplace(source_root: Path, install_dir: Path) -> None:
 
 
 def plugin_root(install_dir: Path) -> Path:
-    """Repository package location; the public plugin id is intentionally independent."""
-    return install_dir / PLUGIN_SOURCE_DIR
+    """Flat Open Plugins root — skills, orchestrator_core, and manifests live at install_dir."""
+    match PLUGIN_SOURCE_DIR:
+        case "." | "":
+            return install_dir
+        case relative:
+            return install_dir / relative
 
 
 def plugin_version(install_dir: Path) -> str:
     for manifest in (
+        plugin_root(install_dir) / ".plugin" / "plugin.json",
         plugin_root(install_dir) / ".claude-plugin" / "plugin.json",
-        plugin_root(install_dir) / ".codex-plugin" / "plugin.json",
+        plugin_root(install_dir) / ".cursor-plugin" / "plugin.json",
     ):
         if manifest.is_file():
             try:
@@ -281,21 +291,16 @@ def plugin_version(install_dir: Path) -> str:
 
 def _load_plugin_manifest(proot: Path) -> dict:
     for manifest in (
+        proot / ".plugin" / "plugin.json",
         proot / ".claude-plugin" / "plugin.json",
-        proot / ".codex-plugin" / "plugin.json",
+        proot / ".cursor-plugin" / "plugin.json",
     ):
         if manifest.is_file():
             return json.loads(manifest.read_text(encoding="utf-8"))
     return {"name": PLUGIN_NAME, "version": "0.0.0", "description": ""}
 
 
-def copy_plugin_bundle(
-    proot: Path,
-    dest: Path,
-    *,
-    include_claude_plugin: bool = False,
-    include_codex_plugin: bool = False,
-) -> None:
+def copy_plugin_bundle(proot: Path, dest: Path) -> None:
     if dest.exists():
         shutil.rmtree(dest)
     dest.mkdir(parents=True, exist_ok=True)
@@ -303,34 +308,23 @@ def copy_plugin_bundle(
         src = proot / dirname
         if src.is_dir():
             shutil.copytree(src, dest / dirname, ignore=_COPY_IGNORE)
-    mcp_config = proot / ".mcp.json"
-    if mcp_config.is_file():
-        shutil.copy2(mcp_config, dest / ".mcp.json")
-    if include_claude_plugin:
-        src = proot / ".claude-plugin"
-        if src.is_dir():
-            shutil.copytree(src, dest / ".claude-plugin", ignore=_COPY_IGNORE)
-    if include_codex_plugin:
-        src = proot / ".codex-plugin"
-        if src.is_dir():
-            shutil.copytree(src, dest / ".codex-plugin", ignore=_COPY_IGNORE)
+    for rel in (
+        Path(".mcp.json"),
+        Path(".plugin"),
+        Path(".claude-plugin"),
+        Path(".cursor-plugin"),
+        Path(".agents"),
+    ):
+        src = proot / rel
+        if src.is_file():
+            shutil.copy2(src, dest / rel)
+        elif src.is_dir():
+            shutil.copytree(src, dest / rel, ignore=_COPY_IGNORE)
 
 
 def assemble_host_tree(proot: Path, destination: Path, target: str) -> Path:
     """Materialize a host-owned, self-contained plugin tree without symlinks."""
-    manifests = {
-        "claude": (True, False),
-        "cursor": (True, False),
-        "codex": (False, True),
-        "antigravity": (False, True),
-    }
-    include_claude_plugin, include_codex_plugin = manifests[target]
-    copy_plugin_bundle(
-        proot,
-        destination,
-        include_claude_plugin=include_claude_plugin,
-        include_codex_plugin=include_codex_plugin,
-    )
+    copy_plugin_bundle(proot, destination)
     return destination
 
 
@@ -355,7 +349,7 @@ def register_claude_plugin(install_dir: Path) -> bool:
     cache_dir = (
         Path.home() / ".claude" / "plugins" / "cache" / MARKETPLACE_NAME / PLUGIN_NAME / version
     )
-    copy_plugin_bundle(proot, cache_dir, include_claude_plugin=True)
+    copy_plugin_bundle(proot, cache_dir)
 
     plugin_meta = {k: manifest[k] for k in ("name", "description", "version", "author") if k in manifest}
     (cache_dir / ".claude-plugin").mkdir(exist_ok=True)
@@ -432,7 +426,7 @@ def register_cursor_plugin(install_dir: Path) -> bool:
         / PLUGIN_NAME
         / version
     )
-    copy_plugin_bundle(proot, cache_dir, include_claude_plugin=True)
+    copy_plugin_bundle(proot, cache_dir)
     plugin_meta = {k: manifest[k] for k in ("name", "description", "version", "author") if k in manifest}
     (cache_dir / ".claude-plugin").mkdir(exist_ok=True)
     (cache_dir / ".claude-plugin" / "plugin.json").write_text(
@@ -450,7 +444,7 @@ def register_codex_plugin(install_dir: Path) -> bool:
     version = manifest.get("version", "0.0.0")
 
     codex_plugins = Path.home() / ".codex" / "plugins" / PLUGIN_NAME
-    copy_plugin_bundle(proot, codex_plugins, include_codex_plugin=True)
+    copy_plugin_bundle(proot, codex_plugins)
     clean_manifest = {k: manifest[k] for k in ("name", "version", "description", "author") if k in manifest}
     (codex_plugins / "plugin.json").write_text(json.dumps(clean_manifest, indent=2) + "\n", encoding="utf-8")
     (codex_plugins / "installed_version.json").write_text(
@@ -499,7 +493,7 @@ def register_antigravity_plugin(install_dir: Path) -> bool:
     config_plugins = Path.home() / ".gemini" / "config" / "plugins"
     if config_plugins.is_dir():
         plugin_dir = config_plugins / PLUGIN_NAME
-        copy_plugin_bundle(proot, plugin_dir, include_codex_plugin=True)
+        copy_plugin_bundle(proot, plugin_dir)
         clean_manifest = {k: manifest[k] for k in ("name", "version", "description", "author") if k in manifest}
         (plugin_dir / "plugin.json").write_text(json.dumps(clean_manifest, indent=2) + "\n", encoding="utf-8")
         (plugin_dir / "installed_version.json").write_text(
@@ -524,7 +518,7 @@ def register_antigravity_plugin(install_dir: Path) -> bool:
     # Antigravity CLI has a separate plugin root from the IDE global root.
     cli_plugins = Path.home() / ".gemini" / "antigravity-cli" / "plugins"
     cli_plugin_dir = cli_plugins / PLUGIN_NAME
-    copy_plugin_bundle(proot, cli_plugin_dir, include_codex_plugin=False)
+    copy_plugin_bundle(proot, cli_plugin_dir)
     cli_plugin_dir.joinpath("plugin.json").write_text(
         json.dumps({"name": PLUGIN_NAME, "description": description}, indent=2) + "\n",
         encoding="utf-8",

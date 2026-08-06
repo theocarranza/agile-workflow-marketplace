@@ -142,7 +142,7 @@ agile-workflow-marketplace/
 ├── bin/agile-backlog-toolkit                   ← orchestrator CLI (v0.4.0+)
 ├── docs/design.md                       ← decompose-backlog design
 ├── docs/orchestrator.md                 ← orchestrator runtime (v0.4.0+)
-└── agile-backlog-toolkit/
+└── (flat plugin root)/
     ├── .claude-plugin/plugin.json
     ├── orchestrator_core/               ← Python event-sourced runtime
     ├── references/                      ← shared rules (all skills)
