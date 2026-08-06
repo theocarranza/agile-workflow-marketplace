@@ -1,7 +1,7 @@
 # agile-backlog-toolkit
 
-[![Release](https://img.shields.io/github/v/release/theocarranza/agile-backlog-toolkit?label=version&color=0e7c86)](https://github.com/theocarranza/agile-backlog-toolkit/releases)
-[![License: MIT](https://img.shields.io/github/license/theocarranza/agile-backlog-toolkit)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/theocarranza/agile-workflow-marketplace?label=version&color=0e7c86)](https://github.com/theocarranza/agile-workflow-marketplace/releases)
+[![License: MIT](https://img.shields.io/github/license/theocarranza/agile-workflow-marketplace)](LICENSE)
 [![Skills](https://img.shields.io/badge/skills-9-2563eb)](skills/)
 [![Agent Skills](https://img.shields.io/badge/spec-agentskills.io-5C2D91)](https://agentskills.io/specification)
 [![skills.sh](https://img.shields.io/badge/listed-skills.sh-000000)](https://skills.sh/)
@@ -25,7 +25,7 @@ The plugin bundles the orchestrator's MCP server and resolves its own path, so t
 setup — no clone, no installer, no per-project `.mcp.json` entry:
 
 ```text
-/plugin marketplace add https://github.com/theocarranza/agile-backlog-toolkit
+/plugin marketplace add https://github.com/theocarranza/agile-workflow-marketplace
 /plugin install agile-backlog-toolkit
 ```
 
@@ -43,7 +43,7 @@ You only provide your Azure DevOps organization. Everything else is discovered o
 where local artifacts go is asked for — never assumed.
 
 ```bash
-git clone https://github.com/theocarranza/agile-backlog-toolkit.git
+git clone https://github.com/theocarranza/agile-workflow-marketplace.git
 cd agile-backlog-toolkit
 ./install.sh
 ```
@@ -57,14 +57,15 @@ Non-interactive:
 Remote bootstrap (no manual clone):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/theocarranza/agile-backlog-toolkit/main/install.sh \
+curl -fsSL https://raw.githubusercontent.com/theocarranza/agile-workflow-marketplace/main/install.sh \
   | bash -s -- -y --azure-org <org-slug> --project-dir /path/to/your/project
 ```
 
 The installer auto-detects your agent hosts (Claude Code, Cursor, Codex, Antigravity) and wires:
 
 - Plugin registration per host (skills + orchestrator + references)
-- `azure-devops` + `agile-backlog-toolkit-orchestrator` MCP in project `.mcp.json` and `.cursor/mcp.json`
+- `agile-backlog-toolkit-orchestrator` MCP in project `.mcp.json` and `.cursor/mcp.json`, plus
+  `azure-devops` only for Azure modes and `linear` only for Linear modes
 - Global `agile-backlog-toolkit` CLI at `~/.local/bin/`
 - Project mailbox (`.agentic/workflow_prompts/`) and plugin state (`.agile-backlog-toolkit/`)
 
@@ -234,7 +235,7 @@ work and creates no directory structure in your project. The only directory it o
 
 Full reference: [agile-backlog-toolkit/references/project-config.md](agile-backlog-toolkit/references/project-config.md).
 
-## Plugin: `agile-workflow`
+## Plugin: `agile-backlog-toolkit`
 
 ### Skill: `decompose-backlog`
 
@@ -369,14 +370,14 @@ Trigger: `/amend-workitems`, "amend this work-item tree", or provide correction 
 an Epic/Feature id, URL, or file path.
 
 Antigravity installs expose the plugin in both the IDE global directory and the separate CLI
-directory (`~/.gemini/antigravity-cli/plugins/agile-workflow`); CLI skill links are also placed in
+directory (`~/.gemini/antigravity-cli/plugins/agile-backlog-toolkit`); CLI skill links are also placed in
 the host's native skills directory.
 
 
 ## Agent Skills compliance
 
-Each skill may ship `references/canonical/` templates (read-only shape
-contracts) alongside skill-specific blueprints and pipelines.
+Skills reference the shared read-only contracts in `common/templates/` and retain only
+skill-specific blueprints and pipelines.
 
 Each skill follows the [Agent Skills open standard](https://agentskills.io/specification): root `skills/<name>/SKILL.md` (symlinked to `agile-backlog-toolkit/skills/`) with `name`, `description`, `license`, optional `references/`, and progressive disclosure. Repo page grouping: `skills.sh.json`. Licensed under [MIT](LICENSE).
 

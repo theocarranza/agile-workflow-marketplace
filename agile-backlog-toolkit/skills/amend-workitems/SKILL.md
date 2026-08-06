@@ -90,7 +90,7 @@ Re-read current revisions immediately before the approval prompt. If any revisio
 the scan, refresh that node and rebuild the affected proposal. Request explicit approval through
 the UI. Cancellation or rejection ends the run without writes.
 
-### 5. Apply using existing agile-workflow skills
+### 5. Apply using existing Agile Backlog Toolkit skills
 
 After approval, delegate type-specific content work to the existing skills rather than inventing a
 parallel format:

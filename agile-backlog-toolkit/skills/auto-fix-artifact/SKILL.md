@@ -47,7 +47,7 @@ References (from `validate-artifact` skill, in `../validate-artifact/references/
 
 ```bash
 bin/agile-backlog-toolkit evaluate --skill auto-fix-artifact --file <path>
-# or MCP tool: agile-workflow-orchestrator → auto-fix-artifact with draft_content
+# or MCP tool: agile-backlog-toolkit-orchestrator → auto-fix-artifact with draft_content
 ```
 
 For reflection retries, resubmit revised `draft_content` via MCP or re-run `evaluate` after saving.

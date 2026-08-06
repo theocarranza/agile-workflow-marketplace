@@ -1,4 +1,4 @@
-# Design — `decompose-backlog` skill (`agile-workflow` plugin)
+# Design — `decompose-backlog` skill (`agile-backlog-toolkit` plugin)
 
 ## Purpose
 
@@ -153,7 +153,7 @@ agile-workflow-marketplace/
         └── auto-fix-artifact/
 ```
 
-Installable via `/plugin marketplace add`. The `agile-workflow` plugin name leaves room for
+Installable via `/plugin marketplace add`. The `agile-backlog-toolkit` plugin name leaves room for
 sibling skills later (refinement, sprint planning, standalone backlog audit).
 
 As of **v0.4.0**, the plugin also ships a deterministic Python orchestrator for

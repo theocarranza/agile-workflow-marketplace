@@ -1,6 +1,6 @@
 # Integration Notes
 
-How sibling agile-workflow skills delegate prose to `generate-plain-language-documentation`.
+How sibling Agile Backlog Toolkit skills delegate prose to `generate-plain-language-documentation`.
 
 ## Invocation modes
 

@@ -1,6 +1,6 @@
 # Orchestrator — deterministic skill runtime
 
-The `agile-workflow` plugin includes a Python orchestrator that enforces **Actor-Critic**
+The `agile-backlog-toolkit` plugin includes a Python orchestrator that enforces **Actor-Critic**
 discipline for quality-gate skills. The LLM drafts artifacts; Python judges them with
 rule-based checks — no LLM self-judgment on pass/fail.
 
@@ -8,7 +8,7 @@ rule-based checks — no LLM self-judgment on pass/fail.
 
 ```
 bin/agile-backlog-toolkit CLI ──┐
-MCP (plugin: orchestrator / installer: agile-workflow-orchestrator) ──┤
+MCP (plugin: orchestrator / installer: agile-backlog-toolkit-orchestrator) ──┤
                                     ▼
                           OrchestratorEngine
                                     │
@@ -83,9 +83,9 @@ Nothing to configure. `agile-backlog-toolkit/.mcp.json` ships with the plugin an
 }
 ```
 
-`claude plugin install agile-workflow@agile-workflow-marketplace` is the whole setup. Tools arrive
-as `mcp__plugin_agile-workflow_orchestrator__<tool>`; hook matchers and permission rules must use
-that scoped form, and `mcp_tool` hooks take `plugin:agile-workflow:orchestrator` as `server`.
+`claude plugin install agile-backlog-toolkit@agile-backlog-toolkit-marketplace` is the whole setup. Tools arrive
+as `mcp__plugin_agile-backlog-toolkit_orchestrator__<tool>`; hook matchers and permission rules must use
+that scoped form, and `mcp_tool` hooks take `plugin:agile-backlog-toolkit:orchestrator` as `server`.
 
 ### Cursor, Codex, or a manual install: wire it per project
 
@@ -95,11 +95,11 @@ The installer writes the entry for you (`./install.sh`). To do it by hand, add t
 ```json
 {
   "mcpServers": {
-    "agile-workflow-orchestrator": {
+    "agile-backlog-toolkit-orchestrator": {
       "command": "python3",
       "args": ["-m", "orchestrator_core", "mcp"],
       "env": {
-        "PYTHONPATH": "/absolute/path/to/agile-workflow",
+        "PYTHONPATH": "/absolute/path/to/agile-backlog-toolkit",
         "CODEX_PROJECT_ROOT": "/absolute/path/to/your/project"
       }
     }
@@ -108,7 +108,7 @@ The installer writes the entry for you (`./install.sh`). To do it by hand, add t
 ```
 
 `PYTHONPATH` points at the directory containing `orchestrator_core/`. Tools arrive unscoped, as
-`mcp__agile-workflow-orchestrator__<tool>`.
+`mcp__agile-backlog-toolkit-orchestrator__<tool>`.
 
 ## Wired skills
 
