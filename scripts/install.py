@@ -316,6 +316,24 @@ def copy_plugin_bundle(
             shutil.copytree(src, dest / ".codex-plugin", ignore=_COPY_IGNORE)
 
 
+def assemble_host_tree(proot: Path, destination: Path, target: str) -> Path:
+    """Materialize a host-owned, self-contained plugin tree without symlinks."""
+    manifests = {
+        "claude": (True, False),
+        "cursor": (True, False),
+        "codex": (False, True),
+        "antigravity": (False, True),
+    }
+    include_claude_plugin, include_codex_plugin = manifests[target]
+    copy_plugin_bundle(
+        proot,
+        destination,
+        include_claude_plugin=include_claude_plugin,
+        include_codex_plugin=include_codex_plugin,
+    )
+    return destination
+
+
 def link_cli_skills(proot: Path, destination: Path) -> bool:
     """Expose every bundled skill through a host CLI's native skills directory."""
     skills = proot / "skills"
@@ -556,13 +574,7 @@ def materialize_project_hosts(project_dir: Path, proot: Path, targets: list[str]
         if relpath is None:
             continue
         destination = project_dir / relpath
-        copy_plugin_bundle(
-            proot,
-            destination,
-            include_claude_plugin=target in {"claude", "cursor"},
-            include_codex_plugin=target == "codex",
-        )
-        written.append(destination)
+        written.append(assemble_host_tree(proot, destination, target))
     return written
 
 
