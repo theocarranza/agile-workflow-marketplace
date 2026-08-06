@@ -39,8 +39,8 @@ def format_terminal_report(record: ArtifactRecord, results: list[CheckResult]) -
 
 
 def artifact_slug(record: ArtifactRecord) -> str:
-    if record.azure_id is not None:
-        return str(record.azure_id)
+    if record.provider_id:
+        return str(record.provider_id)
     if record.filename:
         return record.filename
     slug = record.title.lower().replace(" ", "-")
@@ -56,7 +56,7 @@ def persist_report(
 ) -> Path:
     """Write a validation report under the plugin's own state directory.
 
-    Reports are plugin output, so they live in `.agile-workflow/reports/` rather than in
+    Reports are plugin output, so they live in `.agile-backlog-toolkit/reports/` rather than in
     any user-owned location. Nothing is created outside that directory.
     """
     reports_dir = state_dir / "reports"

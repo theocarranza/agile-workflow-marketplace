@@ -122,6 +122,7 @@ class TestWriteProjectConfig(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             path = write_project_config(
                 Path(tmpdir),
+                provider_mode="azure",
                 azure_org="my-org",
                 azure_project=None,
                 azure_team=None,
@@ -138,6 +139,7 @@ class TestWriteProjectConfig(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             path = write_project_config(
                 Path(tmpdir),
+                provider_mode="azure",
                 azure_org="o",
                 azure_project="p",
                 azure_team="t",
@@ -152,14 +154,14 @@ class TestWriteProjectConfig(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             write_project_config(
-                root, azure_org="o", azure_project="p", azure_team="t",
+                root, provider_mode="azure", azure_org="o", azure_project="p", azure_team="t",
                 azure_process=None, artifacts_path="docs",
             )
             write_project_config(
-                root, azure_org="o", azure_project=None, azure_team=None,
+                root, provider_mode="azure", azure_org="o", azure_project=None, azure_team=None,
                 azure_process=None, artifacts_path="docs",
             )
-            azure = json.loads((root / ".agile-workflow" / "config.json").read_text(encoding="utf-8"))["azure"]
+            azure = json.loads((root / ".agile-backlog-toolkit" / "config.json").read_text(encoding="utf-8"))["azure"]
             self.assertEqual(azure["project"], "p")
             self.assertEqual(azure["team"], "t")
 
@@ -167,11 +169,11 @@ class TestWriteProjectConfig(unittest.TestCase):
         """A corrupt config must not stop an install."""
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
-            path = root / ".agile-workflow" / "config.json"
+            path = root / ".agile-backlog-toolkit" / "config.json"
             path.parent.mkdir(parents=True)
             path.write_text("{broken", encoding="utf-8")
             written = write_project_config(
-                root, azure_org="o", azure_project=None, azure_team=None,
+                root, provider_mode="azure", azure_org="o", azure_project=None, azure_team=None,
                 azure_process=None, artifacts_path="docs",
             )
             self.assertEqual(json.loads(written.read_text(encoding="utf-8"))["azure"]["org"], "o")
@@ -183,7 +185,7 @@ class TestWriteProjectConfig(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             write_project_config(
-                root, azure_org="o", azure_project="p", azure_team="t",
+                root, provider_mode="azure", azure_org="o", azure_project="p", azure_team="t",
                 azure_process="agile", artifacts_path="docs",
             )
             config = load_project_config(root)

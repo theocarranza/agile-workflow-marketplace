@@ -73,7 +73,7 @@ class FilesystemProvider:
 
     NO_PATH = (
         "No artifacts path configured. Ask the user where local artifacts should be written, "
-        "then save it with: bin/agile-workflow config --set artifacts_path=<path>"
+        "then save it with: bin/agile-backlog-toolkit config --set artifacts_path=<path>"
     )
 
     def __init__(self, artifacts_dir: Path | None) -> None:
@@ -168,7 +168,7 @@ class FilesystemProvider:
                     continue
                 items.append(
                     EstimableItem(
-                        item_id=str(frontmatter.get("azure_id") or path.stem),
+                        item_id=str(frontmatter.get("provider_id") or path.stem),
                         title=str(frontmatter.get("title") or path.stem),
                         item_type=str(frontmatter.get("work_item_type") or frontmatter.get("type") or ""),
                         points=_as_float(frontmatter.get("story_points")),

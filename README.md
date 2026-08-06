@@ -1,7 +1,7 @@
-# agile-workflow-marketplace
+# agile-backlog-toolkit
 
-[![Release](https://img.shields.io/github/v/release/theocarranza/agile-workflow-marketplace?label=version&color=0e7c86)](https://github.com/theocarranza/agile-workflow-marketplace/releases)
-[![License: MIT](https://img.shields.io/github/license/theocarranza/agile-workflow-marketplace)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/theocarranza/agile-backlog-toolkit?label=version&color=0e7c86)](https://github.com/theocarranza/agile-backlog-toolkit/releases)
+[![License: MIT](https://img.shields.io/github/license/theocarranza/agile-backlog-toolkit)](LICENSE)
 [![Skills](https://img.shields.io/badge/skills-9-2563eb)](skills/)
 [![Agent Skills](https://img.shields.io/badge/spec-agentskills.io-5C2D91)](https://agentskills.io/specification)
 [![skills.sh](https://img.shields.io/badge/listed-skills.sh-000000)](https://skills.sh/)
@@ -13,7 +13,7 @@
 [![MCP](https://img.shields.io/badge/MCP-orchestrator%20%2B%20azure--devops-ff6b35)](docs/orchestrator.md)
 
 
-A standalone multi-host plugin marketplace for Agile backlog workflows against **Azure DevOps**.
+A standalone multi-host plugin marketplace for vendor-neutral Agile backlog workflows.
 
 Nine [Agent Skills](https://agentskills.io/specification)-compliant conductors plus a deterministic **Python orchestrator** for quality gates. Ships Claude Code, Cursor, Codex, and Antigravity (IDE and CLI) plugin manifests, and MCP wiring. For the current release see [`CHANGELOG.md`](CHANGELOG.md).
 
@@ -25,14 +25,14 @@ The plugin bundles the orchestrator's MCP server and resolves its own path, so t
 setup — no clone, no installer, no per-project `.mcp.json` entry:
 
 ```text
-/plugin marketplace add https://github.com/theocarranza/agile-workflow-marketplace
-/plugin install agile-workflow
+/plugin marketplace add https://github.com/theocarranza/agile-backlog-toolkit
+/plugin install agile-backlog-toolkit
 ```
 
 Restart Claude Code afterwards. Orchestrator tools arrive as
-`mcp__plugin_agile-workflow_orchestrator__<tool>`.
+`mcp__plugin_agile-backlog-toolkit-orchestrator__<tool>`.
 
-This channel does not install the `agile-workflow` CLI or the Azure DevOps MCP server. If you want
+This channel does not install the `agile-backlog-toolkit` CLI or the Azure DevOps MCP server. If you want
 those, or you use Cursor, Codex, or Antigravity, use the installer below instead — but use **one or
 the other**, since running both wires the orchestrator twice under two different names.
 
@@ -43,30 +43,30 @@ You only provide your Azure DevOps organization. Everything else is discovered o
 where local artifacts go is asked for — never assumed.
 
 ```bash
-git clone https://github.com/theocarranza/agile-workflow-marketplace.git
-cd agile-workflow-marketplace
+git clone https://github.com/theocarranza/agile-backlog-toolkit.git
+cd agile-backlog-toolkit
 ./install.sh
 ```
 
 Non-interactive:
 
 ```bash
-./install.sh -y --azure-org <org-slug> --project-dir /path/to/your/project
+./install.sh -y --provider both --azure-org <org-slug> --linear-team <team> --project-dir /path/to/your/project
 ```
 
 Remote bootstrap (no manual clone):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/theocarranza/agile-workflow-marketplace/main/install.sh \
+curl -fsSL https://raw.githubusercontent.com/theocarranza/agile-backlog-toolkit/main/install.sh \
   | bash -s -- -y --azure-org <org-slug> --project-dir /path/to/your/project
 ```
 
 The installer auto-detects your agent hosts (Claude Code, Cursor, Codex, Antigravity) and wires:
 
 - Plugin registration per host (skills + orchestrator + references)
-- `azure-devops` + `agile-workflow-orchestrator` MCP in project `.mcp.json` and `.cursor/mcp.json`
-- Global `agile-workflow` CLI at `~/.local/bin/`
-- Project mailbox (`.agentic/workflow_prompts/`) and plugin state (`.agile-workflow/`)
+- `azure-devops` + `agile-backlog-toolkit-orchestrator` MCP in project `.mcp.json` and `.cursor/mcp.json`
+- Global `agile-backlog-toolkit` CLI at `~/.local/bin/`
+- Project mailbox (`.agentic/workflow_prompts/`) and plugin state (`.agile-backlog-toolkit/`)
 
 Restart your agent host(s) after install to load skills and MCP servers.
 
@@ -99,12 +99,12 @@ Quality-gate skills use a **rule-based Python critic** — not LLM self-judgment
 implements the Actor-Critic pattern with circuit breaker and filesystem mailbox IPC.
 
 ```bash
-./bin/agile-workflow init
-./bin/agile-workflow validate --file path/to/draft.md --persist
-./bin/agile-workflow evaluate --skill validate-artifact --file path/to/draft.md
+./bin/agile-backlog-toolkit init
+./bin/agile-backlog-toolkit validate --file path/to/draft.md --persist
+./bin/agile-backlog-toolkit evaluate --skill validate-artifact --file path/to/draft.md
 ```
 
-`bin/agile-workflow` is the plugin-level **scripts** entrypoint (Agent Skills `scripts/` equivalent at marketplace root). Orchestrator-backed skills declare `metadata.orchestrator-skill` in their `SKILL.md`.
+`bin/agile-backlog-toolkit` is the plugin-level **scripts** entrypoint (Agent Skills `scripts/` equivalent at marketplace root). Orchestrator-backed skills declare `metadata.orchestrator-skill` in their `SKILL.md`.
 
 Full reference: [docs/orchestrator.md](docs/orchestrator.md).
 
@@ -168,9 +168,9 @@ no hours at all, because the burndown keeps charting a plan nobody is following 
 The same engine is reachable directly, mostly for inspection:
 
 ```bash
-./bin/agile-workflow estimate --points 5                # suggested hours for a point value
-./bin/agile-workflow estimate --file path/to/draft.md   # …or read the points off a draft
-./bin/agile-workflow capacity --provider azure-devops --iteration <id>
+./bin/agile-backlog-toolkit estimate --points 5                # suggested hours for a point value
+./bin/agile-backlog-toolkit estimate --file path/to/draft.md   # …or read the points off a draft
+./bin/agile-backlog-toolkit capacity --provider azure-devops --iteration <id>
 ```
 
 `capacity` reports the whole sprint rather than one person, and exits non-zero when it is
@@ -215,13 +215,13 @@ Four things the plugin needs to know about your setup, so no skill has to ask tw
 DevOps **organisation, project and team** to talk to, which **process** your project uses (Agile,
 Scrum or CMMI — it decides which fields exist), and where you want local files written.
 
-They live in `.agile-workflow/config.json`, which holds no secrets and is safe to commit so your
+They live in `.agile-backlog-toolkit/config.json`, which holds no secrets and is safe to commit so your
 team shares one setup. Authentication comes from the Azure DevOps MCP server using your signed-in
 session.
 
 ```bash
-./bin/agile-workflow config --show                  # what is set, and where it came from
-./bin/agile-workflow config --set azure.team=<name> # set a value
+./bin/agile-backlog-toolkit config --show                  # what is set, and where it came from
+./bin/agile-backlog-toolkit config --set azure.team=<name> # set a value
 ```
 
 You rarely type any of it. **Azure values are discovered** — the first skill that needs your
@@ -230,7 +230,7 @@ exits non-zero when something required is missing, so it also works as a precond
 
 **Where your files go is asked for, never assumed.** The plugin has no default location for your
 work and creates no directory structure in your project. The only directory it owns is
-`.agile-workflow/` — its own config, reports, and memory.
+`.agile-backlog-toolkit/` — its own config, reports, and memory.
 
 Full reference: [agile-workflow/references/project-config.md](agile-workflow/references/project-config.md).
 
@@ -265,7 +265,7 @@ plus a persisted report. One artifact per invocation.
 **Prefer the orchestrator critic:**
 
 ```bash
-./bin/agile-workflow validate --file <path> [--persist]
+./bin/agile-backlog-toolkit validate --file <path> [--persist]
 ```
 
 Four check categories:

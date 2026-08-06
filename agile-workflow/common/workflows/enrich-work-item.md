@@ -21,8 +21,9 @@ COLLECT → INGEST → ROUTE ENRICHER → [WRITE SPEC] → ENRICH → GATE → P
 | `epic` | `enrichers/epic-enricher.prompt.md` | `blueprints/spec-epic.md` | `canonical/canonical-epic.md` | `examples/example-epic.md` |
 | `feature` | `enrichers/feature-enricher.prompt.md` | `blueprints/spec-feature.md` | `canonical/canonical-feature.md` | `examples/example-feature.md` |
 | `user-story` | `enrichers/work-item-enricher.prompt.md` | `blueprints/spec-work-item.md` | `canonical/canonical-user-story.md` | `examples/example-user-story.md` |
+| `task` | `enrichers/task-enricher.prompt.md` | `../specs/enrich-work-item/spec-work-item.md` | `../contracts/enrich-work-item/canonical-task.md` | — |
 
-Enricher prompts are bundled under `./references/enrichers/` — authoritative; no local override.
+Enricher prompts are bundled under `./enrichers/` — authoritative; no local override.
 
 ## Artifacts output paths (when persisting to artifacts path)
 
@@ -34,8 +35,7 @@ Enricher prompts are bundled under `./references/enrichers/` — authoritative; 
 
 - `../../references/decomposition-rules.md` — hierarchy, story-point heuristic
 - `../../references/ticket-structure.md` — draft file constraints
-- `../../references/azure-mechanics.md` — Azure MCP calls + gotchas
-- `./azure-ingest.md` — Azure URL/id resolve: work item, attachments, description refs
+- `../providers.md` — local, Azure DevOps, and Linear persistence
 
 ## Relationship to generate-work-item
 

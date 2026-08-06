@@ -83,7 +83,7 @@ is deterministic and lives in the orchestrator, so the same Story always yields 
 3. **Run it:**
 
 ```bash
-bin/agile-workflow estimate-breakdown --input <tasks>.json --payloads <sprint>.json
+bin/agile-backlog-toolkit estimate-breakdown --input <tasks>.json --payloads <sprint>.json
 ```
 
 Exit codes: `0` estimated and fits, `2` **blocked** (see below), `1` could not run.

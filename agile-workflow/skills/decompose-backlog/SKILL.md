@@ -1,7 +1,7 @@
 ---
 name: decompose-backlog
 description: >
-  Decompose a parent Azure DevOps work item into correctly-parented, audited child Stories.
+  Decompose a parent work item into correctly-parented, audited child Stories.
   Use when the user asks to "break down this Feature", "decompose Epic/Feature N into stories",
   "create the user stories for <feature>", "groom this backlog item", or provides a Feature/Epic id
   and wants Stories drafted and created in Azure DevOps. Drives 7 phases: ingest the parent, split
@@ -11,9 +11,9 @@ description: >
   For plain-language scope lines and story narrative, delegates sub-passes to
   generate-plain-language-documentation in DRAFT and ENRICH phases.
 license: MIT
-compatibility: Requires Azure DevOps MCP; a configured artifacts path for local writes. Designed for Claude Code and Cursor.
+compatibility: Optional Azure DevOps or Linear connector; configured artifacts path.
 metadata:
-  plugin: agile-workflow
+  plugin: agile-backlog-toolkit
   version: "0.5.0"
   disable-model-invocation: "true"
 allowed-tools: >
@@ -42,10 +42,10 @@ References (in `../../references/`):
 
 References (skill-specific, in `./references/`):
 
-- `canonical/canonical-user-story.md` — **read-only shape contract** for enriched Story drafts (seven
+- `../../common/contracts/decompose-backlog/canonical-user-story.md` — **read-only shape contract** for enriched Story drafts (seven
   emoji sections per `ticket-structure.md`, pt-BR labels). Do not edit; validate every draft against
   this template when `language` is `pt-BR`.
-- `canonical/canonical-user-story.en.md` — same shape contract with English section labels. Use when
+- `../../common/contracts/decompose-backlog/canonical-user-story.en.md` — same shape contract with English section labels. Use when
   `language` is `en`.
 - `../generate-plain-language-documentation/references/integration-notes.md` — prose polish sub-pass
   in DRAFT and ENRICH phases.
@@ -77,7 +77,7 @@ of Story stubs (title + one-line scope + dependencies), each tracing to a verbat
 ### 3. DRAFT
 
 Per approved stub, write a local draft per `ticket-structure.md` and the canonical template matching
-the run's `language` (`./references/canonical/canonical-user-story.md` for pt-BR,
+the run's `language` (`../../common/contracts/decompose-backlog/canonical-user-story.md` for pt-BR,
 `canonical-user-story.en.md` for en) — hook-valid frontmatter (`type`, no `status`, `language:` set
 to the chosen value), filename regex with the Feature-id prefix, the 7 body sections in canonical
 order using that language's labels. Content hygiene applies.
@@ -102,13 +102,13 @@ when locale is pt-BR.
 
 ### 5. CREATE
 
-Per `azure-mechanics.md`: `wit_create_work_item` with **Markdown** description; then
-`wit_work_items_link` with **explicit `type: "parent"`** to the **FEATURE id**. Honor both gotchas.
+Per `../../common/providers.md`, create each item with Markdown and its Feature as the immediate
+parent. Azure DevOps uses native work-item types; Linear uses the `agile:user-story` label.
 
 ### 6. VERIFY (structural)
 
-Read each created item back; assert `System.Parent == <feature id>` and the Epic→Feature→Story chain.
-Reconcile frontmatter with the Azure-assigned id (rename file, set `azure_id`). A failed
+Read each created item back; assert the immediate parent and the Epic→Feature→Story chain.
+Reconcile frontmatter with the assigned id (rename file, set `provider` and `provider_id`). A failed
 assertion STOPS the run.
 
 ### 7. AUDIT (content + coverage)

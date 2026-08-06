@@ -2,7 +2,9 @@
 date: 2026-07-02
 type: ticket
 work_item_type: User Story
-parent_feature: 6869
+provider: filesystem
+provider_id: local-6869
+parent_id: 6868
 story_points: 3
 tags: [ticket, user-story, demo, auto-fix]
 ---

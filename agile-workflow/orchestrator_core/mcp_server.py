@@ -29,7 +29,7 @@ def resolve_project_root() -> Path:
 
 
 def resolve_state_dir(project_root: Path) -> Path:
-    """`.agile-workflow/` -- the plugin's own state directory, never a user location."""
+    """`.agile-backlog-toolkit/` -- the plugin's own state directory, never a user location."""
     from .project_config import plugin_dir
 
     return plugin_dir(project_root)
@@ -50,7 +50,7 @@ def process_message(line: str, engine: OrchestratorEngine) -> str:
             response["result"] = {
                 "protocolVersion": "2024-11-05",
                 "capabilities": {"tools": {}},
-                "serverInfo": {"name": "agile-workflow-orchestrator", "version": "0.1.0"},
+                "serverInfo": {"name": "agile-backlog-toolkit-orchestrator", "version": "0.1.0"},
             }
         elif method == "tools/list":
             response["result"] = {"tools": engine.list_tools()}

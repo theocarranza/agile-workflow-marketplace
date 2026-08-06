@@ -14,12 +14,13 @@ Shape contracts live in `./canonical/` — **do not edit** these files:
 | `epic` | `canonical/canonical-epic.md` |
 | `feature` | `canonical/canonical-feature.md` |
 | `user-story` | `canonical/canonical-user-story.md` |
+| `task` | `canonical/canonical-task.md` |
 
-All three share the same skeleton. Validate every draft against the matching template before presenting.
+All four share the same skeleton. Validate every draft against the matching template before presenting.
 
 ## Ticket body (required shape)
 
-Every draft — Epic, Feature, or User Story — uses the same markdown skeleton:
+Every draft — Epic, Feature, User Story, or Task — uses the same markdown skeleton:
 
 ```markdown
 # <Title>
@@ -54,6 +55,7 @@ Every draft — Epic, Feature, or User Story — uses the same markdown skeleton
 - State WHAT and observable behavior; avoid prescribing implementation unless the author did.
 - Preserve technical names from the original description.
 - Epic bullets: strategic outcomes. Feature bullets: scoped capability. Story bullets: one-sprint scope.
+  Task bullets: one atomic implementation outcome.
 
 ### Acceptance criteria quality
 
@@ -74,18 +76,18 @@ Per `../../references/ticket-structure.md`:
 ---
 date: <YYYY-MM-DD>
 type: ticket
-work_item_type: <Epic|Feature|User Story>
-parent_feature: <feature-id when applicable>
-parent_epic: <epic-id when applicable>
+work_item_type: <Epic|Feature|User Story|Task>
+provider: <local|azure-devops|linear>
+provider_id: "<provider identifier; omit before provider creation>"
+parent_id: "<immediate parent identifier; omit for Epic>"
 tags: [ticket, <type>]
 ---
 ```
 
 - No `status:` key.
 - Filename: `^(\d+|tech-debt|bug|task|spike)-[a-z0-9-]+$`, lowercase.
-- Until Azure assigns an id, prefix with parent Feature id (e.g. `6868-login-validation`).
+- Until a provider assigns an id, prefix with the immediate parent id.
 
-## Azure description
+## Provider description
 
-The ticket **body** (below frontmatter) becomes the Azure work-item description verbatim when the
-user chooses Azure persistence. Markdown format required (see `azure-mechanics.md`).
+The ticket **body** becomes the Azure DevOps or Linear item description verbatim. Use Markdown.

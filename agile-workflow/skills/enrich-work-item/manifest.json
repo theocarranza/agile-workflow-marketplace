@@ -1,13 +1,13 @@
 {
   "name": "enrich-work-item",
-  "description": "Apply type-specific enricher prompts to produce team-format Epic, Feature, or User Story documentation; persist on approval. When source is an Azure DevOps URL or id, ingests work-item fields, attachments, and description-referenced documents before enrichment.",
+  "description": "Apply type-specific enricher prompts to produce team-format Epic, Feature, User Story, or Task documentation; persist on approval. When source is an Azure DevOps URL or id, ingests work-item fields, attachments, and description-referenced documents before enrichment.",
   "input_schema": {
     "type": "object",
     "properties": {
       "work_item_type": {
         "type": "string",
-        "enum": ["epic", "feature", "user-story"],
-        "description": "Work item type to enrich"
+        "enum": ["epic", "feature", "user-story", "task"],
+        "description": "Vendor-neutral work item type to enrich"
       },
       "source": {
         "type": "string",

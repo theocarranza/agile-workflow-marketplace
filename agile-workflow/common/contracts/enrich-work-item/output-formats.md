@@ -12,6 +12,7 @@ Shape contracts live in `./canonical/` — **do not edit** these files:
 | `epic` | `canonical/canonical-epic.md` |
 | `feature` | `canonical/canonical-feature.md` |
 | `user-story` | `canonical/canonical-user-story.md` |
+| `task` | `canonical/canonical-task.md` |
 
 Validate enriched output against the matching template before presenting.
 
@@ -22,6 +23,7 @@ Validate enriched output against the matching template before presenting.
 | `epic` | `enrichers/epic-enricher.prompt.md` | §4 Formato de Saída | 400 |
 | `feature` | `enrichers/feature-enricher.prompt.md` | §4 Formato de Saída | 300 |
 | `user-story` | `enrichers/work-item-enricher.prompt.md` | §6 Formato de Saída | 200 (+ Comportamento esperado, Anexos) |
+| `task` | `../../workflows/enrichers/task-enricher.prompt.md` | §4 Formato de Saída | 150 |
 
 ## Epic sections (from enricher)
 
@@ -40,6 +42,10 @@ Validate enriched output against the matching template before presenting.
 optional `## 🔧 Notas Técnicas`, optional `## 🔄 Como Reproduzir` (bugs), `## 📊 Complexidade`,
 optional `## 📎 Anexos / Referências`, `## 📄 Descrição Original`
 
+## Task sections (from enricher)
+
+`## 🎯 Resultado`, `## 🔧 Trabalho`, `## ✅ Verificação`, `## 📄 Descrição Original`
+
 ## Quality gates (all types)
 
 - Run enricher **Checklist de Auto-Revisão** before presenting.
@@ -57,7 +63,7 @@ Illustrative dummy outputs (content patterns only — **not** the shape contract
 
 Shape contracts: `canonical/canonical-*.md` (read-only; see above).
 
-## Azure description
+## Provider description
 
-When persisting to Azure, the enriched body (below frontmatter when using the artifacts path) becomes the
-work-item Description in **Markdown** format.
+When persisting to Azure DevOps or Linear, the enriched body becomes the provider item description
+in **Markdown** format.

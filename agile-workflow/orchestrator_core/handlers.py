@@ -154,7 +154,7 @@ def handle_plan_capacity(
     iteration_ref = str(arguments.get("iteration_ref", "")).strip()
     provider_name = str(arguments.get("provider", "filesystem")).strip() or "filesystem"
 
-    # state_dir is `<project>/.agile-workflow`, so its parent is the project root.
+    # state_dir is `<project>/.agile-backlog-toolkit`, so its parent is the project root.
     project_root = state_dir.parent
     project_config = load_project_config(project_root)
 
@@ -176,7 +176,7 @@ def handle_plan_capacity(
                     "error": (
                         f"Azure configuration incomplete: {', '.join(missing)} not set. "
                         "Discover the values through the Azure DevOps MCP tools, then persist "
-                        "them with: bin/agile-workflow config --set azure.<key>=<value>"
+                        "them with: bin/agile-backlog-toolkit config --set azure.<key>=<value>"
                     ),
                     "missing_config": missing,
                     "instructions": instructions,

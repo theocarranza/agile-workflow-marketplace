@@ -10,7 +10,7 @@ description: >
 license: MIT
 compatibility: Requires Azure DevOps MCP for Azure destinations; a configured artifacts path for local writes.
 metadata:
-  plugin: agile-workflow
+  plugin: agile-backlog-toolkit
   version: "0.5.0"
   orchestrator-skill: "estimate-breakdown"
   argument-hint: "--ref <id|url|path> [--destination filesystem|azure|both] [--language en|pt-BR]"
@@ -43,8 +43,8 @@ Shared references (in `../../references/`):
 - `ticket-structure.md` — local draft constraints
 - `decomposition-rules.md` — hierarchy (Epic → Feature → Story → Task)
 
-Resolve the artifacts path with `bin/agile-workflow config --show`, which reads
-`.agile-workflow/config.json` and falls back to older locations. See
+Resolve the artifacts path with `bin/agile-backlog-toolkit config --show`, which reads
+`.agile-backlog-toolkit/config.json` and falls back to older locations. See
 `../../references/project-config.md`.
 
 **Not in scope:** inventing or rewriting acceptance criteria; Feature-level story-point estimation;

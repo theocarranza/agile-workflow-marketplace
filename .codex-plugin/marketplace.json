@@ -1,15 +1,15 @@
 {
-  "name": "agile-workflow-marketplace",
+  "name": "agile-backlog-toolkit-marketplace",
   "owner": {
     "name": "Th\u00e9o Carranza"
   },
   "description": "Agile backlog workflow skills for Azure DevOps with deterministic orchestrator.",
   "plugins": [
     {
-      "name": "agile-workflow",
+      "name": "agile-backlog-toolkit",
       "source": "./agile-workflow",
-      "description": "Agile backlog workflow skills for Azure DevOps. Skills: decompose-backlog, validate-artifact, auto-fix-artifact, split-story, generate-work-item, enrich-work-item, generate-plain-language-documentation, generate-breakdown-work-items, amend-workitems. Deterministic Python orchestrator for quality gates (v0.9.0). Shared rules + Azure linking guardrails.",
-      "version": "0.9.0"
+      "description": "Agile backlog toolkit for vendor-neutral work-item workflows. Skills: decompose-backlog, validate-artifact, auto-fix-artifact, split-story, generate-work-item, enrich-work-item, generate-plain-language-documentation, generate-breakdown-work-items, amend-workitems. Deterministic Python orchestrator for quality gates. Shared rules and provider-neutral guardrails.",
+      "version": "0.11.0"
     }
   ]
 }

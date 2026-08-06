@@ -74,7 +74,7 @@ def mistakes_path(state_dir: Path) -> Path:
     """The mistakes record, in the plugin's own state directory.
 
     This is plugin memory used by the retry loop, not a user work product, so it lives
-    under `.agile-workflow/` and never in a location the user owns.
+    under `.agile-backlog-toolkit/` and never in a location the user owns.
     """
     return state_dir / MISTAKES_FILENAME
 

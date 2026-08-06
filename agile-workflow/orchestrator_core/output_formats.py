@@ -1,4 +1,4 @@
-"""Structural validators for agile-workflow skill output contracts."""
+"""Structural validators for agile-backlog-toolkit skill output contracts."""
 
 from __future__ import annotations
 

@@ -9,6 +9,7 @@ from typing import Any
 FRONTMATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)
 TITLE_RE = re.compile(r"^#\s+(.+)$", re.MULTILINE)
 FILENAME_RE = re.compile(r"^(\d+|tech-debt|bug|task|spike)-[a-z0-9-]+$")
+LEGACY_FRONTMATTER_KEYS = ("azure_id", "parent_feature", "parent_epic")
 
 
 @dataclass(frozen=True)
@@ -17,10 +18,11 @@ class ArtifactRecord:
     title: str
     body: str
     story_points: float | None
-    parent_id: int | None
+    parent_id: str | None
+    provider: str | None
+    provider_id: str | None
     source: str
     filename: str | None
-    azure_id: int | None
     frontmatter: dict[str, Any] = field(default_factory=dict)
     raw: str = ""
     effort_hours: float | None = None
@@ -86,11 +88,25 @@ def normalize_work_item_type(value: str | None) -> str | None:
         "story": "User Story",
         "feature": "Feature",
         "epic": "Epic",
+        "task": "Task",
         "bug": "User Story",
         "tech debt": "User Story",
         "spike": "User Story",
     }
     return mapping.get(normalized, value.strip())
+
+
+def _text_or_none(value: Any) -> str | None:
+    if isinstance(value, str):
+        text = value.strip()
+        return text or None
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return str(value)
+    return None
+
+
+def _legacy_frontmatter_keys(frontmatter: dict[str, Any]) -> tuple[str, ...]:
+    return tuple(key for key in LEGACY_FRONTMATTER_KEYS if key in frontmatter)
 
 
 def ingest_from_text(text: str, *, filename: str | None = None) -> ArtifactRecord:
@@ -109,10 +125,11 @@ def ingest_from_text(text: str, *, filename: str | None = None) -> ArtifactRecor
         title=title,
         body=body,
         story_points=float(story_points) if isinstance(story_points, (int, float)) else None,
-        parent_id=None,
+        parent_id=_text_or_none(frontmatter.get("parent_id")),
+        provider=_text_or_none(frontmatter.get("provider")),
+        provider_id=_text_or_none(frontmatter.get("provider_id")),
         source="file",
         filename=filename,
-        azure_id=None,
         frontmatter=frontmatter,
         raw=text,
         effort_hours=coerce_float(frontmatter.get("effort_hours")),
@@ -131,20 +148,16 @@ def ingest_file(path: Path) -> ArtifactRecord:
     story_points = frontmatter.get("story_points")
     if isinstance(story_points, str) and story_points.replace(".", "", 1).isdigit():
         story_points = float(story_points)
-    azure_id = frontmatter.get("azure_id")
-    if isinstance(azure_id, str) and azure_id.isdigit():
-        azure_id = int(azure_id)
-    parent = frontmatter.get("parent_feature") or frontmatter.get("parent_epic")
-    parent_id = int(parent) if isinstance(parent, (int, str)) and str(parent).isdigit() else None
     return ArtifactRecord(
         type=artifact_type or "User Story",
         title=title,
         body=body,
         story_points=float(story_points) if isinstance(story_points, (int, float)) else None,
-        parent_id=parent_id,
+        parent_id=_text_or_none(frontmatter.get("parent_id")),
+        provider=_text_or_none(frontmatter.get("provider")),
+        provider_id=_text_or_none(frontmatter.get("provider_id")),
         source="file",
         filename=path.stem,
-        azure_id=int(azure_id) if isinstance(azure_id, int) else None,
         frontmatter=frontmatter,
         raw=raw,
         effort_hours=coerce_float(frontmatter.get("effort_hours")),
@@ -153,12 +166,13 @@ def ingest_file(path: Path) -> ArtifactRecord:
 
 def ingest_azure_record(
     *,
+    provider: str = "azure-devops",
     work_item_type: str,
     title: str,
     description: str,
     story_points: float | None,
-    parent_id: int | None,
-    azure_id: int,
+    parent_id: str | None,
+    provider_id: str,
     effort_hours: float | None = None,
 ) -> ArtifactRecord:
     return ArtifactRecord(
@@ -167,9 +181,10 @@ def ingest_azure_record(
         body=description or "",
         story_points=story_points,
         parent_id=parent_id,
+        provider=provider,
+        provider_id=provider_id,
         source="azure",
         filename=None,
-        azure_id=azure_id,
         frontmatter={},
         raw=description or "",
         effort_hours=effort_hours,

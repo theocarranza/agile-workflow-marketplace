@@ -40,7 +40,7 @@ wherever it appears, so nobody mistakes a shipped default for a fact about their
 
 ## Configuration
 
-Create `.agile-workflow/estimation.json` to replace the shipped defaults:
+Create `.agile-backlog-toolkit/estimation.json` to replace the shipped defaults:
 
 ```json
 {
@@ -103,10 +103,10 @@ configuration, which is not this plugin's business.
 ## Commands
 
 ```bash
-bin/agile-workflow estimate --file <path>          # suggest hours for a draft
-bin/agile-workflow estimate --points 5             # suggest hours for a point value
-bin/agile-workflow capacity --provider filesystem  # plan from local drafts
-bin/agile-workflow capacity --provider azure-devops --iteration <id> --payloads <json>
+bin/agile-backlog-toolkit estimate --file <path>          # suggest hours for a draft
+bin/agile-backlog-toolkit estimate --points 5             # suggest hours for a point value
+bin/agile-backlog-toolkit capacity --provider filesystem  # plan from local drafts
+bin/agile-backlog-toolkit capacity --provider azure-devops --iteration <id> --payloads <json>
 ```
 
 `capacity` exits non-zero when the sprint is overcommitted, so it works as a gate.

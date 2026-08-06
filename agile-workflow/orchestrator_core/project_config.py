@@ -1,6 +1,6 @@
 """Per-project configuration: where to write artifacts, and which Azure DevOps to talk to.
 
-Lives at `.agile-workflow/config.json` in the project root. Written by the installer and by
+Lives at `.agile-backlog-toolkit/config.json` in the project root. Written by the installer and by
 lazy fill; read by the orchestrator and by skills.
 
 **The plugin knows nothing about the client project beyond what is in this file.** It does
@@ -14,8 +14,8 @@ the caller must ask for a path rather than inventing one.
 Values resolve from several places, earliest wins:
 
     1. environment variables               -- CI and one-off overrides
-    2. .agile-workflow/config.json         -- the canonical file
-    3. .agile-workflow.install.json        -- install receipt
+    2. .agile-backlog-toolkit/config.json   -- the canonical file
+    3. .agile-backlog-toolkit.install.json  -- install receipt
     4. .mcp.json / .cursor/mcp.json        -- org, read from the MCP command arguments
 
 Nothing here raises. Missing values are reported by `missing()`, never guessed.
@@ -29,9 +29,9 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
-PLUGIN_DIRNAME = ".agile-workflow"
+PLUGIN_DIRNAME = ".agile-backlog-toolkit"
 CONFIG_RELPATH = Path(PLUGIN_DIRNAME) / "config.json"
-INSTALL_MANIFEST = ".agile-workflow.install.json"
+INSTALL_MANIFEST = ".agile-backlog-toolkit.install.json"
 MCP_FILES = (Path(".mcp.json"), Path(".cursor") / "mcp.json")
 
 ENV_ARTIFACTS = ("AGILE_WORKFLOW_ARTIFACTS_PATH", "AGILE_WORKFLOW_ARTIFACTS")
@@ -58,11 +58,21 @@ class AzureConfig:
 
 
 @dataclass(frozen=True)
+class LinearConfig:
+    team: str | None = None
+
+    def as_dict(self) -> dict[str, str]:
+        return {"team": self.team} if self.team else {}
+
+
+@dataclass(frozen=True)
 class ProjectConfig:
     artifacts_path: str | None = None
     """Where the user wants local artifacts written. No default -- ask, never assume."""
 
     azure: AzureConfig = AzureConfig()
+    linear: LinearConfig = LinearConfig()
+    provider_mode: str = "local"
     sources: tuple[str, ...] = ()
 
     REQUIRED_AZURE = ("org", "project")
@@ -108,11 +118,15 @@ class ProjectConfig:
         azure = self.azure.as_dict()
         if azure:
             payload["azure"] = azure
+        linear = self.linear.as_dict()
+        if linear:
+            payload["linear"] = linear
+        payload["provider_mode"] = self.provider_mode
         return payload
 
 
 def plugin_dir(project_root: Path) -> Path:
-    """`.agile-workflow/` -- where the plugin keeps its own state.
+    """`.agile-backlog-toolkit/` -- where the plugin keeps its own state.
 
     Distinct from the artifacts path: this holds plugin internals (config, reports, the
     mistakes record), never the user's work products.
@@ -173,18 +187,23 @@ def load_project_config(project_root: Path) -> ProjectConfig:
     """Resolve configuration for a project. Never raises; absent sources are skipped."""
     root = Path(project_root)
     sources: list[str] = []
-    artifacts = org = project = team = process = None
+    artifacts = org = project = team = process = linear_team = None
+    provider_mode = "local"
 
     data = _read_json(config_path(root))
     if data:
         sources.append(str(CONFIG_RELPATH))
         artifacts = _str_or_none(data.get("artifacts_path"))
+        provider_mode = _str_or_none(data.get("provider_mode")) or provider_mode
         azure = data.get("azure")
         if isinstance(azure, dict):
             org = _str_or_none(azure.get("org"))
             project = _str_or_none(azure.get("project"))
             team = _str_or_none(azure.get("team"))
             process = _str_or_none(azure.get("process"))
+        linear = data.get("linear")
+        if isinstance(linear, dict):
+            linear_team = _str_or_none(linear.get("team"))
 
     manifest = _read_json(root / INSTALL_MANIFEST)
     if manifest:
@@ -219,12 +238,14 @@ def load_project_config(project_root: Path) -> ProjectConfig:
             team=overrides["team"] or team,
             process=overrides["process"] or process,
         ),
+        linear=LinearConfig(team=linear_team),
+        provider_mode=provider_mode,
         sources=tuple(sources),
     )
 
 
 def save_project_config(project_root: Path, config: ProjectConfig) -> Path | None:
-    """Persist to `.agile-workflow/config.json`, preserving unknown keys already present."""
+    """Persist to `.agile-backlog-toolkit/config.json`, preserving unknown keys already present."""
     path = config_path(project_root)
     existing = _read_json(path) or {}
     existing.update(config.as_dict())

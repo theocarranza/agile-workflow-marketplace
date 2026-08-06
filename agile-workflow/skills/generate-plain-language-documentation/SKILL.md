@@ -12,7 +12,7 @@ description: >
 license: MIT
 compatibility: Bundled tech glossary supports pt-BR translation and technical-term verification without a artifacts path.
 metadata:
-  plugin: agile-workflow
+  plugin: agile-backlog-toolkit
   version: "0.7.1"
   argument-hint: "--source <text|path|url> [--audience \"...\"] [--language en|pt-br] [--type report|guide|work-item-prose|general]"
 allowed-tools: >
@@ -37,7 +37,7 @@ References (start at `./references/pipeline.md`):
 
 Glossary path: `./references/assets/tech-glossary-en-pt-br.json` (bundled with the skill).
 
-Resolve the artifacts path with `bin/agile-workflow config --show` when persisting output. If it is
+Resolve the artifacts path with `bin/agile-backlog-toolkit config --show` when persisting output. If it is
 unset, ask the user where to write — never assume a location. Not needed for loading skill assets.
 
 **Not in scope:** creating Azure work items, enricher emoji layouts, or backlog hierarchy — use the

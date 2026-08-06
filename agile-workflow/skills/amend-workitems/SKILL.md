@@ -8,7 +8,7 @@ description: >
   creates a recoverable tree backup, and never changes work items without explicit approval.
 license: MIT
 metadata:
-  plugin: agile-workflow
+  plugin: agile-backlog-toolkit
   version: "0.9.0"
   argument-hint: "--instructions <text> --ref <epic|feature-id|url|path>"
 allowed-tools: >

@@ -60,7 +60,7 @@ class TestNoAssumedArtifactsLocation(ConfigTestCase):
         )
         names = re.findall(r'^([A-Z_]+)\s*=\s*[("\']', source.read_text(encoding="utf-8"), re.M)
         self.assertIn("PLUGIN_DIRNAME", names)
-        self.assertEqual(PLUGIN_DIRNAME, ".agile-workflow")
+        self.assertEqual(PLUGIN_DIRNAME, ".agile-backlog-toolkit")
         # No constant may hold a candidate location for user artifacts.
         self.assertNotIn("DEFAULT_ARTIFACTS_PATH", names)
 
@@ -111,7 +111,7 @@ class TestArtifactsPathResolution(ConfigTestCase):
 
 
 class TestConfigFile(ConfigTestCase):
-    """The canonical .agile-workflow/config.json."""
+    """The canonical .agile-backlog-toolkit/config.json."""
 
     def test_reads_all_fields(self):
         """Every value round-trips out of the canonical file."""
@@ -121,13 +121,17 @@ class TestConfigFile(ConfigTestCase):
                 config_path(root),
                 {
                     "artifacts_path": "docs/backlog",
+                    "provider_mode": "both",
                     "azure": {"org": "o", "project": "p", "team": "t", "process": "scrum"},
+                    "linear": {"team": "linear-team"},
                 },
             )
             config = load_project_config(root)
             self.assertEqual(config.artifacts_path, "docs/backlog")
             self.assertEqual(config.azure.org, "o")
             self.assertEqual(config.azure.process, "scrum")
+            self.assertEqual(config.provider_mode, "both")
+            self.assertEqual(config.linear.team, "linear-team")
 
     def test_malformed_file_degrades_without_inventing_a_path(self):
         """Broken JSON must neither crash nor conjure an artifacts location."""
@@ -161,14 +165,14 @@ class TestFallbackSources(ConfigTestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             _write(config_path(root), {"storage": "SomeFolder", "output_dir": "Other"})
-            _write(root / ".agile-workflow.install.json", {"output_folder": "Third"})
+            _write(root / ".agile-backlog-toolkit.install.json", {"output_folder": "Third"})
             self.assertIsNone(load_project_config(root).artifacts_path)
 
     def test_install_manifest_supplies_org(self):
         """A project installed by an older version still knows its organisation."""
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
-            _write(root / ".agile-workflow.install.json", {"azure_devops_org": "legacy-org"})
+            _write(root / ".agile-backlog-toolkit.install.json", {"azure_devops_org": "legacy-org"})
             self.assertEqual(load_project_config(root).azure.org, "legacy-org")
 
     def test_canonical_file_wins_over_fallbacks(self):
@@ -176,7 +180,7 @@ class TestFallbackSources(ConfigTestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             _write(config_path(root), {"azure": {"org": "current"}})
-            _write(root / ".agile-workflow.install.json", {"azure_devops_org": "stale"})
+            _write(root / ".agile-backlog-toolkit.install.json", {"azure_devops_org": "stale"})
             self.assertEqual(load_project_config(root).azure.org, "current")
 
     def test_sources_compose_across_files(self):
@@ -184,7 +188,7 @@ class TestFallbackSources(ConfigTestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)
             _write(config_path(root), {"azure": {"project": "p"}})
-            _write(root / ".agile-workflow.install.json", {"azure_devops_org": "o"})
+            _write(root / ".agile-backlog-toolkit.install.json", {"azure_devops_org": "o"})
             config = load_project_config(root)
             self.assertEqual((config.azure.org, config.azure.project), ("o", "p"))
 

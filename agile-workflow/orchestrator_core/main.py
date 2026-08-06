@@ -27,7 +27,7 @@ def _project_root() -> Path:
 
 
 def _state_dir(project_root: Path) -> Path:
-    """`.agile-workflow/` -- where the plugin keeps its own reports, config, and memory."""
+    """`.agile-backlog-toolkit/` -- where the plugin keeps its own reports, config, and memory."""
     from .project_config import plugin_dir
 
     return plugin_dir(project_root)
@@ -41,7 +41,7 @@ def main(argv: list[str] | None = None) -> int:
 
     validate_p = sub.add_parser("validate", help="Validate an artifact draft (rule-based critic)")
     validate_p.add_argument("--file", required=True, help="Path to a draft markdown file")
-    validate_p.add_argument("--persist", action="store_true", help="Write report to .agile-workflow/reports/")
+    validate_p.add_argument("--persist", action="store_true", help="Write report to .agile-backlog-toolkit/reports/")
     validate_p.add_argument(
         "--hierarchy-parent-is-feature",
         choices=("true", "false"),
@@ -160,7 +160,7 @@ def main(argv: list[str] | None = None) -> int:
 
         estimate = estimate_hours(points, config=load_config(state_dir))
         if estimate is None:
-            print(f"[!] No band covers {points} points; add one to .agile-workflow/estimation.json.")
+            print(f"[!] No band covers {points} points; add one to .agile-backlog-toolkit/estimation.json.")
             return 1
 
         print(f"{label}\n{'=' * 60}")
@@ -290,7 +290,7 @@ def main(argv: list[str] | None = None) -> int:
         missing = config.missing(require_team=args.require_team)
         if missing:
             print(f"\n  Missing: {', '.join(missing)}")
-            print(f"  Set with: bin/agile-workflow config --set azure.{missing[0]}=<value>")
+            print(f"  Set with: bin/agile-backlog-toolkit config --set azure.{missing[0]}=<value>")
             return 1
         return 0
 

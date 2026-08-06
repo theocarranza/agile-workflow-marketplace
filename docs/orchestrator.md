@@ -7,7 +7,7 @@ rule-based checks — no LLM self-judgment on pass/fail.
 ## Architecture
 
 ```
-bin/agile-workflow CLI ──┐
+bin/agile-backlog-toolkit CLI ──┐
 MCP (plugin: orchestrator / installer: agile-workflow-orchestrator) ──┤
                                     ▼
                           OrchestratorEngine
@@ -40,7 +40,7 @@ Registers **Claude Code**, **Cursor**, **Codex**, and **Antigravity** when their
 Or scaffold only the mailbox in an already-wired project:
 
 ```bash
-./bin/agile-workflow init
+./bin/agile-backlog-toolkit init
 ```
 
 ## CLI commands

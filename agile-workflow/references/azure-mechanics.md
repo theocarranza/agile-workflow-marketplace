@@ -4,10 +4,10 @@ The exact MCP calls and the traps that bite if you skip them. These are invarian
 
 ## Before the first Azure call: know the project
 
-Org, project, team, and process live in `.agile-workflow/config.json`. Read them with:
+Org, project, team, and process live in `.agile-backlog-toolkit/config.json`. Read them with:
 
 ```bash
-bin/agile-workflow config --show      # exits non-zero when something required is missing
+bin/agile-backlog-toolkit config --show      # exits non-zero when something required is missing
 ```
 
 If a value is missing, **discover it rather than asking the user to type a slug** — then persist it

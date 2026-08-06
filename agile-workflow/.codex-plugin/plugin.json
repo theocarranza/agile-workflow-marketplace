@@ -1,18 +1,19 @@
 {
-  "name": "agile-workflow",
-  "version": "0.9.0",
-  "description": "Agile backlog workflow skills for Azure DevOps. Skills: decompose-backlog, validate-artifact, auto-fix-artifact, split-story, generate-work-item, enrich-work-item, generate-plain-language-documentation, generate-breakdown-work-items, amend-workitems. Deterministic Python orchestrator for quality gates (v0.9.0). Shared rules + Azure linking guardrails.",
+  "name": "agile-backlog-toolkit",
+  "version": "0.11.0",
+  "description": "Agile backlog toolkit for vendor-neutral work-item workflows. Skills: decompose-backlog, validate-artifact, auto-fix-artifact, split-story, generate-work-item, enrich-work-item, generate-plain-language-documentation, generate-breakdown-work-items, amend-workitems. Deterministic Python orchestrator for quality gates. Shared rules and provider-neutral guardrails.",
   "author": {
     "name": "Th\u00e9o Carranza"
   },
   "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
   "interface": {
-    "displayName": "Agile Workflow",
-    "shortDescription": "Azure DevOps backlog decomposition and quality gates.",
-    "longDescription": "Decompose Features into Stories, generate Epics/Features/Stories/Tasks with Context7-backed specs, validate artifacts with a rule-based critic, auto-fix drafts, and split oversized stories \u2014 all with Azure DevOps integration.",
+    "displayName": "Agile Backlog Toolkit",
+    "shortDescription": "Vendor-neutral backlog decomposition and quality gates.",
+    "longDescription": "Decompose Epics, Features, User Stories, and Tasks into vendor-neutral artifacts, validate drafts with a rule-based critic, auto-fix drafts, and split oversized stories across optional Azure DevOps or Linear integrations.",
     "developerName": "Th\u00e9o Carranza",
     "category": "Productivity",
     "capabilities": ["skills", "mcp", "orchestrator"],
-    "defaultPrompt": ["Use the Agile Workflow skills to safely manage and validate Azure DevOps work items."]
+    "defaultPrompt": ["Use the Agile Backlog Toolkit skills to safely manage and validate backlog work items."]
   }
 }

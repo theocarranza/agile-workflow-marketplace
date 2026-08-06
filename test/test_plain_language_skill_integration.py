@@ -3,12 +3,16 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 
 from plain_language_helpers import (
     INTEGRATION_NOTES_REL,
     missing_substrings,
     read_skill_text,
 )
+
+ROOT = Path(__file__).resolve().parent.parent
+COMMON = ROOT / "agile-workflow" / "common"
 
 
 class TestIntegrationNotesContract(unittest.TestCase):
@@ -74,8 +78,8 @@ class TestIntegrationNotesContract(unittest.TestCase):
 class TestGenerateWorkItemIntegration(unittest.TestCase):
     def setUp(self) -> None:
         self.skill_md = read_skill_text("generate-work-item", "SKILL.md")
-        self.pipeline = read_skill_text("generate-work-item", "references", "pipeline.md")
-        self.output_formats = read_skill_text("generate-work-item", "references", "output-formats.md")
+        self.pipeline = (COMMON / "workflows" / "generate-work-item.md").read_text(encoding="utf-8")
+        self.output_formats = (COMMON / "contracts" / "generate-work-item" / "output-formats.md").read_text(encoding="utf-8")
 
     def test_skill_references_integration_notes(self) -> None:
         self.assertIn(INTEGRATION_NOTES_REL, self.skill_md)
@@ -103,7 +107,7 @@ class TestGenerateWorkItemIntegration(unittest.TestCase):
 class TestEnrichWorkItemIntegration(unittest.TestCase):
     def setUp(self) -> None:
         self.skill_md = read_skill_text("enrich-work-item", "SKILL.md")
-        self.pipeline = read_skill_text("enrich-work-item", "references", "pipeline.md")
+        self.pipeline = (COMMON / "workflows" / "enrich-work-item.md").read_text(encoding="utf-8")
 
     def test_skill_references_integration_notes(self) -> None:
         self.assertIn(INTEGRATION_NOTES_REL, self.skill_md)
@@ -128,7 +132,7 @@ class TestEnrichWorkItemIntegration(unittest.TestCase):
     def test_no_external_asset_override(self) -> None:
         self.assertNotIn("<artifacts>/assets/", self.skill_md)
         self.assertNotIn("prefer when present", self.skill_md.lower())
-        self.assertIn("./references/enrichers/", self.skill_md)
+        self.assertIn("../../common/workflows/enrichers/", self.skill_md)
 
 
 class TestDecomposeBacklogIntegration(unittest.TestCase):

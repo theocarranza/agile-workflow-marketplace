@@ -1,16 +1,16 @@
 ---
 name: validate-artifact
 description: >
-  Validate a single agile artifact (Epic, Feature, or User Story) against the agile-workflow
+  Validate a single agile artifact (Epic, Feature, User Story, or Task) against the toolkit
   rule set. Use when the user asks to "validate this story/feature/epic", "check this ticket",
-  "is this artifact ready?", or provides a local draft path or Azure work item ID and wants a
-  quality report. Accepts a local draft (file path) or a live Azure DevOps work item (ID). Runs
+  "is this artifact ready?", or provides a local draft path or provider item and wants a
+  quality report. Accepts a local draft, Azure DevOps work item, or Linear issue. Runs
   all checks non-blocking and emits a terminal report + persisted report. One artifact per
   invocation.
 license: MIT
-compatibility: Requires Azure DevOps MCP and optional Python orchestrator CLI. Designed for Claude Code and Cursor.
+compatibility: Optional Azure DevOps or Linear connector; Python orchestrator CLI.
 metadata:
-  plugin: agile-workflow
+  plugin: agile-backlog-toolkit
   version: "0.5.0"
   orchestrator-skill: "validate-artifact"
   disable-model-invocation: "true"
@@ -34,20 +34,20 @@ References (shared, in `../../references/`):
 References (skill-specific, in `./references/`):
 - `validation-checks.md` — full check catalog per artifact type + category.
 - `report-format.md` — terminal output template + report template.
-- `canonical/canonical-validation-report.md` — **read-only shape contract** for terminal and artifacts path
+- `../../common/contracts/validate-artifact/canonical-validation-report.md` — **read-only shape contract** for reports
   report bodies. Do not edit; reproduce this structure when emitting reports.
 
 ---
 
 ## PHASE 1 — INGEST
 
-**Input:** one of — a local draft file path OR an Azure work item ID.
+**Input:** one local draft path or one provider item identifier.
 
 Determine source from the argument:
 
 **If local draft (file path argument):**
-1. Read the markdown file. Parse frontmatter: extract `work_item_type`, `parent_feature`,
-   `azure_id`, `story_points`. Parse body: identify sections by emoji + label headings.
+1. Read the markdown file. Parse frontmatter: extract `work_item_type`, `parent_id`,
+   `provider_id`, `story_points`. Parse body: identify sections by emoji + label headings.
 2. Derive artifact type from `work_item_type` frontmatter value.
 
 **If Azure ID (numeric argument):**
@@ -60,14 +60,15 @@ Normalize into a unified artifact record:
 
 ```
 {
-  type:         "Epic" | "Feature" | "User Story"
+  type:         "Epic" | "Feature" | "User Story" | "Task"
   title:        string
   body:         string  (full description / body text)
   story_points: number | null
-  parent_id:    number | null
-  source:       "artifacts path" | "azure"
+  parent_id:    string | null
+  source:       "artifacts path" | "azure-devops" | "linear"
   filename:     string | null   (artifacts path only — basename without path)
-  azure_id:     number | null
+  provider:      "local" | "azure-devops" | "linear"
+  provider_id:   string | null
   raw:          original parsed content
 }
 ```
@@ -85,9 +86,9 @@ If given multiple IDs or paths: process only the first and warn —
 **Prefer the deterministic orchestrator** (rule-based critic — no LLM self-judgment):
 
 ```bash
-bin/agile-workflow validate --file <path> [--persist]
+bin/agile-backlog-toolkit validate --file <path> [--persist]
 # or quality-gate with mailbox error log:
-bin/agile-workflow evaluate --skill validate-artifact --file <path>
+bin/agile-backlog-toolkit evaluate --skill validate-artifact --file <path>
 ```
 
 The Python critic implements every check in `./references/validation-checks.md`. On failure,
@@ -114,7 +115,7 @@ No check halts sibling or subsequent checks on failure. Collect all findings.
 
 ### b) HIERARCHY
 
-If `azure_id` is null and source is a local file: emit `WARN hierarchy-skipped-no-azure-id` and skip
+If `parent_id` is null where a parent is required: emit `WARN hierarchy-skipped-no-parent-id` and skip
 this entire category.
 
 **User Story:**
@@ -129,6 +130,8 @@ this entire category.
 1. Fetch children via `search_workitem` or relations from the ingested item.
    Assert no child has `System.WorkItemType == "User Story"`.
 2. Check `hierarchy-epic-no-direct-stories` — FAIL if direct Story children found.
+
+**Task:** assert its immediate parent is a User Story.
 
 If an MCP call fails (network / permission): emit `SKIP <check> — MCP unavailable: <error>` and
 continue. Do not abort the run.
@@ -177,10 +180,10 @@ Print to terminal:
 
 Read `./references/report-format.md` for the report frontmatter template.
 
-Path: `.agile-workflow/reports/` (plugin-owned; written by `--persist`)
+Path: `.agile-backlog-toolkit/reports/` (plugin-owned; written by `--persist`)
 
 Filename: `<YYYY-MM-DD>-validate-<id-or-slug>.md`
-- Use `azure_id` if available.
+- Use `provider_id` if available.
 - Otherwise: derive slug from filename (strip extension) or from title (lowercase, spaces → hyphens, max 40 chars).
 
 Frontmatter:
@@ -189,8 +192,8 @@ Frontmatter:
 date: <YYYY-MM-DD>
 type: report
 artifact: <azure-id or artifacts path-filename>
-artifact_type: <Epic|Feature|User Story>
-source: <artifacts path|azure>
+artifact_type: <Epic|Feature|User Story|Task>
+source: <artifacts path|azure-devops|linear>
 outcome: <pass|fail>
 ---
 ```
@@ -205,5 +208,5 @@ Do NOT include `status:` in frontmatter.
 
 - **No mutations.** This skill reads and reports only. Never write, update, or link work items.
 - **Non-blocking.** Every check runs regardless of prior failures in the same category.
-- **SKIP over ERROR.** If an Azure MCP call fails, log SKIP with reason and continue.
+- **SKIP over ERROR.** If a provider connector fails, log SKIP with reason and continue.
 - **One artifact per run.** Process only the first argument if multiple are given.

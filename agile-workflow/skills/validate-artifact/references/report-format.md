@@ -13,7 +13,7 @@ STRUCTURAL
 
 HIERARCHY
   [PASS]  hierarchy-story-parent-is-feature — parent #6868 is Feature "Payment Flow"
-  [WARN]  hierarchy-skipped-no-azure-id — no azure_id in frontmatter, hierarchy checks skipped
+  [WARN]  hierarchy-skipped-no-azure-id — no provider_id in frontmatter, hierarchy checks skipped
 
 CONTENT
   [PASS]  content-complexidade-breakdown
@@ -34,7 +34,7 @@ Outcome: FAIL
 
 Rules:
 - Every check that ran appears as one line: `  [PASS|FAIL|WARN|SKIP]  <check-name>  —  <detail>`
-- SKIP: check was intentionally not run (wrong artifact type, missing azure_id). Include reason.
+- SKIP: check was intentionally not run (wrong artifact type, missing provider_id). Include reason.
 - Detail field: omit for PASS unless the detail adds value (e.g., confirming a parent id).
 - Separator line: 60 `=` characters (header) and 60 `-` characters (before summary).
 

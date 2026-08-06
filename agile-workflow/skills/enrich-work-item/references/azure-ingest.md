@@ -144,7 +144,7 @@ For each external URL found in the description (and not already an attachment re
 
 When the description references a path under the Codex local or repo:
 
-1. Resolve relative to artifacts root (`bin/agile-workflow config --show`) or repo root.
+1. Resolve relative to artifacts root (`bin/agile-backlog-toolkit config --show`) or repo root.
 2. `Read` the file when it exists; include verbatim or summarized per size.
 3. On missing file: note in bundle; do not invent content.
 
@@ -162,7 +162,7 @@ Normalize before PHASE 2 (route enricher):
 ```text
 {
   source_kind:           "azure"
-  azure_id:              <int>
+  provider_id:              <int>
   azure_url:             <canonical url or null>
   title:                 <System.Title>
   description_original:  <System.Description verbatim — Descrição Original source>

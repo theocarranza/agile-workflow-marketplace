@@ -119,6 +119,17 @@ def _detect_body_format(body: str) -> BodyFormat:
     return "unknown"
 
 
+def _legacy_schema_message(frontmatter: dict[str, Any]) -> str | None:
+    legacy = [key for key in ("azure_id", "parent_feature", "parent_epic") if key in frontmatter]
+    if not legacy:
+        return None
+    return (
+        "unsupported legacy frontmatter schema: "
+        + ", ".join(legacy)
+        + " — use provider, provider_id, and parent_id"
+    )
+
+
 def _effort_hours_check(record: ArtifactRecord, state_dir: Path | None = None) -> CheckResult:
     """Compare a declared duration against the band for its point value.
 
@@ -200,6 +211,16 @@ def validate_artifact(
     story_sections = STORY_SECTIONS_BY_LANGUAGE[language]
 
     if record.source == "file":
+        legacy_schema = _legacy_schema_message(record.frontmatter)
+        if legacy_schema:
+            results.append(
+                CheckResult(
+                    "frontmatter-legacy-schema",
+                    "FAIL",
+                    legacy_schema,
+                    "STRUCTURAL",
+                )
+            )
         results.append(
             CheckResult(
                 "frontmatter-type-present",
@@ -277,7 +298,7 @@ def validate_artifact(
                         "STRUCTURAL",
                     )
                 )
-    elif artifact_type == "Feature":
+    elif artifact_type in {"Feature", "Task"}:
         if body_format == "enriched_feature":
             from .output_formats import validate_enrich_feature_body
 
@@ -334,12 +355,12 @@ def validate_artifact(
                 )
             )
 
-    if record.source == "file" and record.azure_id is None:
+    if record.source == "file" and not record.provider_id:
         results.append(
             CheckResult(
-                "hierarchy-skipped-no-azure-id",
+                "hierarchy-skipped-no-provider-id",
                 "WARN",
-                "no azure_id in frontmatter, hierarchy checks skipped",
+                "no provider_id in frontmatter, hierarchy checks skipped",
                 "HIERARCHY",
             )
         )
@@ -448,19 +469,21 @@ def validate_artifact(
             "DoR",
         )
     )
-    if artifact_type == "User Story":
+    if artifact_type in {"User Story", "Task"}:
         if body_format == "raw_generate":
             results.append(
                 CheckResult(
                     "dor-story-points-set",
-                    "SKIP",
-                    "raw generate-work-item draft — run enrich-work-item before sizing",
+                    "SKIP" if artifact_type == "User Story" else "PASS",
+                    "raw generate-work-item draft — run enrich-work-item before sizing"
+                    if artifact_type == "User Story"
+                    else "task artifacts do not carry story points",
                     "DoR",
                 )
             )
         else:
             sp = record.story_points
-            sp_ok = sp is not None and sp > 0
+            sp_ok = artifact_type == "Task" or (sp is not None and sp > 0)
             results.append(
                 CheckResult(
                     "dor-story-points-set",

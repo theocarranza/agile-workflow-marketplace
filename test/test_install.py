@@ -33,11 +33,13 @@ class TestInstallHelpers(unittest.TestCase):
             (source / "beta").mkdir()
             destination = root / "destination"
             self.assertTrue(link_cli_skills(source.parent, destination))
-            self.assertEqual((destination / "alpha").resolve(), (source / "alpha").resolve())
-            (destination / "beta").unlink()
-            (destination / "beta").mkdir()
+            self.assertTrue((destination / "alpha").is_dir())
+            self.assertFalse((destination / "alpha").is_symlink())
+            (destination / "beta" / "SKILL.md").unlink(missing_ok=True)
+            (destination / "beta").rmdir()
             self.assertTrue(link_cli_skills(source.parent, destination))
             self.assertTrue((destination / "beta").is_dir())
+            self.assertFalse((destination / "beta").is_symlink())
 
     @patch("scripts.install.Path.home")
     def test_register_antigravity_wires_cli_plugin_and_skills(self, mock_home) -> None:
@@ -48,19 +50,16 @@ class TestInstallHelpers(unittest.TestCase):
             plugin = install / "agile-workflow"
             (plugin / ".codex-plugin").mkdir(parents=True)
             (plugin / ".codex-plugin" / "plugin.json").write_text(
-                json.dumps({"name": "agile-workflow", "version": "0.9.0", "description": "test"}),
+                json.dumps({"name": "agile-backlog-toolkit", "version": "0.11.0", "description": "test"}),
                 encoding="utf-8",
             )
             (plugin / "skills" / "amend-workitems").mkdir(parents=True)
             (plugin / "skills" / "amend-workitems" / "SKILL.md").write_text("---\nname: amend-workitems\n---\n", encoding="utf-8")
             self.assertTrue(register_antigravity_plugin(install))
-            cli_plugin = root / "home" / ".gemini" / "antigravity-cli" / "plugins" / "agile-workflow"
-            self.assertEqual(json.loads((cli_plugin / "plugin.json").read_text())["name"], "agile-workflow")
+            cli_plugin = root / "home" / ".gemini" / "antigravity-cli" / "plugins" / "agile-backlog-toolkit"
+            self.assertEqual(json.loads((cli_plugin / "plugin.json").read_text())["name"], "agile-backlog-toolkit")
             self.assertTrue((cli_plugin / "skills" / "amend-workitems" / "SKILL.md").is_file())
-            self.assertEqual(
-                (root / "home" / ".gemini" / "antigravity-cli" / "skills" / "amend-workitems").resolve(),
-                (plugin / "skills" / "amend-workitems").resolve(),
-            )
+            self.assertTrue((root / "home" / ".gemini" / "antigravity-cli" / "skills" / "amend-workitems" / "SKILL.md").is_file())
 
     def test_read_azure_org_from_mcp(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -142,17 +141,14 @@ class TestInstallHelpers(unittest.TestCase):
             wire_project_mcp(
                 project,
                 install_dir=install,
-                azure_org="my-org",
+                azure_org=None,
                 targets=["cursor"],
+                enable_azure=False,
             )
             self.assertFalse((project / ".mcp.json").exists())
-            self.assertTrue((project / ".cursor" / "mcp.json").exists())
-            cursor_mcp = json.loads((project / ".cursor" / "mcp.json").read_text(encoding="utf-8"))
-            azure = cursor_mcp["mcpServers"]["azure-devops"]
-            self.assertTrue(azure["command"].endswith("azure-devops-mcp.sh"))
-            self.assertEqual(azure["args"], [])
-            orch = cursor_mcp["mcpServers"]["agile-workflow-orchestrator"]
-            self.assertEqual(orch["command"], "/usr/bin/python3")
+            cursor = json.loads((project / ".cursor" / "mcp.json").read_text())
+            self.assertIn("agile-backlog-toolkit-orchestrator", cursor["mcpServers"])
+            self.assertNotIn("azure-devops", cursor["mcpServers"])
 
     @patch("scripts.install.resolve_tool_paths")
     def test_wire_project_mcp_does_not_touch_global_cursor(self, mock_resolve) -> None:
@@ -175,7 +171,8 @@ class TestInstallHelpers(unittest.TestCase):
                     project,
                     install_dir=install,
                     azure_org="my-org",
-                        targets=["cursor"],
+                    targets=["cursor"],
+                    enable_azure=True,
                 )
             self.assertEqual(
                 json.loads(global_mcp.read_text(encoding="utf-8")),
@@ -202,8 +199,8 @@ class TestInstallShBootstrap(unittest.TestCase):
     def test_piped_install_bootstraps_instead_of_cwd_install_py(self) -> None:
         env = {
             **os.environ,
-            "AGILE_WORKFLOW_REPO": "file:///nonexistent-agile-workflow-marketplace",
-            "AGILE_WORKFLOW_REF": "main",
+            "AGILE_BACKLOG_TOOLKIT_REPO": "file:///nonexistent-agile-backlog-toolkit",
+            "AGILE_BACKLOG_TOOLKIT_REF": "main",
         }
         proc = subprocess.run(
             ["bash", "-s", "--", "-y", "--azure-org", "demo", "--project-dir", "/tmp"],

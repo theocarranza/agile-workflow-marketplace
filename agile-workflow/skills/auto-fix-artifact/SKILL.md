@@ -5,7 +5,7 @@ description: >
 license: MIT
 compatibility: Requires Azure DevOps MCP and the validate-artifact orchestrator.
 metadata:
-  plugin: agile-workflow
+  plugin: agile-backlog-toolkit
   version: "0.5.0"
   orchestrator-skill: "auto-fix-artifact"
   disable-model-invocation: "true"
@@ -46,7 +46,7 @@ References (from `validate-artifact` skill, in `../validate-artifact/references/
 2. **Validate:** Run the orchestrator critic (do not self-judge):
 
 ```bash
-bin/agile-workflow evaluate --skill auto-fix-artifact --file <path>
+bin/agile-backlog-toolkit evaluate --skill auto-fix-artifact --file <path>
 # or MCP tool: agile-workflow-orchestrator → auto-fix-artifact with draft_content
 ```
 
@@ -105,7 +105,7 @@ Systematically address each FAIL and WARN result:
    - "Save to Azure DevOps" (if source was Azure, uses `wit_update_work_item`)
    - "Save to Artifacts/Artifacts" (if source was file/text, uses `write_to_file`/`replace_file_content`)
    - "Discard"
-3. **Persist Report:** Save the final validation report with `bin/agile-workflow validate --file <path> --persist`, which writes to `.agile-workflow/reports/`.
+3. **Persist Report:** Save the final validation report with `bin/agile-backlog-toolkit validate --file <path> --persist`, which writes to `.agile-backlog-toolkit/reports/`.
 
 ---
 

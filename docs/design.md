@@ -139,7 +139,7 @@ agile-workflow-marketplace/
 ├── .claude-plugin/marketplace.json      ← lists the plugin
 ├── README.md
 ├── CHANGELOG.md
-├── bin/agile-workflow                   ← orchestrator CLI (v0.4.0+)
+├── bin/agile-backlog-toolkit                   ← orchestrator CLI (v0.4.0+)
 ├── docs/design.md                       ← decompose-backlog design
 ├── docs/orchestrator.md                 ← orchestrator runtime (v0.4.0+)
 └── agile-workflow/

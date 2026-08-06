@@ -7,9 +7,9 @@ description: >
   "analyze this story for sizing", or provides a artifacts path / Azure ID / file path / raw text
   and wants a split recommendation. One story per invocation.
 license: MIT
-compatibility: Requires Azure DevOps MCP; a configured artifacts path for draft handoff.
+compatibility: Optional Azure DevOps or Linear connector; configured artifacts path.
 metadata:
-  plugin: agile-workflow
+  plugin: agile-backlog-toolkit
   version: "0.5.0"
   disable-model-invocation: "true"
 allowed-tools: >
@@ -32,9 +32,9 @@ References (skill-specific, in `./references/`):
 - `split-patterns.md` — split pattern catalog with detection signals and auto-selection rules.
 - `scoring-guide.md` — 6-driver scoring table, ceiling logic, spike detection rule, discrepancy
   handling.
-- `canonical/canonical-user-story.md` — **read-only shape contract** for split sub-story drafts
+- `../../common/contracts/split-story/canonical-user-story.md` — **read-only shape contract** for split sub-story drafts
   (seven emoji sections). Do not edit; validate output against this template.
-- `canonical/canonical-spike.md` — **read-only shape contract** for spike stubs (bold section labels).
+- `../../common/contracts/split-story/canonical-spike.md` — **read-only shape contract** for spike stubs.
   Do not edit; validate spike output against this template.
 
 ---
@@ -49,7 +49,7 @@ Determine source from the argument:
 **If local draft path** (path under the artifacts path, recognized by artifacts path prefix or `.md`
 extension inside the artifacts tree):
 1. Read the markdown file. Parse frontmatter: extract `work_item_type`, `story_points`,
-   `parent_feature`, `azure_id`. Parse body: identify sections by emoji + label headings.
+   `parent_id`, `provider_id`. Parse body: identify sections by emoji + label headings.
 
 **If Azure ID** (numeric argument):
 1. Call `wit_get_work_item(id=<id>, expand=relations)`.
@@ -73,9 +73,10 @@ Normalize into a unified artifact record:
   story_points:         number | null   (null if not declared in any source)
   acceptance_criteria:  string[]        (each AC line from the ✅ Critérios de Aceite section;
                                          empty array if the section is absent)
-  parent_feature:       string | number | null
-  azure_id:             number | null
-  source:               "artifacts path" | "azure" | "filesystem" | "raw"
+  parent_id:             string | null
+  provider:              "local" | "azure-devops" | "linear"
+  provider_id:           string | null
+  source:                "artifacts path" | "azure-devops" | "linear" | "filesystem" | "raw"
 }
 ```
 
@@ -166,7 +167,7 @@ before writing any files.
 **Spike mode** (Branch B confirmed):
 
 1. Draft one local file at:
-   `<artifacts>/Tickets/Ready/<parent_feature_id>-spike-<slug>.md`
+   `<artifacts>/Tickets/Ready/<parent_id>-spike-<slug>.md`
 2. Fill all 7 body sections using the Spike stub format from `./references/scoring-guide.md`.
 3. Fill each `[placeholder]` with content derived from the original story.
 
@@ -174,16 +175,17 @@ before writing any files.
 
 For each approved sub-story:
 
-1. Filename: `<parent_feature_id>-<n>-<kebab-slug>.md` — e.g., `6868-1-register-flow.md`.
+1. Filename: `<parent_id>-<n>-<kebab-slug>.md` — e.g., `6868-1-register-flow.md`.
 2. Path: `<artifacts>/Tickets/Ready/<filename>`.
-3. Frontmatter (hook-valid — no `status:`, no `azure_id:` yet):
+3. Frontmatter (hook-valid — no `status:` and no `provider_id` before provider creation):
 
 ```yaml
 ---
 date: <YYYY-MM-DD>
 type: ticket
 work_item_type: User Story
-parent_feature: <parent_feature_id>
+parent_id: <parent_id>
+provider: local
 story_points: <estimated-points>
 ---
 ```
@@ -224,7 +226,7 @@ Show options:
 Sub-stories drafted. What would you like to do?
 
 1. Keep as local drafts — done; continue manually or via decompose-backlog.
-2. Create in Azure and link to parent Feature — creates items and links hierarchy.
+2. Create in the configured provider and link to the parent Feature.
 3. Discard drafts — delete files and stop.
 ```
 
@@ -233,8 +235,8 @@ Wait for user choice.
 **Option 1 — Keep:**
 Report file paths and stop. No further action.
 
-**Option 2 — Azure:**
-Read `../../references/azure-mechanics.md` before making any MCP calls.
+**Option 2 — Provider:**
+Read `../../common/providers.md` and use the selected Azure DevOps or Linear connector.
 
 For each sub-story draft (in order):
 
@@ -242,18 +244,18 @@ For each sub-story draft (in order):
 2. Assert response contains `System.Id`. If absent: STOP and report failure with the item
    title and the raw error.
 3. `wit_work_items_link` with explicit `type: "parent"` linking the new item to
-   `parent_feature_id`.
+   `parent_id`.
 4. Read back: `wit_get_work_item(id=<new_id>, expand=relations)`.
-   Assert `System.Parent == parent_feature_id`.
+   Assert `System.Parent == parent_id`.
    Assert that the relations array contains no `System.LinkTypes.Related` links
    (no stray Related links from prior failed runs).
    If either assertion fails: STOP and report
-   `LINK ASSERTION FAILED for <title>: expected parent <parent_feature_id>, got <actual>`
+   `LINK ASSERTION FAILED for <title>: expected parent <parent_id>, got <actual>`
    or `STRAY RELATED LINKS for <title>: <links found>`.
-5. Update local draft frontmatter: set `azure_id: <new_id>`. Rename file to
+5. Update local draft frontmatter: set `provider_id: <new_id>`. Rename file to
    `<new_id>-<slug>.md`.
 
-After all items: report each — title, Azure ID, parent link status.
+After all items: report each title, provider identifier, and parent link status.
 
 **Option 3 — Discard:**
 Delete each local draft file written in PHASE 4. Report `Drafts discarded.` and stop.
@@ -264,7 +266,7 @@ Delete each local draft file written in PHASE 4. Report `Drafts discarded.` and 
 
 - **One story per run.** Process only the first argument if multiple are given.
 - **No silent patching.** Coverage gaps and duplicates surface to the user — never auto-resolved.
-- **No Azure writes without user consent.** Azure MCP calls execute only if the user selects
+- **No provider writes without user consent.** Connector calls execute only if the user selects
   HANDOFF option 2.
 - **Gate before draft.** DRAFT phase does not execute until GATE 1 is explicitly approved.
 - **Spike ≠ split.** When Incerteza is the sole dominant driver, recommend a Spike; do not

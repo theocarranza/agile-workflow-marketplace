@@ -10,7 +10,7 @@ the complete source tree and record SHA-256 checksums. Never treat a directory l
 
 When a local local artifacts is present:
 
-1. resolve the artifacts path with `bin/agile-workflow config --show` (ask the user if unset);
+1. resolve the artifacts path with `bin/agile-backlog-toolkit config --show` (ask the user if unset);
 2. use the Obsidian CLI `search` command for ids, titles, and keywords when the binary is usable;
 3. fall back to `rg` if Obsidian is unavailable and record that limitation;
 4. include matching `Implementation_Plans/` notes in the snapshot and scan.

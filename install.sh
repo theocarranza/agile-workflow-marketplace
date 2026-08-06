@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Agile Workflow Marketplace — one-shot installer
+# Agile Backlog Toolkit — one-shot installer
 # Works from a local checkout OR when piped:
 #   curl -fsSL …/install.sh | bash -s -- -y --azure-org <org> --project-dir <path>
 set -euo pipefail
 
-REPO_URL="${AGILE_WORKFLOW_REPO:-https://github.com/theocarranza/agile-workflow-marketplace.git}"
-REPO_REF="${AGILE_WORKFLOW_REF:-main}"
+REPO_URL="${AGILE_BACKLOG_TOOLKIT_REPO:-https://github.com/theocarranza/agile-backlog-toolkit.git}"
+REPO_REF="${AGILE_BACKLOG_TOOLKIT_REF:-main}"
 
 resolve_local_root() {
   local src dir
@@ -36,7 +36,7 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 1
 fi
 
-TMP="$(mktemp -d "${TMPDIR:-/tmp}/agile-workflow-install.XXXXXX")"
+TMP="$(mktemp -d "${TMPDIR:-/tmp}/agile-backlog-toolkit-install.XXXXXX")"
 cleanup() { rm -rf "$TMP"; }
 trap cleanup EXIT
 

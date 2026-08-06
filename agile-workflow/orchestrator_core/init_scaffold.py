@@ -8,7 +8,7 @@ from .project_config import plugin_dir
 def scaffold_workspace(project_root: Path) -> None:
     """Create the directories the plugin needs for its own state.
 
-    Only `.agentic/workflow_prompts/` and `.agile-workflow/`, both plugin-owned. This
+    Only `.agentic/workflow_prompts/` and `.agile-backlog-toolkit/`, both plugin-owned. This
     deliberately creates nothing else: where a user's artifacts go is their decision, and
     the plugin never provisions a directory structure in a project on their behalf.
     """

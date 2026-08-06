@@ -14,9 +14,10 @@ COLLECT → INGEST → RESEARCH (Context7) → WRITE SPEC (blueprint) → GENERA
 
 | `work_item_type` | Spec blueprint | Ticket body |
 | --- | --- | --- |
-| `epic` | `blueprints/spec-epic.md` | `canonical/canonical-epic.md` |
-| `feature` | `blueprints/spec-feature.md` | `canonical/canonical-feature.md` |
-| `user-story` | `blueprints/spec-work-item.md` | `canonical/canonical-user-story.md` |
+| `epic` | `../specs/generate-work-item/spec-epic.md` | `../contracts/generate-work-item/canonical-epic.md` |
+| `feature` | `../specs/generate-work-item/spec-feature.md` | `../contracts/generate-work-item/canonical-feature.md` |
+| `user-story` | `../specs/generate-work-item/spec-work-item.md` | `../contracts/generate-work-item/canonical-user-story.md` |
+| `task` | `../specs/generate-work-item/spec-work-item.md` | `../contracts/generate-work-item/canonical-task.md` |
 
 Enrichment (emoji sections, drivers, host team format) is **`enrich-work-item`**, not this skill.
 
@@ -55,4 +56,4 @@ source: [context7, <urls>]
 
 - `../../references/decomposition-rules.md` — hierarchy, sizing heuristic
 - `../../references/ticket-structure.md` — draft file constraints
-- `../../references/azure-mechanics.md` — Azure MCP calls + gotchas
+- `../providers.md` — local, Azure DevOps, and Linear persistence

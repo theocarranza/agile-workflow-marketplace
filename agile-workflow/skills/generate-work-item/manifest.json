@@ -1,13 +1,13 @@
 {
   "name": "generate-work-item",
-  "description": "Context7 research, raw spec + Tickets/Ready draft (title, Requisitos, Critérios de Aceite), Azure create on approval.",
+  "description": "Context7 research, raw spec + Tickets/Ready draft (title, Requisitos, Critérios de Aceite), provider-aware create on approval.",
   "input_schema": {
     "type": "object",
     "properties": {
       "work_item_type": {
         "type": "string",
-        "enum": ["epic", "feature", "user-story"],
-        "description": "Azure DevOps work item type to generate"
+        "enum": ["epic", "feature", "user-story", "task"],
+        "description": "Vendor-neutral work item type to generate"
       },
       "title": {
         "type": "string",
@@ -19,7 +19,7 @@
       },
       "parent": {
         "type": "string",
-        "description": "Parent work item id or URL (Epic for Feature, Feature for Story)"
+        "description": "Parent work item id or URL (Epic for Feature, Feature for Story, Story for Task)"
       },
       "attachment": {
         "type": "string",

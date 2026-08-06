@@ -1,7 +1,7 @@
 ---
 name: enrich-work-item
 description: >
-  Enriches an existing Epic, Feature, or User Story into the host team's structured format using
+  Enriches an existing Epic, Feature, User Story, or Task into the host team's structured format using
   type-specific enricher prompts (emoji sections, scope blocks, complexity drivers, ASCII diagrams).
   Use when the user runs /enrich-work-item, asks to "enrich a ticket", "enrich this issue",
   "format this user story", "polish this feature", "structure this epic", or provides a path, URL,
@@ -9,11 +9,11 @@ description: >
   generate-work-item instead. For plain-language narrative inside enricher sections, this skill
   delegates a sub-pass to generate-plain-language-documentation after enricher assembly.
 license: MIT
-compatibility: Requires Azure DevOps MCP; a configured artifacts path when persisting locally.
+compatibility: Provider connectors are optional; a configured artifacts path is required only for local persistence.
 metadata:
-  plugin: agile-workflow
+  plugin: agile-backlog-toolkit
   version: "0.6.0"
-  argument-hint: "--type <epic|feature|user-story> --source <url|path|text> [--parent <id>] [--attachment <url|path>]"
+  argument-hint: "--type <epic|feature|user-story|task> --source <url|path|text> [--parent <id>] [--attachment <url|path>]"
 allowed-tools: >
   Read Write Edit Glob Grep Bash
   mcp__azure-devops__wit_get_work_item
@@ -30,22 +30,21 @@ allowed-tools: >
 Conductor for applying the **enricher pattern** to an existing work-item description. Load references
 as each phase needs them.
 
-References (start at `./references/pipeline.md`):
+References (start at `../../common/workflows/enrich-work-item.md`):
 
-- `./references/pipeline.md` — type map, enricher routing, artifacts paths.
+- `../../common/workflows/enrich-work-item.md` — type map, enricher routing, artifacts paths.
 - `./references/azure-ingest.md` — Azure URL/id ingest: work item, attachments, description refs.
-- `./references/output-formats.md` — per-type output contracts (points to enrichers).
-- `./references/canonical/` — **read-only shape contracts** (`canonical-epic.md`,
-  `canonical-feature.md`, `canonical-user-story.md`). Do not edit these files; validate enriched
+- `../../common/contracts/enrich-work-item/output-formats.md` — per-type output contracts.
+- `../../common/contracts/enrich-work-item/` — **read-only shape contracts**. Validate enriched
   output against the matching template before presenting.
-- `./references/enrichers/` — **authoritative** prose rules:
+- `../../common/workflows/enrichers/` — **authoritative** prose rules:
   - `epic-enricher.prompt.md`, `feature-enricher.prompt.md`, `work-item-enricher.prompt.md`
-- `./references/blueprints/` — spec forms for optional analysis artifacts path in `<artifacts>/Specs/`.
+- `../../common/specs/enrich-work-item/` — spec forms for optional analysis artifacts.
 - `./references/examples/` — illustrative dummy outputs (content reference only; shape contract is
   `./references/canonical/`).
 - `../../references/decomposition-rules.md` — hierarchy, story-point heuristic.
 - `../../references/ticket-structure.md` — draft file constraints.
-- `../../references/azure-mechanics.md` — create/update MCP calls + gotchas.
+- `../../common/providers.md` — neutral artifact contract and provider translations.
 - `../generate-plain-language-documentation/references/integration-notes.md` — prose polish sub-pass
   (PHASE 4).
 
@@ -60,7 +59,7 @@ Gather inputs **one at a time** via the host UI. Each step: brief purpose, requi
 | Input | Required | Purpose |
 | --- | --- | --- |
 | `source` | yes | `url` \| local `path` \| pasted `text` — the material to enrich |
-| `work_item_type` | yes | `epic` \| `feature` \| `user-story` |
+| `work_item_type` | yes | `epic` \| `feature` \| `user-story` \| `task` |
 | `parent` | when type ≠ epic | Parent id or Azure URL for hierarchy context |
 | `attachment` | no | Extra doc URL or path |
 
@@ -68,8 +67,8 @@ Accept `/enrich-work-item` flags or conversational inference (see Examples).
 
 Normalize type → enricher + Azure `workItemType` per `pipeline.md`.
 
-Resolve the artifacts path with `bin/agile-workflow config --show`, which reads
-`.agile-workflow/config.json` and falls back to older locations. See
+Resolve the artifacts path with `bin/agile-backlog-toolkit config --show`, which reads
+`.agile-backlog-toolkit/config.json` and falls back to older locations. See
 `../../references/project-config.md`.
 
 ---
@@ -96,15 +95,16 @@ Read `./references/azure-ingest.md` when `source` is an Azure DevOps URL or nume
 
 ## PHASE 2 — ROUTE ENRICHER
 
-Read `./references/output-formats.md` and the matching enricher:
+Read the common output contract and matching enricher:
 
 | `work_item_type` | Enricher |
 | --- | --- |
 | `epic` | `enrichers/epic-enricher.prompt.md` |
 | `feature` | `enrichers/feature-enricher.prompt.md` |
 | `user-story` | `enrichers/work-item-enricher.prompt.md` |
+| `task` | `enrichers/task-enricher.prompt.md` |
 
-Load enricher prompts from `./references/enrichers/` — bundled with the skill; no local override.
+Load enricher prompts from `../../common/workflows/enrichers/`.
 
 Follow enricher **Contexto Obrigatório** when host monorepo docs exist; skip gracefully when absent.
 
@@ -114,7 +114,7 @@ For user-story sources, classify Bug vs User Story per enricher §1 keywords whe
 
 ## PHASE 3 — WRITE SPEC (optional artifacts path)
 
-When the user will persist to the Codex artifacts path, fill the matching `./references/blueprints/spec-*.md`
+When the user will persist locally, fill the matching common `spec-*.md`
 into `<artifacts>/Specs/[<parent-id>-]<kebab-slug>-spec.md`. Skip when destination is chat-only.
 
 ---
@@ -132,7 +132,7 @@ when locale is pt-BR.
 
 Run the enricher **Checklist de Auto-Revisão** before presenting.
 
-Compare shape against `./references/canonical/canonical-<type>.md` (read-only contract; do not
+Compare shape against `../../common/contracts/enrich-work-item/canonical-<type>.md` (read-only contract; do not
 edit). Use `./references/examples/example-<type>.md` only for illustrative content patterns.
 
 Present the enriched markdown in chat. Suggest a title outside the markdown block when the enricher
@@ -146,31 +146,27 @@ requires it (work-item enricher).
 
 Then ask **where to persist** (if not already chosen):
 
-1. **Azure DevOps** — create or update work item with enriched body as Description (Markdown).
-2. **Local artifacts** — write/update local draft under `Tickets/Ready/` (or host path).
-3. **Chat only** — formatted markdown ready to copy.
+1. **Azure DevOps** — create or update a native work item.
+2. **Linear** — create or update an issue with `parentId` and its managed Agile label.
+3. **Local artifacts** — write or update the neutral draft.
+4. **Chat only** — formatted markdown ready to copy.
 
 If no destination was named and the user wants chat-only, skip local/Azure unless they approve artifacts path
 save.
 
 ---
 
-## PHASE 6 — PERSIST (Azure / artifacts path)
+## PHASE 6 — PERSIST
 
-**Azure** — per `azure-mechanics.md`:
-
-- **Create** when no existing Azure id: `wit_create_work_item` + `wit_work_items_link` with
-  `type: "parent"` when parent required.
-- **Update** when source was an Azure id or draft with `azure_id`: `wit_update_work_item`.
-
-**Artifacts** — frontmatter per `ticket-structure.md`; hook-valid filename; enriched body verbatim.
+Translate the common contract through the selected provider per `../../common/providers.md`.
+Artifacts use only `provider`, string `provider_id`, and string `parent_id`.
 
 ---
 
 ## PHASE 7 — VERIFY
 
-When Azure was used: read-back parent link and description fidelity. Update the draft's `azure_id` and
-rename file when creating new items.
+When a remote provider was used, read back the parent and description. Update the draft's neutral
+provider identity fields when creating new items.
 
 On failure: STOP and report.
 

@@ -35,7 +35,7 @@ Always load **both** before drafting the plan:
 
 1. **Parent Feature body**
    - Azure: follow `System.Parent` / parent relation; `wit_get_work_item` on the Feature id
-   - Artifacts: `parent_feature_artifacts path`, `parent_feature`, or Features/ path from frontmatter / links
+   - Artifacts: `parent_id_artifacts path`, `parent_id`, or Features/ path from frontmatter / links
    - If parent Feature cannot be resolved: STOP and ask once for the Feature id or artifacts path
 2. **User Story body** — title, description/sections, assignee when present
 
@@ -49,14 +49,14 @@ Capture a normalized record:
     body: string
     assignee: string | null
     acceptance_criteria: string[]   // verbatim lines; never invent
-    azure_id: number | null
+    provider_id: number | null
     source: "artifacts path" | "azure" | "filesystem"
   }
   feature: {
     id_or_path: string
     title: string
     body: string
-    azure_id: number | null
+    provider_id: number | null
   }
   language: "en" | "pt-BR" | "other:<text>"   // from intake
   destination: ...                           // from intake (unused until persist)
@@ -99,7 +99,7 @@ Do not create Azure or artifacts path Task work items in this phase.
 
 ### Artifacts path and frontmatter
 
-Resolve the artifacts root with `bin/agile-workflow config --show`. If unset, ASK the user where
+Resolve the artifacts root with `bin/agile-backlog-toolkit config --show`. If unset, ASK the user where
 plans should go and save it with `config --set artifacts_path=<path>`. Never guess a location, and
 never create a directory structure the user did not ask for.
 

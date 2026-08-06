@@ -2,12 +2,12 @@
 
 Where the plugin keeps per-project settings, and how a skill fills in a value that is missing.
 
-## The plugin owns nothing but `.agile-workflow/`
+## The plugin owns nothing but `.agile-backlog-toolkit/`
 
 Two locations, and they must not be confused:
 
 ```
-<project>/.agile-workflow/          plugin-owned. Created by the plugin.
+<project>/.agile-backlog-toolkit/          plugin-owned. Created by the plugin.
 ├── config.json                       settings
 ├── estimation.json                   optional: team's points→hours bands
 ├── mistakes.json                     retry-loop memory
@@ -26,7 +26,7 @@ shared drive: it reads markdown frontmatter from it and nothing more.
 
 ## The file
 
-`.agile-workflow/config.json`:
+`.agile-backlog-toolkit/config.json`:
 
 ```json
 {
@@ -58,15 +58,15 @@ Earlier sources win. Projects configured by earlier versions still resolve:
      AGILE_WORKFLOW_ARTIFACTS_PATH
      AGILE_WORKFLOW_AZURE_ORG / AZURE_DEVOPS_ORG / ADO_ORG
      ...PROJECT, ...TEAM, ...PROCESS
-2. .agile-workflow/config.json          <- canonical
-3. .agile-workflow.install.json         <- install receipt
+2. .agile-backlog-toolkit/config.json          <- canonical
+3. .agile-backlog-toolkit.install.json         <- install receipt
 4. .mcp.json / .cursor/mcp.json         <- org, from the MCP command arguments
 ```
 
 ## Reading it
 
 ```bash
-bin/agile-workflow config --show
+bin/agile-backlog-toolkit config --show
 ```
 
 Prints every resolved value, where it came from, and whether the artifacts directory exists yet.
@@ -80,7 +80,7 @@ Anything not captured at install time is filled the first time a skill needs it.
 work should go. Ask once, then persist:
 
 ```bash
-bin/agile-workflow config --set artifacts_path=<path>
+bin/agile-backlog-toolkit config --set artifacts_path=<path>
 ```
 
 **For Azure values: discover, then confirm.** These are lookups, so nobody should type a slug:

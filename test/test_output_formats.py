@@ -17,10 +17,11 @@ from orchestrator_core.output_formats import (
 
 ROOT = Path(__file__).resolve().parent.parent
 SKILLS = ROOT / "agile-workflow" / "skills"
+COMMON_CONTRACTS = ROOT / "agile-workflow" / "common" / "contracts"
 
 
 def _read_canonical(skill: str, name: str) -> str:
-    return (SKILLS / skill / "references" / "canonical" / name).read_text(encoding="utf-8")
+    return (COMMON_CONTRACTS / skill / name).read_text(encoding="utf-8")
 
 
 def _read_example(skill: str, name: str) -> str:
@@ -147,7 +148,7 @@ COMPLIANT_REPORT = _read_canonical("validate-artifact", "canonical-validation-re
 
 class TestGenerateWorkItemFormat(unittest.TestCase):
     def test_canonical_templates_pass(self) -> None:
-        for name in ("canonical-epic.md", "canonical-feature.md", "canonical-user-story.md"):
+        for name in ("canonical-epic.md", "canonical-feature.md", "canonical-user-story.md", "canonical-task.md"):
             body = _read_canonical("generate-work-item", name)
             result = validate_generate_work_item_body(body)
             self.assertTrue(result.ok, msg=f"{name}: {result.errors}")

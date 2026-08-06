@@ -144,9 +144,9 @@ class TestPlanCapacityHandler(unittest.TestCase):
         self.assertIn("plan-capacity", HANDLERS)
 
     def _run(self, arguments, project_root, *, artifacts_path=None):
-        """state_dir is <project>/.agile-workflow; the handler derives the root from it."""
+        """state_dir is <project>/.agile-backlog-toolkit; the handler derives the root from it."""
         root = Path(project_root)
-        state_dir = root / ".agile-workflow"
+        state_dir = root / ".agile-backlog-toolkit"
         state_dir.mkdir(parents=True, exist_ok=True)
         if artifacts_path:
             update_config(root, artifacts_path=artifacts_path)
@@ -225,7 +225,7 @@ class TestPlanCapacityHandler(unittest.TestCase):
             root = Path(tmpdir)
             self._run({"provider": "filesystem"}, root)
             created = {p.name for p in root.iterdir()}
-            self.assertEqual(created, {".agile-workflow"})
+            self.assertEqual(created, {".agile-backlog-toolkit"})
 
 
 if __name__ == "__main__":

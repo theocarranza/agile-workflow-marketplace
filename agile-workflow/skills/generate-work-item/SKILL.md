@@ -1,21 +1,21 @@
 ---
 name: generate-work-item
 description: >
-  Generates a raw Epic, Feature, or User Story work item from a title and description: requirement
+  Generates a raw Epic, Feature, User Story, or Task work item from a title and description: requirement
   bullets, acceptance criteria, Context7 research, a Specs note, and a Tickets/Ready draft; creates
-  the Azure DevOps item after approval. Use when the user runs /generate-work-item, says "start
+  the selected local, Azure DevOps, or Linear item after approval. Use when the user runs /generate-work-item, says "start
   ticket", "create a ticket", "create an issue", "create a user story", "create a feature",
   "create an epic", "generate a work item", or provides a work-item type plus a problem to turn
   into backlog work. For team-format enrichment (emoji sections, story-point drivers), use
   enrich-work-item instead. For plain-language requirement and acceptance-criteria prose, this skill
   delegates a sub-pass to generate-plain-language-documentation in PHASE 4.
 license: MIT
-compatibility: Requires Context7 MCP and Azure DevOps MCP; a configured artifacts path when persisting locally.
+compatibility: Requires Context7 MCP; provider connectors are optional; a configured artifacts path when persisting locally.
 metadata:
-  plugin: agile-workflow
+  plugin: agile-backlog-toolkit
   version: "0.5.0"
   orchestrator-manifest: "true"
-  argument-hint: "--type <epic|feature|user-story> --title \"...\" --description \"...\" [--parent <id>] [--attachment <url|path>]"
+  argument-hint: "--type <epic|feature|user-story|task> --title \"...\" --description \"...\" [--parent <id>] [--attachment <url|path>]"
 allowed-tools: >
   Read Write Edit Glob Grep Bash
   mcp__azure-devops__wit_get_work_item
@@ -29,21 +29,20 @@ allowed-tools: >
 # Generate Work Item
 
 Conductor for turning a title + description into a **raw** spec, local draft, and (on approval)
-Azure DevOps work item. Load references as each phase needs them — this file is the score, not the
+provider work item. Load references as each phase needs them — this file is the score, not the
 textbook.
 
-References (start at `./references/pipeline.md`):
+References (start at `../../common/workflows/generate-work-item.md`):
 
-- `./references/pipeline.md` — type map, artifacts paths, Context7 protocol.
-- `./references/output-formats.md` — **uniform ticket body** (required before PHASE 5).
-- `./references/canonical/` — **read-only shape contracts** (`canonical-epic.md`,
-  `canonical-feature.md`, `canonical-user-story.md`). Do not edit these files; validate every draft
+- `../../common/workflows/generate-work-item.md` — type map, artifacts paths, Context7 protocol.
+- `../../common/contracts/generate-work-item/output-formats.md` — **uniform ticket body**.
+- `../../common/contracts/generate-work-item/` — **read-only shape contracts**. Validate every draft
   against the matching template before presenting.
-- `./references/blueprints/` — spec forms written to `<artifacts>/Specs/`:
+- `../../common/specs/generate-work-item/` — spec forms written to `<artifacts>/Specs/`:
   - `spec-epic.md`, `spec-feature.md`, `spec-work-item.md`
 - `../../references/decomposition-rules.md` — hierarchy and parent rules.
 - `../../references/ticket-structure.md` — draft file constraints (frontmatter, filename).
-- `../../references/azure-mechanics.md` — create/link MCP calls + gotchas.
+- `../../common/providers.md` — neutral artifact contract and provider translations.
 - `../generate-plain-language-documentation/references/integration-notes.md` — prose polish sub-pass
   (PHASE 4).
 
@@ -62,7 +61,7 @@ Gather inputs **one at a time** via the host UI. Each step: brief purpose, requi
 | --- | --- | --- |
 | `title` | yes | Short work-item title |
 | `description` | yes | Problem statement or scope in the author's words |
-| `work_item_type` | yes | `epic` \| `feature` \| `user-story` |
+| `work_item_type` | yes | `epic` \| `feature` \| `user-story` \| `task` |
 | `parent` | when type ≠ epic | Parent id or Azure URL (Epic→Feature, Feature→Story) |
 | `attachment` | no | Supporting doc URL or artifacts path |
 | `language` | no | `en` \| `pt-br`, default **pt-BR**. When omitted, follow the existing Locale rule (match
@@ -70,19 +69,20 @@ Gather inputs **one at a time** via the host UI. Each step: brief purpose, requi
 
 Also accept flags from `/generate-work-item` or conversational inference (see Examples).
 
-Normalize type → Azure `workItemType`:
+Normalize the Agile type and immediate parent:
 
-| Input | Azure type | Parent required |
+| Input | Work item type | Parent required |
 | --- | --- | --- |
 | `epic` | Epic | no |
 | `feature` | Feature | Epic id |
 | `user-story` | User Story | Feature id |
+| `task` | Task | User Story id |
 
 If `parent` is missing when required: STOP and ask once. If parent type mismatches hierarchy: STOP
 and report (see `decomposition-rules.md`).
 
-Resolve the artifacts path with `bin/agile-workflow config --show`, which reads
-`.agile-workflow/config.json` and falls back to older locations. See
+Resolve the artifacts path with `bin/agile-backlog-toolkit config --show`, which reads
+`.agile-backlog-toolkit/config.json` and falls back to older locations. See
 `../../references/project-config.md`.
 
 ---
@@ -90,8 +90,8 @@ Resolve the artifacts path with `bin/agile-workflow config --show`, which reads
 ## PHASE 1 — INGEST
 
 1. Record normalized inputs.
-2. If `parent` provided: `wit_get_work_item(id=<parent>, expand=relations)` — capture title,
-   description, type, and chain. Verify parent type matches hierarchy.
+2. If `parent` is provided, read it through the selected provider connector. Capture title,
+   description, type, and chain. Verify parent type matches the common hierarchy.
 3. If `attachment` is a path: read it. If URL: fetch or summarize. Note failures in spec References.
 
 ---
@@ -110,13 +110,14 @@ Output: research bundle for the spec blueprint.
 
 ## PHASE 3 — WRITE SPEC
 
-Pick blueprint from `./references/blueprints/`:
+Pick blueprint from `../../common/specs/generate-work-item/`:
 
 | `work_item_type` | Blueprint |
 | --- | --- |
 | `epic` | `spec-epic.md` |
 | `feature` | `spec-feature.md` |
 | `user-story` | `spec-work-item.md` |
+| `task` | `spec-work-item.md` |
 
 Write to `<artifacts>/Specs/<prefix>-<kebab-slug>-spec.md`. Populate all sections from inputs + research.
 **Do not skip** — spec is the analysis artifacts path.
@@ -125,7 +126,7 @@ Write to `<artifacts>/Specs/<prefix>-<kebab-slug>-spec.md`. Populate all section
 
 ## PHASE 4 — GENERATE DRAFT
 
-**Read `./references/output-formats.md` and the matching `./references/canonical/canonical-*.md`
+**Read `../../common/contracts/generate-work-item/output-formats.md` and the matching canonical contract
 first.** Every draft uses the **same** body shape (canonical templates are immutable — conform, do
 not modify):
 
@@ -141,8 +142,8 @@ Path: `<artifacts>/Tickets/Ready/<prefix>-<kebab-slug>.md` only — never artifa
 run a `work-item-prose` pass on `## Requisitos` and `## Critérios de Aceite` (glossary verification
 when locale is pt-BR).
 
-Frontmatter per `ticket-structure.md`: `type: ticket`, no `status:` key; filename regex
-`^(\d+|tech-debt|bug|task|spike)-[a-z0-9-]+$` (prefix with parent Feature id until Azure assigns id).
+Frontmatter uses `provider`, string `provider_id`, and string `parent_id` per `ticket-structure.md`.
+Never emit legacy provider-specific identity fields.
 
 Present title, requirements, acceptance criteria, spec path, and draft path in chat.
 
@@ -155,31 +156,30 @@ Silence is not approval.
 
 Then ask **where to persist** (if the user has not already chosen):
 
-1. **Azure DevOps** — create work item + link parent.
-2. **Local artifacts** — keep local spec + `Tickets/Ready/` draft only.
-3. **Chat only** — formatted markdown ready to copy (no local/Azure writes).
+1. **Azure DevOps** — create a native work item and parent relation.
+2. **Linear** — create an issue with `parentId` and its managed `agile:*` type label.
+3. **Local artifacts** — keep the neutral spec and draft only.
+4. **Chat only** — formatted markdown ready to copy.
 
 If the user named no destination and wants chat-only output, skip local/Azure unless they approve
 artifacts path persistence.
 
 ---
 
-## PHASE 6 — CREATE (Azure DevOps)
+## PHASE 6 — CREATE (selected provider)
 
-When destination includes Azure, per `azure-mechanics.md`:
-
-1. `wit_create_work_item` with matching `workItemType`; **Description in Markdown** (draft body).
-2. If parent required: `wit_work_items_link` with **`type: "parent"`** explicit.
-3. Set Story Points at creation for User Story when supported.
+Translate through `../../common/providers.md`. Azure uses native work item types and parent relations.
+Linear uses issues, immediate `parentId`, and exactly one managed Agile type label. Local persistence
+keeps the common frontmatter unchanged.
 
 ---
 
 ## PHASE 7 — VERIFY
 
-When Azure was used:
+When a remote provider was used:
 
-1. `wit_get_work_item` read-back — assert `System.Parent == <expected parent>` when applicable.
-2. Update local draft: set `azure_id` in frontmatter; rename to `<azure-id>-<slug>.md`.
+1. Read the item back and assert its type, title, description, and immediate parent.
+2. Update the local draft with `provider` and string `provider_id`.
 3. Update spec frontmatter `ticket` with new id when applicable.
 
 On assertion failure: STOP and report — do not claim success.

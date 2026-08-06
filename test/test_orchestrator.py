@@ -22,7 +22,9 @@ RAW_GENERATE_STORY = """\
 date: 2026-07-08
 type: ticket
 work_item_type: User Story
-parent_feature: 6869
+provider: filesystem
+provider_id: local-6869
+parent_id: 6868
 tags: [ticket, user-story]
 ---
 
@@ -144,7 +146,7 @@ class TestOrchestratorEngine(unittest.TestCase):
         skills_dir = Path(__file__).resolve().parent.parent / "agile-workflow" / "skills"
         with tempfile.TemporaryDirectory() as tmp:
             project_root = Path(tmp)
-            state_dir = project_root / ".agile-workflow"
+            state_dir = project_root / ".agile-backlog-toolkit"
             state_dir.mkdir()
             engine = OrchestratorEngine(
                 skills_dir=skills_dir,
@@ -162,7 +164,7 @@ class TestOrchestratorEngine(unittest.TestCase):
         skills_dir = Path(__file__).resolve().parent.parent / "agile-workflow" / "skills"
         with tempfile.TemporaryDirectory() as tmp:
             project_root = Path(tmp)
-            state_dir = project_root / ".agile-workflow"
+            state_dir = project_root / ".agile-backlog-toolkit"
             state_dir.mkdir()
             engine = OrchestratorEngine(
                 skills_dir=skills_dir,

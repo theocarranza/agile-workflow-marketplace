@@ -15,10 +15,16 @@ from typing import Any
 from .azure_devops import AzureDevOpsProvider
 from .base import ProviderResult, WorkItemWriter, WriteOp
 from .filesystem import FilesystemProvider
+from .linear import LinearProvider
+from .work_items import AzureWorkItemAdapter, LinearWorkItemAdapter, ProviderCreateRequest
 
 __all__ = [
     "AzureDevOpsProvider",
     "FilesystemProvider",
+    "LinearProvider",
+    "AzureWorkItemAdapter",
+    "LinearWorkItemAdapter",
+    "ProviderCreateRequest",
     "PROVIDERS",
     "ProviderResult",
     "WorkItemWriter",
@@ -29,6 +35,7 @@ __all__ = [
 PROVIDERS = {
     AzureDevOpsProvider.name: AzureDevOpsProvider,
     FilesystemProvider.name: FilesystemProvider,
+    LinearProvider.name: LinearProvider,
 }
 
 DEFAULT_PROVIDER = FilesystemProvider.name
