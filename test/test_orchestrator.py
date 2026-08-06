@@ -143,7 +143,7 @@ class TestArtifactValidator(unittest.TestCase):
 
 class TestOrchestratorEngine(unittest.TestCase):
     def test_validate_artifact_warn_only_completes(self) -> None:
-        skills_dir = Path(__file__).resolve().parent.parent / "agile-backlog-toolkit" / "skills"
+        skills_dir = Path(__file__).resolve().parent.parent / "skills"
         with tempfile.TemporaryDirectory() as tmp:
             project_root = Path(tmp)
             state_dir = project_root / ".agile-backlog-toolkit"
@@ -161,7 +161,7 @@ class TestOrchestratorEngine(unittest.TestCase):
             self.assertTrue(result.ok, result.error)
 
     def test_evaluate_file_warn_only_passes(self) -> None:
-        skills_dir = Path(__file__).resolve().parent.parent / "agile-backlog-toolkit" / "skills"
+        skills_dir = Path(__file__).resolve().parent.parent / "skills"
         with tempfile.TemporaryDirectory() as tmp:
             project_root = Path(tmp)
             state_dir = project_root / ".agile-backlog-toolkit"

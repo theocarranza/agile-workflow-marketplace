@@ -9,8 +9,8 @@ __pycache__/
 .agentic/workflow_prompts/*.prompt.md
 .agentic/workflow_prompts/*.error.log
 .agile-backlog-toolkit/
+dist/
+.pytest_cache/
 
-# The plugin ships its own MCP server declaration. Contributors commonly ignore
-# `.mcp.json` globally, since it is a per-project file everywhere else -- that
-# would drop this one from commits without ever saying so.
-!agile-backlog-toolkit/.mcp.json
+# The plugin ships its own MCP server declaration.
+!.mcp.json

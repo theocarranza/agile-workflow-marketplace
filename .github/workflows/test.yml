@@ -7,6 +7,21 @@ on:
   workflow_dispatch:
 
 jobs:
+  packaging:
+    name: packaging lockstep
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate manifests and skill frontmatter
+        run: ./scripts/validate.sh
+      - name: Adapter unit tests
+        run: python3 -m unittest discover -s adapters/tests -v
+      - name: Build all host marketplaces
+        run: ./scripts/build_all.sh
+
   pytest:
     name: pytest (python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
@@ -30,7 +45,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install pytest
-          PYTHONPATH=agile-backlog-toolkit python -m pytest test/ -q
+          PYTHONPATH=. python -m pytest test/ -q
 
   skills:
     name: skill manifests

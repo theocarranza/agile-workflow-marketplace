@@ -1,45 +1,60 @@
 #!/usr/bin/env bash
-# Agile Backlog Toolkit — one-shot installer
-# Works from a local checkout OR when piped:
-#   curl -fsSL …/install.sh | bash -s -- -y --azure-org <org> --project-dir <path>
+# Prefer host adapters (Open Plugins marketplace builds). Legacy flags are forwarded
+# to scripts/install.py. Project MCP-only wiring: scripts/wire-project-mcp.py.
 set -euo pipefail
 
-REPO_URL="${AGILE_BACKLOG_TOOLKIT_REPO:-https://github.com/theocarranza/agile-workflow-marketplace.git}"
-REPO_REF="${AGILE_BACKLOG_TOOLKIT_REF:-main}"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+REPO="${PLUGIN_INSTALL_REPO:-theocarranza/agile-workflow-marketplace}"
+REF="${PLUGIN_INSTALL_REF:-main}"
 
-resolve_local_root() {
-  local src dir
-  src="${BASH_SOURCE[0]:-}"
-  # curl|bash -s: no real script path on disk
-  if [[ -z "$src" || "$src" == "bash" || "$src" == "-" || ! -f "$src" ]]; then
-    return 1
-  fi
-  dir="$(cd "$(dirname "$src")" && pwd)"
-  if [[ -f "$dir/scripts/install.py" ]]; then
-    printf '%s\n' "$dir"
-    return 0
-  fi
-  return 1
+usage() {
+  cat <<EOF
+Install agile-backlog-toolkit via a host adapter:
+
+  # Cursor
+  curl -fsSL https://raw.githubusercontent.com/${REPO}/${REF}/adapters/cursor/install.sh \\
+    | bash -s -- --repo ${REPO} --ref ${REF}
+
+  # Claude Code
+  curl -fsSL https://raw.githubusercontent.com/${REPO}/${REF}/adapters/claude/install.sh \\
+    | bash -s -- --repo ${REPO} --ref ${REF}
+
+  # Codex
+  curl -fsSL https://raw.githubusercontent.com/${REPO}/${REF}/adapters/codex/install.sh \\
+    | bash -s -- --repo ${REPO} --ref ${REF}
+
+From a local checkout:
+
+  bash ${ROOT}/adapters/cursor/install.sh
+  bash ${ROOT}/adapters/claude/install.sh
+  bash ${ROOT}/adapters/codex/install.sh
+
+Optional project MCP wiring (Azure/Linear + orchestrator env):
+
+  python3 ${ROOT}/scripts/wire-project-mcp.py --project-dir /path/to/project --provider local
+
+Legacy full installer (host registration + project wiring; accepts --azure-org, -y, …):
+
+  python3 ${ROOT}/scripts/install.py --help
+  # or: bash install.sh --azure-org <org> -y …
+EOF
 }
 
-if ROOT="$(resolve_local_root)"; then
-  exec python3 "$ROOT/scripts/install.py" "$@"
-fi
-
-# Remote bootstrap: shallow-clone, run installer, then remove the temp checkout
-if ! command -v git >/dev/null 2>&1; then
-  echo "error: git is required for curl|bash install (or clone the repo and run ./install.sh)" >&2
-  exit 1
-fi
-if ! command -v python3 >/dev/null 2>&1; then
-  echo "error: python3 is required" >&2
-  exit 1
-fi
-
-TMP="$(mktemp -d "${TMPDIR:-/tmp}/agile-backlog-toolkit-install.XXXXXX")"
-cleanup() { rm -rf "$TMP"; }
-trap cleanup EXIT
-
-echo "[*] Bootstrapping from ${REPO_URL}@${REPO_REF} …"
-git clone --depth 1 --branch "$REPO_REF" "$REPO_URL" "$TMP/repo"
-python3 "$TMP/repo/scripts/install.py" "$@"
+case "${1:-}" in
+  -h|--help|"")
+    usage
+    ;;
+  cursor|claude|codex)
+    host="$1"
+    shift
+    exec bash "${ROOT}/adapters/${host}/install.sh" "$@"
+    ;;
+  -*)
+    exec python3 "${ROOT}/scripts/install.py" "$@"
+    ;;
+  *)
+    echo "error: unknown host '${1}'. Use cursor, claude, or codex (or --help)." >&2
+    usage >&2
+    exit 2
+    ;;
+esac

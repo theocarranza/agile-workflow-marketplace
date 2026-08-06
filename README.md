@@ -6,7 +6,7 @@
 [![Agent Skills](https://img.shields.io/badge/spec-agentskills.io-5C2D91)](https://agentskills.io/specification)
 [![skills.sh](https://img.shields.io/badge/listed-skills.sh-000000)](https://skills.sh/)
 
-[![Python](https://img.shields.io/badge/python-3.12+-3776AB?logo=python&logoColor=white)](agile-backlog-toolkit/orchestrator_core/)
+[![Python](https://img.shields.io/badge/python-3.12+-3776AB?logo=python&logoColor=white)](orchestrator_core/)
 [![Bash](https://img.shields.io/badge/bash-install.sh-4EAA25?logo=gnubash&logoColor=white)](install.sh)
 [![Markdown](https://img.shields.io/badge/format-SKILL.md-000000?logo=markdown)](https://agentskills.io/specification)
 [![Azure DevOps](https://img.shields.io/badge/Azure%20DevOps-MCP-0078D4?logo=azuredevops&logoColor=white)](.mcp.json)
@@ -16,6 +16,31 @@
 A standalone multi-host plugin marketplace for vendor-neutral Agile backlog workflows.
 
 Nine [Agent Skills](https://agentskills.io/specification)-compliant conductors plus a deterministic **Python orchestrator** for quality gates. Ships Claude Code, Cursor, Codex, and Antigravity (IDE and CLI) plugin manifests, and MCP wiring. For the current release see [`CHANGELOG.md`](CHANGELOG.md).
+
+
+## Install (host adapters)
+
+```bash
+# Cursor
+curl -fsSL https://raw.githubusercontent.com/theocarranza/agile-workflow-marketplace/main/adapters/cursor/install.sh \
+  | bash -s -- --repo theocarranza/agile-workflow-marketplace --ref main
+
+# Claude Code
+curl -fsSL https://raw.githubusercontent.com/theocarranza/agile-workflow-marketplace/main/adapters/claude/install.sh \
+  | bash -s -- --repo theocarranza/agile-workflow-marketplace --ref main
+
+# Codex
+curl -fsSL https://raw.githubusercontent.com/theocarranza/agile-workflow-marketplace/main/adapters/codex/install.sh \
+  | bash -s -- --repo theocarranza/agile-workflow-marketplace --ref main
+```
+
+Optional project MCP wiring (orchestrator env + Azure/Linear):
+
+```bash
+python3 scripts/wire-project-mcp.py --project-dir /path/to/project --provider local
+```
+
+See `./install.sh --help` for the same entry points. The flat plugin root is an [Open Plugins](https://open-plugins.com/plugin-builders/specification) package (`.plugin/plugin.json`).
 
 ## Install
 
@@ -208,7 +233,7 @@ remaining hours, the run stops and asks — split, reschedule, reassign, or redu
 are never scaled down to fit, because that would misrepresent how long the work takes. Your team's
 capacity settings themselves are read to do the arithmetic and never modified.
 
-Full reference: [agile-backlog-toolkit/references/estimation.md](agile-backlog-toolkit/references/estimation.md).
+Full reference: [references/estimation.md](references/estimation.md).
 
 ## Configuration
 
@@ -233,7 +258,7 @@ exits non-zero when something required is missing, so it also works as a precond
 work and creates no directory structure in your project. The only directory it owns is
 `.agile-backlog-toolkit/` — its own config, reports, and memory.
 
-Full reference: [agile-backlog-toolkit/references/project-config.md](agile-backlog-toolkit/references/project-config.md).
+Full reference: [references/project-config.md](references/project-config.md).
 
 ## Plugin: `agile-backlog-toolkit`
 
@@ -379,7 +404,7 @@ the host's native skills directory.
 Skills reference the shared read-only contracts in `common/templates/` and retain only
 skill-specific blueprints and pipelines.
 
-Each skill follows the [Agent Skills open standard](https://agentskills.io/specification): root `skills/<name>/SKILL.md` (symlinked to `agile-backlog-toolkit/skills/`) with `name`, `description`, `license`, optional `references/`, and progressive disclosure. Repo page grouping: `skills.sh.json`. Licensed under [MIT](LICENSE).
+Each skill follows the [Agent Skills open standard](https://agentskills.io/specification): root `skills/<name>/SKILL.md` with `name`, `description`, `license`, optional `references/`, and progressive disclosure. Repo page grouping: `skills.sh.json`. Licensed under [MIT](LICENSE).
 
 Validate all skills:
 
@@ -389,7 +414,7 @@ Validate all skills:
 
 ## Shared references
 
-All skills share a common reference library at `agile-backlog-toolkit/references/`:
+All skills share a common reference library at `references/`:
 
 | File | Purpose |
 | --- | --- |
@@ -406,13 +431,13 @@ All skills share a common reference library at `agile-backlog-toolkit/references
 | --- | --- |
 | [docs/design.md](docs/design.md) | `decompose-backlog` skill design |
 | [docs/orchestrator.md](docs/orchestrator.md) | Deterministic orchestrator runtime (v0.4.0+) |
-| [agile-backlog-toolkit/references/estimation.md](agile-backlog-toolkit/references/estimation.md) | Estimation and sprint capacity |
-| [agile-backlog-toolkit/references/project-config.md](agile-backlog-toolkit/references/project-config.md) | Per-project configuration |
+| [references/estimation.md](references/estimation.md) | Estimation and sprint capacity |
+| [references/project-config.md](references/project-config.md) | Per-project configuration |
 | [CHANGELOG.md](CHANGELOG.md) | Release history |
 
 ## Development
 
 ```bash
-PYTHONPATH=agile-backlog-toolkit python3.12 -m pytest test/ -v
+PYTHONPATH=. python3.12 -m pytest test/ -v
 ./scripts/validate-skills.sh
 ```

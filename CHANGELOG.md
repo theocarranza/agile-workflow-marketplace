@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-08-06
+
+### Changed
+
+- **Flattened to Open Plugins layout.** Skills, `references/`, `orchestrator_core/`, `common/`, and `.mcp.json` live at the repository root (`source: "./"`). Nested `agile-backlog-toolkit/` packaging is gone.
+- **Host adapters** under `adapters/{cursor,claude,codex}/` build local marketplaces and provide curl installers, matching the agent-plugin-template packaging track.
+- **Version lockstep** via root `VERSION` (`0.12.0`) across `.plugin/`, `.cursor-plugin/`, `.claude-plugin/`, `.agents/plugins/`, and adapter templates.
+- **MCP path variable** is `${PLUGIN_ROOT}` (portable Open Plugins).
+- **Skill frontmatter is portable-only** (`name`, `description`, `license`). Host fields were removed from `SKILL.md`.
+- Root `install.sh` delegates to host adapters; project MCP wiring is available via `scripts/wire-project-mcp.py`.
+
+### Removed
+
+- **`.codex-plugin/`** — Codex marketplace index is `.agents/plugins/marketplace.json`.
+- Root `skills/` symlinks into a nested plugin tree (skills are real directories at the root).
+
 ## [0.11.0] - 2026-08-05
 
 ### Added

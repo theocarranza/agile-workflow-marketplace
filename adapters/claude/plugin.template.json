@@ -1,0 +1,32 @@
+{
+  "name": "agile-backlog-toolkit",
+  "version": "0.12.0",
+  "description": "Agile backlog toolkit for vendor-neutral work-item workflows. Skills: decompose-backlog, validate-artifact, auto-fix-artifact, split-story, generate-work-item, enrich-work-item, generate-plain-language-documentation, generate-breakdown-work-items, amend-workitems. Bundles the deterministic Python orchestrator as an MCP server for quality gates. Shared rules and provider-neutral guardrails. (Claude Code edition).",
+  "author": {
+    "name": "Th\u00e9o Carranza"
+  },
+  "license": "MIT",
+  "keywords": [
+    "agile",
+    "azure-devops",
+    "backlog",
+    "open-plugins",
+    "agent-skills",
+    "claude"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Agile Backlog Toolkit",
+    "shortDescription": "Vendor-neutral backlog skills with a deterministic orchestrator",
+    "longDescription": "Agile backlog toolkit for vendor-neutral work-item workflows. Skills: decompose-backlog, validate-artifact, auto-fix-artifact, split-story, generate-work-item, enrich-work-item, generate-plain-language-documentation, generate-breakdown-work-items, amend-workitems. Bundles the deterministic Python orchestrator as an MCP server for quality gates. Shared rules and provider-neutral guardrails.",
+    "developerName": "Th\u00e9o Carranza",
+    "category": "Development",
+    "capabilities": [
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Validate a backlog artifact with validate-artifact.",
+      "Generate a work item from a title and description."
+    ]
+  }
+}

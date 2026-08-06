@@ -12,7 +12,7 @@ from plain_language_helpers import (
 )
 
 ROOT = Path(__file__).resolve().parent.parent
-COMMON = ROOT / "agile-backlog-toolkit" / "common"
+COMMON = ROOT / "common"
 
 
 class TestIntegrationNotesContract(unittest.TestCase):

@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-PACKAGE = ROOT / "agile-backlog-toolkit"
+PACKAGE = ROOT
 TEMPLATES = PACKAGE / "common" / "templates"
 CANONICAL = (
     "canonical-epic.md",
@@ -34,7 +34,8 @@ class TestCanonicalTemplateLayout(unittest.TestCase):
             PACKAGE / "skills",
             PACKAGE / "orchestrator_core" / "providers",
             PACKAGE / ".claude-plugin",
-            PACKAGE / ".codex-plugin",
+            PACKAGE / ".cursor-plugin",
+            PACKAGE / ".plugin",
         )
         copied = tuple(
             path

@@ -16,8 +16,8 @@ from orchestrator_core.output_formats import (
 )
 
 ROOT = Path(__file__).resolve().parent.parent
-SKILLS = ROOT / "agile-backlog-toolkit" / "skills"
-COMMON = ROOT / "agile-backlog-toolkit" / "common"
+SKILLS = ROOT / "skills"
+COMMON = ROOT / "common"
 COMMON_TEMPLATES = COMMON / "templates"
 COMMON_CONTRACTS = COMMON / "contracts"
 

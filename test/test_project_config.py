@@ -56,7 +56,7 @@ class TestNoAssumedArtifactsLocation(ConfigTestCase):
         inside a client project that nobody asked for.
         """
         source = Path(__file__).resolve().parent.parent / (
-            "agile-backlog-toolkit/orchestrator_core/project_config.py"
+            "orchestrator_core/project_config.py"
         )
         names = re.findall(r'^([A-Z_]+)\s*=\s*[("\']', source.read_text(encoding="utf-8"), re.M)
         self.assertIn("PLUGIN_DIRNAME", names)
