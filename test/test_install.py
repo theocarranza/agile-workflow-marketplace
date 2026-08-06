@@ -101,6 +101,43 @@ class TestInstallHelpers(unittest.TestCase):
                     self.assertTrue((tree / "orchestrator_core" / "resource.txt").is_file())
                     self.assertFalse(any(path.is_symlink() for path in tree.rglob("*")))
 
+    def test_provider_host_matrix_materializes_complete_bundles_and_selected_mcp(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "source"
+            for dirname in ("common", "skills", "references", "orchestrator_core"):
+                (source / dirname).mkdir(parents=True)
+                (source / dirname / "resource.txt").write_text(dirname, encoding="utf-8")
+            for manifest in (".claude-plugin", ".codex-plugin"):
+                (source / manifest).mkdir()
+                (source / manifest / "plugin.json").write_text("{}", encoding="utf-8")
+            (source / ".mcp.json").write_text("{}", encoding="utf-8")
+            modes = {
+                "local": (False, False, set()),
+                "azure": (True, False, {"azure-devops"}),
+                "linear": (False, True, {"linear"}),
+                "both": (True, True, {"azure-devops", "linear"}),
+            }
+            for mode, (azure, linear, expected_servers) in modes.items():
+                for host in ("claude", "codex", "cursor"):
+                    with self.subTest(mode=mode, host=host):
+                        tree = assemble_host_tree(source, root / mode / host, host)
+                        claude, cursor = _mcp_server_payloads(
+                            proot=tree,
+                            project_dir=root / mode / "project",
+                            azure_org="org",
+                            tool_paths={"python3": "/usr/bin/python3", "npx": "/usr/bin/npx"},
+                            enable_azure=azure,
+                            enable_linear=linear,
+                        )
+                        self.assertTrue((tree / "common" / "resource.txt").is_file())
+                        self.assertEqual(
+                            set((cursor if host == "cursor" else claude)).intersection(
+                                {"azure-devops", "linear"}
+                            ),
+                            expected_servers,
+                        )
+
     @patch("scripts.install.Path.home")
     def test_non_interactive_replacement_aborts_without_mutation(self, mock_home) -> None:
         with tempfile.TemporaryDirectory() as tmp:
